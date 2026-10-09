@@ -1,0 +1,2 @@
+# Host-based www-to-apex redirects are not supported in Pages _redirects.
+# Configure a Cloudflare Redirect Rule after connecting both hostnames.
