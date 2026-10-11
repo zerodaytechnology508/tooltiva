@@ -18,7 +18,6 @@ export function generateToolJsonLd(tool: ToolMeta) {
     "creator": {
       "@type": "Organization",
       "name": "CodingTangent",
-      "url": "https://codingtangent.com",
     },
   };
 

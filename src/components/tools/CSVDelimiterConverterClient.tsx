@@ -136,6 +136,7 @@ export function CSVDelimiterConverterClient() {
               )}
             </label>
             <select
+              aria-label="Source separator"
               value={inputDelimiter}
               onChange={(e) => setInputDelimiter(e.target.value as CSVSeparator)}
               className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -166,6 +167,7 @@ export function CSVDelimiterConverterClient() {
               Target Separator
             </label>
             <select
+              aria-label="Target separator"
               value={targetDelimiter}
               onChange={(e) => setTargetDelimiter(e.target.value as "," | ";" | "\t" | "|" | ":" | "custom")}
               className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -195,6 +197,7 @@ export function CSVDelimiterConverterClient() {
               Field Quoting
             </label>
             <select
+              aria-label="Field quoting"
               value={quoteAllFields ? "all" : "needed"}
               onChange={(e) => setQuoteAllFields(e.target.value === "all")}
               className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -246,6 +249,7 @@ export function CSVDelimiterConverterClient() {
           </div>
 
           <textarea
+            aria-label="Input CSV or delimited text"
             value={inputCSV}
             onChange={(e) => setInputCSV(e.target.value)}
             placeholder="Paste your CSV data here, drag and drop a file, or click 'Load Semicolon Sample'..."
@@ -311,6 +315,7 @@ export function CSVDelimiterConverterClient() {
             />
           ) : (
             <textarea
+              aria-label="Converted CSV output"
               readOnly
               value={outputCSV}
               placeholder="Converted CSV output will appear here..."

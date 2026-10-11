@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://tooltiva.net/terms/",
   },
+  openGraph: {
+    title: "Terms of Service - Tooltiva",
+    description:
+      "Terms of service and fair usage guidelines for Tooltiva online tools.",
+    url: "https://tooltiva.net/terms/",
+  },
 };
 
 export default function TermsPage() {

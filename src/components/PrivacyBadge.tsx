@@ -15,9 +15,9 @@ export function PrivacyBadge() {
           </div>
           <div>
             <span className="font-semibold text-emerald-950 dark:text-emerald-100 mr-1.5">
-              100% Client-Side Privacy:
+              Local Tool Processing:
             </span>
-            <span>Your files and text are processed strictly in your local browser memory. No data is ever transmitted to or stored on any server.</span>
+            <span>Your files and text are processed in your browser and are not sent to a processing server or included in analytics.</span>
           </div>
         </div>
         <button
@@ -38,7 +38,7 @@ export function PrivacyBadge() {
             <li>Press <kbd className="px-1.5 py-0.5 rounded bg-emerald-200/60 dark:bg-emerald-900 font-mono text-[11px]">F12</kbd> (or right-click → <span className="font-medium">Inspect</span>) in your browser.</li>
             <li>Click on the <span className="font-medium">Network</span> tab and clear all existing logs.</li>
             <li>Paste your data or upload a file and run the conversion.</li>
-            <li>Observe that <span className="font-semibold text-emerald-950 dark:text-white">zero outbound requests</span> are initiated. Your data never touches the wire.</li>
+            <li>Tool conversions do not send your input or file contents. If you accepted optional analytics, separate general site-usage requests may appear.</li>
           </ol>
         </div>
       )}

@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { Terminal, Shield, Zap, ExternalLink } from "lucide-react";
+import { Terminal, Shield, Zap } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About Tooltiva - Fast, Private Online Utility Platform",
@@ -9,6 +9,12 @@ export const metadata: Metadata = {
     "Learn about Tooltiva, our privacy-first operating principles, and our maker CodingTangent. Practical tools running 100% in your browser.",
   alternates: {
     canonical: "https://tooltiva.net/about/",
+  },
+  openGraph: {
+    title: "About Tooltiva - Fast, Private Online Utility Platform",
+    description:
+      "Learn about Tooltiva, its privacy-first principles, and its development by CodingTangent as an independent product.",
+    url: "https://tooltiva.net/about/",
   },
 };
 
@@ -54,7 +60,7 @@ export default function AboutPage() {
                 Privacy by Design
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                All data stays on your device. We use browser APIs and Web Workers to process files locally without server transmissions.
+                CSV and JSON content stays on your device while the tools process it locally. Optional analytics runs only if you allow it using the footer controls and does not receive tool content.
               </p>
             </div>
 
@@ -77,15 +83,9 @@ export default function AboutPage() {
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             Tooltiva is developed and maintained as a dedicated product initiative by{" "}
-            <a
-              href="https://codingtangent.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-brand-600 dark:text-brand-400 hover:underline inline-flex items-center gap-0.5"
-            >
+            <span className="font-semibold text-brand-600 dark:text-brand-400">
               CodingTangent
-              <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
-            </a>
+            </span>
             . While CodingTangent oversees engineering, infrastructure, and feature updates, Tooltiva operates as an independent platform with its own identity and roadmap.
           </p>
         </section>

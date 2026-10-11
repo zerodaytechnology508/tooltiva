@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CSV ⇄ JSON Converter - Free & Private | Tooltiva",
     description:
-      "Transform tabular spreadsheets into JSON or flatten JSON into CSV. Runs 100% in your browser with zero data uploads.",
+      "Transform tabular spreadsheets into JSON or flatten JSON into CSV locally in your browser without uploading tool content.",
     url: "https://tooltiva.net/tools/csv-to-json/",
   },
 };

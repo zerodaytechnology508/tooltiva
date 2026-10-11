@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description:
     "Free, fast, and privacy-first online tools for developers and creators. Process CSV, JSON, and files 100% in your browser. Zero server uploads.",
   applicationName: "Tooltiva",
-  authors: [{ name: "CodingTangent", url: "https://codingtangent.com" }],
+  authors: [{ name: "CodingTangent" }],
   generator: "Next.js",
   keywords: [
     "online tools",
@@ -47,12 +47,12 @@ export const metadata: Metadata = {
     siteName: "Tooltiva",
     title: "Tooltiva - Free, Fast, Privacy-First Online Tools",
     description:
-      "Modern in-browser developer utilities with 100% client-side privacy. CSV Delimiter Fixer, CSV to JSON, and JSON Formatter.",
+      "Developer utilities that process CSV and JSON locally in your browser without uploading tool content.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Tooltiva - Free, Fast, Privacy-First Online Tools",
-    description: "Fast, private developer tools running 100% in your browser.",
+    description: "Fast developer tools that process CSV and JSON in your browser.",
   },
   robots: {
     index: true,

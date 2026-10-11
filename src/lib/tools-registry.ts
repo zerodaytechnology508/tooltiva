@@ -7,7 +7,7 @@ export const TOOLS: ToolMeta[] = [
     title: "CSV Delimiter Converter & Fixer",
     badgeTitle: "Delimiter Converter",
     shortDescription: "Change CSV separators between comma, semicolon, tab, and pipe with auto-detection and quote-safe parsing.",
-    metaDescription: "Free online CSV delimiter converter. Change separators between semicolon, comma, tab, and pipe. 100% private in-browser processing with live data preview.",
+    metaDescription: "Free online CSV delimiter converter. Change separators between semicolon, comma, tab, and pipe. CSV content stays in your browser with live data preview.",
     category: "Data & CSV",
     primaryKeyword: "change csv delimiter",
     secondaryKeywords: [
@@ -31,7 +31,7 @@ export const TOOLS: ToolMeta[] = [
       },
       {
         question: "Is my spreadsheet data uploaded to any server?",
-        answer: "Never. All parsing and conversion runs 100% client-side directly inside your web browser. Zero bytes of your data leave your computer or touch our servers.",
+        answer: "The CSV contents you process are not uploaded to a server or included in analytics. All parsing and conversion runs locally in your browser. Optional general site-usage analytics loads only if you allow it using the footer controls.",
       },
       {
         question: "What delimiters are supported?",
@@ -86,7 +86,7 @@ export const TOOLS: ToolMeta[] = [
     title: "JSON Formatter, Validator & Auto-Fixer",
     badgeTitle: "JSON Formatter",
     shortDescription: "Beautify, validate, inspect, and automatically fix common JSON syntax errors with pinpoint line diagnostics.",
-    metaDescription: "Free online JSON formatter, validator, and syntax fixer. Auto-repair trailing commas and single quotes with an explicit repair log. 100% private.",
+    metaDescription: "Free online JSON formatter, validator, and syntax fixer. Auto-repair trailing commas and single quotes locally in your browser with an explicit repair log.",
     category: "Developer",
     primaryKeyword: "json formatter",
     secondaryKeywords: [

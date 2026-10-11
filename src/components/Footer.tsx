@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, Terminal, ExternalLink } from "lucide-react";
+import { ShieldCheck, Terminal } from "lucide-react";
+import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 
 export function Footer() {
   return (
@@ -19,7 +20,7 @@ export function Footer() {
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md leading-relaxed">
               Fast, practical, and privacy-first online tools designed for developers, analysts, and digital creators.
-              All data processing runs directly in your browser.
+              CSV and JSON tool processing runs directly in your browser.
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
               <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -104,20 +105,15 @@ export function Footer() {
 
         {/* Bottom Bar with Discreet CodingTangent Attribution */}
         <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-500">
-          <div>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
             © {new Date().getFullYear()} Tooltiva (tooltiva.net). All rights reserved.
+            <AnalyticsConsent />
           </div>
           <div className="flex items-center gap-1.5">
             <span>A product initiative by</span>
-            <a
-              href="https://codingtangent.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 inline-flex items-center gap-0.5 underline underline-offset-2"
-            >
+            <span className="font-medium text-slate-700 dark:text-slate-300">
               CodingTangent
-              <ExternalLink className="w-3 h-3 ml-0.5 opacity-70" />
-            </a>
+            </span>
           </div>
         </div>
       </div>

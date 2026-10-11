@@ -1,13 +1,19 @@
 import React from "react";
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { Mail, Terminal, ExternalLink } from "lucide-react";
+import { Info, Terminal } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact & Feedback - Tooltiva",
-  description: "Get in touch with the Tooltiva team and CodingTangent for tool requests, feedback, or defect reports.",
+  description: "Contact information and feedback details for Tooltiva. The static site currently has no connected submission form or verified support inbox.",
   alternates: {
     canonical: "https://tooltiva.net/contact/",
+  },
+  openGraph: {
+    title: "Contact & Feedback - Tooltiva",
+    description:
+      "Tooltiva currently has no connected contact form or verified support inbox.",
+    url: "https://tooltiva.net/contact/",
   },
 };
 
@@ -21,27 +27,21 @@ export default function ContactPage() {
           Contact & Feedback
         </h1>
         <p className="text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-          Have an idea for a new browser-based tool, noticed a bug, or have a suggestion? We value practical feedback from users and developers.
+          Tooltiva is a static site and currently has no connected message-delivery service. The details below explain the feedback limitation and the product&apos;s relationship to CodingTangent.
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 space-y-3">
           <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center">
-            <Mail className="w-5 h-5" />
+            <Info className="w-5 h-5" />
           </div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            General Inquiries & Bug Reports
+            Feedback availability
           </h2>
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Send bug reports, suggestions, or edge cases to our engineering inbox:
+            This static site has no connected feedback form or verified support inbox. Feedback cannot currently be submitted through Tooltiva. Do not include sensitive information in a message sent elsewhere.
           </p>
-          <a
-            href="mailto:support@codingtangent.com"
-            className="text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline block"
-          >
-            support@codingtangent.com
-          </a>
         </div>
 
         <div className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 space-y-3">
@@ -52,17 +52,8 @@ export default function ContactPage() {
             Product Maker
           </h2>
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-            Tooltiva is engineered and owned by CodingTangent. Explore other software initiatives or agency engineering projects:
+            Tooltiva is developed and maintained as an independent product initiative by CodingTangent.
           </p>
-          <a
-            href="https://codingtangent.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-semibold text-slate-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 inline-flex items-center gap-1 underline underline-offset-2"
-          >
-            Visit CodingTangent
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
         </div>
       </div>
     </div>

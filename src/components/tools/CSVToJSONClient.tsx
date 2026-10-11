@@ -205,6 +205,7 @@ export function CSVToJSONClient() {
                 JSON Structure Format
               </label>
               <select
+                aria-label="JSON structure format"
                 value={jsonFormat}
                 onChange={(e) => setJsonFormat(e.target.value as "array-of-objects" | "2d-array" | "keyed-object")}
                 className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -219,6 +220,7 @@ export function CSVToJSONClient() {
                 Type Inference
               </label>
               <select
+                aria-label="Type inference"
                 value={parseTypes ? "true" : "false"}
                 onChange={(e) => setParseTypes(e.target.value === "true")}
                 className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -233,6 +235,7 @@ export function CSVToJSONClient() {
                 JSON Indentation
               </label>
               <select
+                aria-label="JSON indentation"
                 value={jsonIndent}
                 onChange={(e) => setJsonIndent(parseInt(e.target.value, 10))}
                 className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -250,6 +253,7 @@ export function CSVToJSONClient() {
                 Output CSV Delimiter
               </label>
               <select
+                aria-label="Output CSV delimiter"
                 value={csvDelimiter}
                 onChange={(e) => setCsvDelimiter(e.target.value)}
                 className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -266,6 +270,7 @@ export function CSVToJSONClient() {
                 Quoting Mode
               </label>
               <select
+                aria-label="Quoting mode"
                 value={quoteAll ? "true" : "false"}
                 onChange={(e) => setQuoteAll(e.target.value === "true")}
                 className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -316,6 +321,7 @@ export function CSVToJSONClient() {
           </div>
 
           <textarea
+            aria-label={direction === "csv-to-json" ? "Source CSV input" : "Source JSON input"}
             value={inputData}
             onChange={(e) => setInputData(e.target.value)}
             placeholder={
@@ -384,6 +390,7 @@ export function CSVToJSONClient() {
             />
           ) : (
             <textarea
+              aria-label={direction === "csv-to-json" ? "Converted JSON output" : "Converted CSV output"}
               readOnly
               value={outputData}
               placeholder="Converted output will appear here..."

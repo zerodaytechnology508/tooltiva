@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "JSON Formatter, Validator & Auto-Fixer | Tooltiva",
     description:
-      "Beautify, inspect, and automatically repair broken JSON syntax with zero server uploads. 100% client-side privacy.",
+      "Beautify, inspect, and repair JSON in your browser without uploading JSON content.",
     url: "https://tooltiva.net/tools/json-formatter/",
   },
 };

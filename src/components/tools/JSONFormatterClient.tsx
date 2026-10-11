@@ -415,6 +415,7 @@ export function JSONFormatterClient() {
 
           {viewMode === "code" || !validation?.isValid ? (
             <textarea
+              aria-label="JSON editor"
               value={inputJSON}
               onChange={(e) => setInputJSON(e.target.value)}
               placeholder="Paste JSON here, drag and drop a file, or click 'Load Broken Sample'..."
