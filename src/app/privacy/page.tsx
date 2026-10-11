@@ -95,7 +95,7 @@ export default function PrivacyPage() {
 
           <p>
             Tooltiva uses Google Analytics 4 with measurement ID{" "}
-            <code>G-G31S76ME5K</code> to measure general website usage.
+            <code>G-PXHEBC69CY</code> to measure general website usage.
             Analytics is off unless you select “Allow analytics” in the
             controls in the site footer. The Google tag is loaded from
             Google&apos;s tag domain only after you allow it; selecting

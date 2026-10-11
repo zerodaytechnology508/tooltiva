@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 
-const MEASUREMENT_ID = "G-G31S76ME5K";
+const MEASUREMENT_ID = "G-PXHEBC69CY";
 const CONSENT_STORAGE_KEY = "tooltiva-analytics-consent";
 type ConsentChoice = "accepted" | "rejected" | null;
 
@@ -14,7 +14,7 @@ declare global {
     dataLayer: unknown[];
     gtag: (...args: unknown[]) => void;
     tooltivaGtagInitialized?: boolean;
-    "ga-disable-G-G31S76ME5K"?: boolean;
+    "ga-disable-G-PXHEBC69CY"?: boolean;
   }
 }
 
@@ -45,7 +45,7 @@ export function AnalyticsConsent() {
       return;
     }
 
-    window["ga-disable-G-G31S76ME5K"] = false;
+    window["ga-disable-G-PXHEBC69CY"] = false;
     if (typeof window.gtag === "function" && window.tooltivaGtagInitialized) {
       window.gtag("consent", "update", { analytics_storage: "granted" });
       setAnalyticsReady(scriptLoaded.current);
@@ -95,13 +95,13 @@ export function AnalyticsConsent() {
     }
 
     if (nextChoice === "rejected") {
-      window["ga-disable-G-G31S76ME5K"] = true;
+      window["ga-disable-G-PXHEBC69CY"] = true;
       if (typeof window.gtag === "function") {
         window.gtag("consent", "update", { analytics_storage: "denied" });
       }
       setAnalyticsReady(false);
     } else {
-      window["ga-disable-G-G31S76ME5K"] = false;
+      window["ga-disable-G-PXHEBC69CY"] = false;
       if (typeof window.gtag === "function" && window.tooltivaGtagInitialized) {
         window.gtag("consent", "update", { analytics_storage: "granted" });
         setAnalyticsReady(scriptLoaded.current);
