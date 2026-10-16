@@ -81,6 +81,47 @@ export const TOOLS: ToolMeta[] = [
     ],
   },
   {
+    id: "json-to-csv",
+    slug: "json-to-csv",
+    title: "JSON to CSV Converter",
+    badgeTitle: "JSON to CSV",
+    shortDescription: "Convert JSON arrays or keyed objects into CSV with selectable delimiters, preview, and export.",
+    metaDescription: "Convert JSON arrays and keyed objects to CSV online. Choose a delimiter, preview the table, then copy or download your CSV. Processing stays in your browser.",
+    category: "Data & CSV",
+    primaryKeyword: "json to csv converter",
+    secondaryKeywords: [
+      "convert json to csv online",
+      "json array to csv",
+      "export json data to csv",
+      "json to comma separated values",
+    ],
+    icon: "ArrowLeftRight",
+    canonicalUrl: "https://tooltiva.net/tools/json-to-csv/",
+    lastUpdated: "2026-10-16",
+    faqs: [
+      {
+        question: "What JSON can I convert to CSV?",
+        answer: "The converter accepts a JSON array or an object dictionary. For tabular output, use an array of objects with properties representing columns. A dictionary of records is also converted to rows with its keys included as an _id column.",
+      },
+      {
+        question: "Can I choose the CSV delimiter?",
+        answer: "Yes. Choose comma, semicolon, tab, or pipe. The converter quotes fields when needed for the selected delimiter, or you can choose to quote every field.",
+      },
+      {
+        question: "How do I check the result before exporting?",
+        answer: "Use the CSV Result tab to inspect the generated text or Table Preview to review parsed columns and sample rows. You can then copy the result or download it as a CSV file.",
+      },
+      {
+        question: "Is my JSON uploaded to a server?",
+        answer: "No. JSON parsing and CSV generation happen in your browser. Tool input is not sent to Tooltiva's processing server.",
+      },
+      {
+        question: "What happens to nested values in an object row?",
+        answer: "Nested objects are not expanded into separate CSV columns. For readable tabular output, flatten nested data into regular properties before converting.",
+      },
+    ],
+  },
+  {
     id: "json-formatter",
     slug: "json-formatter",
     title: "JSON Formatter, Validator & Auto-Fixer",

@@ -26,8 +26,14 @@ const SAMPLE_JSON = `[
   { "id": 2, "name": "John Doe", "role": "Product Designer", "salary": 84000 }
 ]`;
 
-export function CSVToJSONClient() {
-  const [direction, setDirection] = useState<"csv-to-json" | "json-to-csv">("csv-to-json");
+type ConversionDirection = "csv-to-json" | "json-to-csv";
+
+export function CSVToJSONClient({
+  initialDirection = "csv-to-json",
+}: {
+  initialDirection?: ConversionDirection;
+}) {
+  const [direction, setDirection] = useState<ConversionDirection>(initialDirection);
   const [inputData, setInputData] = useState<string>("");
   const [outputData, setOutputData] = useState<string>("");
 
