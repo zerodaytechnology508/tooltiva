@@ -31,7 +31,7 @@ export const TOOLS: ToolMeta[] = [
       },
       {
         question: "Is my spreadsheet data uploaded to any server?",
-        answer: "The CSV contents you process are not uploaded to a server or included in analytics. All parsing and conversion runs locally in your browser. Optional general site-usage analytics loads only if you allow it using the footer controls.",
+        answer: "The CSV contents you process are not uploaded to a server or included in analytics. All parsing and conversion runs locally in your browser. Optional general site-usage analytics loads only if you accept it or enable it in Manage Preferences using Privacy settings.",
       },
       {
         question: "What delimiters are supported?",

@@ -96,11 +96,12 @@ export default function PrivacyPage() {
           <p>
             Tooltiva uses Google Analytics 4 with measurement ID{" "}
             <code>G-DLDHVDXG2Q</code> to measure general website usage.
-            Analytics is off unless you select “Allow analytics” in the
-            controls in the site footer. The Google tag is loaded from
-            Google&apos;s tag domain only after you allow it; selecting
-            “Reject analytics” keeps it disabled. You can change your choice
-            using those controls at any time.
+            Analytics is off unless you select “Accept All” or enable Google
+            Analytics in “Manage Preferences” using the site&apos;s Privacy
+            settings. The Google tag is loaded from Google&apos;s tag domain
+            only after you consent; selecting “Reject Non-Essential” keeps it
+            disabled. You can change your choice using Privacy settings in
+            the footer at any time.
           </p>
 
           <p>
@@ -130,8 +131,8 @@ export default function PrivacyPage() {
           <p>
             Website analytics helps us understand overall usage, identify
             popular tools, and improve the service. Analytics settings and
-            privacy requirements vary by location. The footer controls let
-            you reject analytics or withdraw a previous choice; doing so
+            privacy requirements vary by location. Privacy settings let you
+            reject analytics or withdraw a previous choice; doing so
             prevents future analytics loading or collection by this
             application, but does not erase information already sent to
             Google or necessarily remove existing browser cookies. This

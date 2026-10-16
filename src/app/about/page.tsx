@@ -60,7 +60,7 @@ export default function AboutPage() {
                 Privacy by Design
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                CSV and JSON content stays on your device while the tools process it locally. Optional analytics runs only if you allow it using the footer controls and does not receive tool content.
+                CSV and JSON content stays on your device while the tools process it locally. Optional analytics runs only if you accept it or enable it in Manage Preferences using Privacy settings, and does not receive tool content.
               </p>
             </div>
 

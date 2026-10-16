@@ -2,6 +2,15 @@ import assert from "node:assert";
 import Papa from "papaparse";
 import { detectDelimiter, analyzeCSV, convertCSVDelimiter } from "../src/lib/csv-utils.ts";
 import { validateJSON, repairJSON, csvToJSON, jsonToCSV } from "../src/lib/json-utils.ts";
+import {
+  applyAnalyticsConsent,
+  canLoadAnalytics,
+  canTrackAnalytics,
+  CONSENT_STORAGE_KEY,
+  persistConsentChoice,
+  preferenceChoice,
+  readConsentChoice,
+} from "../src/lib/analytics-consent.ts";
 
 console.log("🚀 Starting Tooltiva Comprehensive Functional Verification Suite...\n");
 
@@ -147,5 +156,71 @@ assert.strictEqual(trickyValue.quote, 'A "double quote"');
 assert(trickyRepair.logs.length > 0, "Every changed input has a visible repair log");
 console.log("  Valid string contents are preserved and every applied repair is reported.\n");
 console.log("  ✓ All 4 repair rules logged with counts, resulting in 100% valid RFC 8259 JSON.\n");
+
+console.log("Test 10: Analytics consent choices, persistence, and tracking gates");
+const consentValues = new Map();
+const consentStorage = {
+  getItem(key) {
+    return consentValues.get(key) ?? null;
+  },
+  setItem(key, value) {
+    consentValues.set(key, value);
+  },
+};
+assert.strictEqual(readConsentChoice(consentStorage), null, "No saved choice is undecided");
+assert.strictEqual(preferenceChoice(true), "accepted", "Enabling analytics accepts it");
+assert.strictEqual(preferenceChoice(false), "rejected", "Disabling analytics rejects it");
+persistConsentChoice(consentStorage, preferenceChoice(true));
+assert.strictEqual(consentValues.get(CONSENT_STORAGE_KEY), "accepted");
+assert.strictEqual(readConsentChoice(consentStorage), "accepted", "Acceptance persists");
+assert(canLoadAnalytics(readConsentChoice(consentStorage)), "Accepted consent permits GA loading");
+persistConsentChoice(consentStorage, preferenceChoice(false));
+assert.strictEqual(consentValues.get(CONSENT_STORAGE_KEY), "rejected");
+assert.strictEqual(readConsentChoice(consentStorage), "rejected", "Rejection persists");
+assert(!canLoadAnalytics(readConsentChoice(consentStorage)), "Rejection prevents GA loading");
+assert(!canTrackAnalytics("rejected", true, true), "Rejected consent prevents event tracking");
+assert(!canTrackAnalytics(null, true, true), "Undecided consent prevents event tracking");
+assert(!canTrackAnalytics("accepted", false, true), "Tracking waits for GA readiness");
+assert(!canTrackAnalytics("accepted", true, false), "Tracking requires the existing GA tag");
+assert(canTrackAnalytics("accepted", true, true), "Accepted and ready consent permits tracking");
+const analyticsCalls = [];
+const testGtag = (...args) => analyticsCalls.push(args);
+assert.strictEqual(
+  applyAnalyticsConsent("accepted", testGtag, true, false),
+  true,
+  "Acceptance configures the existing Google tag",
+);
+assert.deepStrictEqual(analyticsCalls, [
+  ["consent", "update", { analytics_storage: "granted" }],
+  [
+    "config",
+    "G-DLDHVDXG2Q",
+    {
+      send_page_view: false,
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+    },
+  ],
+]);
+analyticsCalls.length = 0;
+assert.strictEqual(
+  applyAnalyticsConsent("accepted", testGtag, true, true),
+  true,
+  "Re-accepting consent does not configure GA twice",
+);
+assert.strictEqual(analyticsCalls.length, 1, "Existing GA configuration is reused");
+analyticsCalls.length = 0;
+assert.strictEqual(
+  applyAnalyticsConsent("rejected", testGtag, true, true),
+  true,
+  "Rejecting preserves the existing one-time configuration state",
+);
+assert.deepStrictEqual(analyticsCalls, [
+  ["consent", "update", { analytics_storage: "denied" }],
+]);
+analyticsCalls.length = 0;
+applyAnalyticsConsent(null, testGtag, true, false);
+assert.deepStrictEqual(analyticsCalls, [], "Undecided visitors send no GA commands");
+console.log("  ✓ Accept, reject, manage-preference choices, persistence, and analytics gates passed.\n");
 
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");
