@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   title: "JSON Formatter, Validator & Auto-Fixer - Free & Private Online Tool",
   description:
     "Free online JSON formatter, validator, and syntax fixer. Auto-repair trailing commas and single quotes with an explicit audit log. 100% in-browser private execution.",
+  twitter: {
+    card: "summary_large_image",
+    title: "JSON Formatter, Validator & Auto-Fixer - Free & Private Online Tool",
+    description:
+      "Free online JSON formatter, validator, and syntax fixer. Auto-repair trailing commas and single quotes with an explicit audit log. 100% in-browser private execution.",
+  },
   alternates: {
     canonical: "https://tooltiva.net/tools/json-formatter/",
   },

@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   title: "CSV to JSON & JSON to CSV Converter - Free & Private Online Tool",
   description:
     "Convert CSV to JSON and JSON to CSV instantly. Two-way transformation with smart type detection and formatting options. 100% in-browser private execution.",
+  twitter: {
+    card: "summary_large_image",
+    title: "CSV to JSON & JSON to CSV Converter - Free & Private Online Tool",
+    description:
+      "Convert CSV to JSON and JSON to CSV instantly. Two-way transformation with smart type detection and formatting options. 100% in-browser private execution.",
+  },
   alternates: {
     canonical: "https://tooltiva.net/tools/csv-to-json/",
   },

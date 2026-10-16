@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   title: "CSV Delimiter Converter & Fixer - Change Separators Online",
   description:
     "Free online CSV delimiter converter. Change separators between semicolon, comma, tab, and pipe with auto-detection. 100% private in-browser processing with table preview.",
+  twitter: {
+    card: "summary_large_image",
+    title: "CSV Delimiter Converter & Fixer - Change Separators Online",
+    description:
+      "Free online CSV delimiter converter. Change separators between semicolon, comma, tab, and pipe with auto-detection. 100% private in-browser processing with table preview.",
+  },
   alternates: {
     canonical: "https://tooltiva.net/tools/csv-delimiter-converter/",
   },
