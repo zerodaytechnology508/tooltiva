@@ -30,14 +30,14 @@ export function Footer() {
 
           {/* Column 2: Data Tools */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3">
               Data & CSV Tools
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/tools/csv-delimiter-converter/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
                 >
                   CSV Delimiter Converter
                 </Link>
@@ -45,7 +45,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/tools/csv-to-json/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
                 >
                   CSV ⇄ JSON Converter
                 </Link>
@@ -53,7 +53,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/tools/json-formatter/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
                 >
                   JSON Formatter & Fixer
                 </Link>
@@ -63,14 +63,14 @@ export function Footer() {
 
           {/* Column 3: Platform & Trust */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3">
               Platform & Legal
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/about/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
                 >
                   About Tooltiva
                 </Link>
@@ -78,7 +78,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/privacy/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -86,7 +86,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/terms/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
                 >
                   Terms of Service
                 </Link>
@@ -94,7 +94,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/contact/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
                 >
                   Contact & Feedback
                 </Link>
@@ -104,7 +104,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar with Discreet CodingTangent Attribution */}
-        <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-500">
+        <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
           <div className="flex flex-col sm:flex-row items-center gap-3">
             © {new Date().getFullYear()} Tooltiva (tooltiva.net). All rights reserved.
             <AnalyticsConsent />

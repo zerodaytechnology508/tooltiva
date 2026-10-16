@@ -115,7 +115,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-brand-700 dark:group-hover:text-brand-400 transition-colors">
                     {tool.title}
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -124,7 +124,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-semibold text-brand-600 dark:text-brand-400">
+              <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-semibold text-brand-700 dark:text-brand-400">
                 <span>Launch Tool</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
