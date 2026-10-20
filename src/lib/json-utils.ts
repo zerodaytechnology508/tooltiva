@@ -270,8 +270,105 @@ export function csvToJSON(
   };
 }
 
+export interface JSONToCSVResult {
+  csvText: string;
+  rowCount: number;
+  /** User-facing messages. When `ok` is false the first message explains why nothing was converted. */
+  warnings: string[];
+  /** False when the input could not be converted; `csvText` is then empty. */
+  ok: boolean;
+}
+
+type RowKind = "object" | "array" | "scalar";
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function rowKind(value: unknown): RowKind {
+  if (Array.isArray(value)) return "array";
+  if (isPlainObject(value)) return "object";
+  return "scalar";
+}
+
+function describeValue(value: unknown): string {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "an array";
+  if (typeof value === "object") return "an object";
+  return `a ${typeof value}`;
+}
+
+interface CellStats {
+  nulls: number;
+  missing: number;
+  nested: number;
+}
+
 /**
- * Convert JSON text to CSV structure
+ * Convert one JSON value into CSV cell text without losing information:
+ * - strings are written as-is; numbers and booleans use their JSON text
+ * - null becomes an empty cell (counted, so the user is told)
+ * - nested objects and arrays are written as compact JSON text (counted)
+ */
+function toCell(value: unknown, stats: CellStats): string {
+  if (value === null) {
+    stats.nulls++;
+    return "";
+  }
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value === "object") {
+    stats.nested++;
+    return JSON.stringify(value);
+  }
+  // JSON.parse cannot produce other types; keep a defensive fallback.
+  return String(value);
+}
+
+function failure(message: string): JSONToCSVResult {
+  return { csvText: "", rowCount: 0, warnings: [message], ok: false };
+}
+
+/**
+ * Collect column names across every object row, in first-seen order.
+ * Uses a Set of own enumerable keys, so keys such as "__proto__" are treated
+ * as ordinary column names.
+ */
+function unionKeys(rows: Record<string, unknown>[]): string[] {
+  const seen = new Set<string>();
+  for (const row of rows) {
+    for (const key of Object.keys(row)) seen.add(key);
+  }
+  return Array.from(seen);
+}
+
+/** Pick a dictionary-key column name that no record already uses. */
+function pickKeyColumn(columns: string[]): string {
+  const taken = new Set(columns);
+  for (const candidate of ["_id", "_key"]) {
+    if (!taken.has(candidate)) return candidate;
+  }
+  let n = 2;
+  while (taken.has(`_key_${n}`)) n++;
+  return `_key_${n}`;
+}
+
+/**
+ * Convert JSON text to CSV structure.
+ *
+ * Accepted shapes (each row must be the same kind):
+ * - Array of objects: columns are the union of keys across all rows, in
+ *   first-seen order. A key missing from a row becomes an empty cell.
+ * - Array of arrays: each inner array is written as one CSV row (no header).
+ * - Array of single values: written as one column named "value".
+ * - Object dictionary of objects: one row per entry, with the entry key in an
+ *   "_id" column (renamed if a record already has an "_id" field).
+ * - Object dictionary of single values or arrays: "key" and "value" columns.
+ *
+ * null values become empty cells and nested objects/arrays become JSON text;
+ * both are reported in `warnings` so the conversion is never silent.
+ * Arrays or dictionaries that mix rows of different kinds are rejected with a
+ * message naming the first mismatching item.
  */
 export function jsonToCSV(
   jsonText: string,
@@ -279,10 +376,9 @@ export function jsonToCSV(
     delimiter: string;
     quotes: boolean;
   }
-): { csvText: string; rowCount: number; warnings: string[] } {
-  const warnings: string[] = [];
+): JSONToCSVResult {
   if (!jsonText || jsonText.trim() === "") {
-    return { csvText: "", rowCount: 0, warnings: ["Input is empty"] };
+    return failure("Input is empty");
   }
 
   let parsed: unknown;
@@ -290,33 +386,127 @@ export function jsonToCSV(
     parsed = JSON.parse(jsonText);
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    return { csvText: "", rowCount: 0, warnings: [`Invalid JSON: ${errorMsg}`] };
+    return failure(`Invalid JSON: ${errorMsg}`);
   }
 
-  let dataArray: unknown[] = [];
+  const stats: CellStats = { nulls: 0, missing: 0, nested: 0 };
+  const notices: string[] = [];
+  let fields: string[] | null = null;
+  let data: string[][];
 
   if (Array.isArray(parsed)) {
-    dataArray = parsed;
-  } else if (typeof parsed === "object" && parsed !== null) {
-    // If it's a keyed object, flatten into array of objects with key
-    dataArray = Object.entries(parsed).map(([key, val]) => {
-      if (typeof val === "object" && val !== null && !Array.isArray(val)) {
-        return { _id: key, ...val };
+    if (parsed.length === 0) {
+      return failure("The JSON array is empty, so there are no rows to convert.");
+    }
+
+    const firstKind = rowKind(parsed[0]);
+    const mismatch = parsed.findIndex((item) => rowKind(item) !== firstKind);
+    if (mismatch !== -1) {
+      return failure(
+        `Cannot convert a JSON array that mixes row types: item 1 is ${describeValue(parsed[0])}, ` +
+          `but item ${mismatch + 1} is ${describeValue(parsed[mismatch])}. ` +
+          `Use an array where every item is an object, every item is an array, or every item is a single value.`
+      );
+    }
+
+    if (firstKind === "object") {
+      const rows = parsed as Record<string, unknown>[];
+      fields = unionKeys(rows);
+      if (fields.length === 0) {
+        return failure("The JSON objects have no properties, so there are no columns to convert.");
       }
-      return { key, value: val };
-    });
+      const columns = fields;
+      data = rows.map((row) =>
+        columns.map((key) => {
+          if (!Object.prototype.hasOwnProperty.call(row, key)) {
+            stats.missing++;
+            return "";
+          }
+          return toCell(row[key], stats);
+        })
+      );
+    } else if (firstKind === "array") {
+      if ((parsed as unknown[][]).every((row) => row.length === 0)) {
+        return failure("The inner JSON arrays are all empty, so there are no values to convert.");
+      }
+      data =(parsed as unknown[][]).map((row) => row.map((cell) => toCell(cell, stats)));
+      notices.push("Each inner array was written as one CSV row; no header row was added.");
+    } else {
+      fields = ["value"];
+      data = parsed.map((item) => [toCell(item, stats)]);
+    }
+  } else if (isPlainObject(parsed)) {
+    const entries = Object.entries(parsed);
+    if (entries.length === 0) {
+      return failure("The JSON object is empty, so there are no rows to convert.");
+    }
+
+    const recordEntries = entries.filter(([, value]) => isPlainObject(value));
+    if (recordEntries.length > 0 && recordEntries.length < entries.length) {
+      const firstObjectKey = recordEntries[0][0];
+      const [otherKey, otherValue] = entries.find(([, value]) => !isPlainObject(value))!;
+      return failure(
+        `Cannot convert a JSON object that mixes record and non-record values: ` +
+          `"${firstObjectKey}" is an object, but "${otherKey}" is ${describeValue(otherValue)}. ` +
+          `Use an object whose values are all objects, or all single values.`
+      );
+    }
+
+    if (recordEntries.length > 0) {
+      const records = entries.map(([, value]) => value as Record<string, unknown>);
+      const recordFields = unionKeys(records);
+      const keyColumn = pickKeyColumn(recordFields);
+      if (keyColumn !== "_id") {
+        notices.push(
+          `The records already contain an "_id" field, so the dictionary keys were written to a "${keyColumn}" column.`
+        );
+      }
+      fields = [keyColumn, ...recordFields];
+      data = entries.map(([entryKey, value]) => {
+        const record = value as Record<string, unknown>;
+        return [
+          entryKey,
+          ...recordFields.map((key) => {
+            if (!Object.prototype.hasOwnProperty.call(record, key)) {
+              stats.missing++;
+              return "";
+            }
+            return toCell(record[key], stats);
+          }),
+        ];
+      });
+    } else {
+      fields = ["key", "value"];
+      data = entries.map(([entryKey, value]) => [entryKey, toCell(value, stats)]);
+    }
   } else {
-    return { csvText: "", rowCount: 0, warnings: ["JSON must be an array of objects or an object dictionary to convert to CSV."] };
+    return failure(
+      `JSON must be an array or an object dictionary to convert to CSV, but the input is ${describeValue(parsed)}.`
+    );
   }
 
-  const csv = Papa.unparse(dataArray as Papa.UnparseObject<unknown> | unknown[], {
-    delimiter: options.delimiter,
-    quotes: options.quotes,
-  });
+  if (stats.missing > 0) {
+    notices.push(
+      `${stats.missing} cell(s) are empty because some rows do not have every column.`
+    );
+  }
+  if (stats.nulls > 0) {
+    notices.push(`${stats.nulls} null value(s) were written as empty cells.`);
+  }
+  if (stats.nested > 0) {
+    notices.push(
+      `${stats.nested} nested object or array value(s) were written as JSON text inside a single cell.`
+    );
+  }
+
+  const csv = fields
+    ? Papa.unparse({ fields, data }, { delimiter: options.delimiter, quotes: options.quotes })
+    : Papa.unparse(data, { delimiter: options.delimiter, quotes: options.quotes });
 
   return {
     csvText: csv,
-    rowCount: dataArray.length,
-    warnings,
+    rowCount: data.length,
+    warnings: notices,
+    ok: true,
   };
 }

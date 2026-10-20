@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useTransition } from "react";
+import React, { Component, useState, useEffect, useTransition } from "react";
+import type { ErrorInfo, ReactNode } from "react";
 import { csvToJSON, jsonToCSV } from "@/lib/json-utils";
 import { analyzeCSV, CSVAnalysisResult } from "@/lib/csv-utils";
 import { DataPreviewTable } from "@/components/DataPreviewTable";
@@ -14,6 +15,7 @@ import {
   Sparkles,
   FileText,
   Code2,
+  AlertCircle,
 } from "lucide-react";
 
 const SAMPLE_CSV = `id,name,role,department,active,salary
@@ -28,7 +30,7 @@ const SAMPLE_JSON = `[
 
 type ConversionDirection = "csv-to-json" | "json-to-csv";
 
-export function CSVToJSONClient({
+function CSVToJSONTool({
   initialDirection = "csv-to-json",
 }: {
   initialDirection?: ConversionDirection;
@@ -52,42 +54,58 @@ export function CSVToJSONClient({
   const [activeTab, setActiveTab] = useState<"result" | "table">("result");
   const [, startTransition] = useTransition();
 
+  const [hasError, setHasError] = useState<boolean>(false);
+
   useEffect(() => {
     if (!inputData || inputData.trim() === "") {
       setOutputData("");
       setWarnings([]);
+      setHasError(false);
       setCsvAnalysis(null);
       return;
     }
 
     startTransition(() => {
-      if (direction === "csv-to-json") {
-        const stats = analyzeCSV(inputData);
-        setCsvAnalysis(stats);
-
-        const res = csvToJSON(inputData, {
-          format: jsonFormat,
-          parseTypes,
-          indent: jsonIndent,
-        });
-
-        setOutputData(res.jsonText);
-        setWarnings(res.warnings);
-      } else {
-        const res = jsonToCSV(inputData, {
-          delimiter: csvDelimiter,
-          quotes: quoteAll,
-        });
-
-        setOutputData(res.csvText);
-        setWarnings(res.warnings);
-
-        if (res.csvText) {
-          const stats = analyzeCSV(res.csvText, csvDelimiter);
+      try {
+        if (direction === "csv-to-json") {
+          const stats = analyzeCSV(inputData);
           setCsvAnalysis(stats);
+
+          const res = csvToJSON(inputData, {
+            format: jsonFormat,
+            parseTypes,
+            indent: jsonIndent,
+          });
+
+          setOutputData(res.jsonText);
+          setWarnings(res.warnings);
+          setHasError(false);
         } else {
-          setCsvAnalysis(null);
+          const res = jsonToCSV(inputData, {
+            delimiter: csvDelimiter,
+            quotes: quoteAll,
+          });
+
+          setOutputData(res.csvText);
+          setWarnings(res.warnings);
+          setHasError(!res.ok);
+
+          if (res.csvText) {
+            const stats = analyzeCSV(res.csvText, csvDelimiter);
+            setCsvAnalysis(stats);
+          } else {
+            setCsvAnalysis(null);
+          }
         }
+      } catch (err: unknown) {
+        // Keep the tool usable and tell the user, but still surface the
+        // underlying error in the console for debugging.
+        console.error("Tooltiva conversion failed:", err);
+        const message = err instanceof Error ? err.message : String(err);
+        setOutputData("");
+        setCsvAnalysis(null);
+        setHasError(true);
+        setWarnings([`Conversion failed unexpectedly: ${message}. Your input was not changed.`]);
       }
     });
   }, [inputData, direction, jsonFormat, parseTypes, jsonIndent, csvDelimiter, quoteAll]);
@@ -95,8 +113,11 @@ export function CSVToJSONClient({
   const toggleDirection = () => {
     const nextDir = direction === "csv-to-json" ? "json-to-csv" : "csv-to-json";
     setDirection(nextDir);
-    // Swap content if valid output exists
-    if (outputData && warnings.length === 0) {
+    // Swap content if valid output exists. JSON-to-CSV notices (for example
+    // "null values were written as empty cells") do not block the swap.
+    const outputIsSwappable =
+      direction === "json-to-csv" ? !hasError : warnings.length === 0;
+    if (outputData && outputIsSwappable) {
       setInputData(outputData);
     } else {
       setInputData("");
@@ -387,6 +408,29 @@ export function CSVToJSONClient({
             </div>
           </div>
 
+          {warnings.length > 0 && (hasError || activeTab === "result") && (
+            <div
+              role={hasError ? "alert" : "status"}
+              className={`p-3 rounded-lg border text-xs flex items-start gap-2 ${
+                hasError
+                  ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-900 dark:text-rose-200"
+                  : "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200"
+              }`}
+            >
+              <AlertCircle
+                aria-hidden="true"
+                className={`w-4 h-4 shrink-0 mt-0.5 ${
+                  hasError ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400"
+                }`}
+              />
+              <div className="space-y-1">
+                {warnings.map((w, i) => (
+                  <p key={i}>{w}</p>
+                ))}
+              </div>
+            </div>
+          )}
+
           {activeTab === "table" ? (
             <DataPreviewTable
               headers={csvAnalysis?.headers || []}
@@ -407,5 +451,62 @@ export function CSVToJSONClient({
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Wraps the converter so an unexpected render or effect error shows a
+ * recoverable message instead of blanking the whole page. The error is still
+ * logged to the console so it is not hidden from debugging.
+ */
+class ToolErrorBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean; resetKey: number }
+> {
+  state = { failed: false, resetKey: 0 };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: unknown, info: ErrorInfo) {
+    console.error("Tooltiva converter crashed:", error, info.componentStack);
+  }
+
+  private reset = () => {
+    this.setState((prev) => ({ failed: false, resetKey: prev.resetKey + 1 }));
+  };
+
+  render() {
+    if (this.state.failed) {
+      return (
+        <div
+          role="alert"
+          className="border border-rose-200 dark:border-rose-800/60 rounded-3xl bg-rose-50 dark:bg-rose-950/40 p-6 space-y-3 text-sm text-rose-900 dark:text-rose-200"
+        >
+          <p className="font-semibold">The converter hit an unexpected error.</p>
+          <p>
+            Your data was not uploaded anywhere. Reset the converter to start again, and please
+            check the input format if the problem repeats.
+          </p>
+          <button
+            type="button"
+            onClick={this.reset}
+            className="px-3.5 py-1.5 rounded-xl border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-900 text-xs font-semibold text-rose-800 dark:text-rose-200 hover:bg-rose-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            Reset converter
+          </button>
+        </div>
+      );
+    }
+    return <React.Fragment key={this.state.resetKey}>{this.props.children}</React.Fragment>;
+  }
+}
+
+export function CSVToJSONClient(props: { initialDirection?: ConversionDirection }) {
+  return (
+    <ToolErrorBoundary>
+      <CSVToJSONTool {...props} />
+    </ToolErrorBoundary>
   );
 }

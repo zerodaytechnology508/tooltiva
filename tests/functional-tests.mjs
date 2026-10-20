@@ -223,4 +223,125 @@ applyAnalyticsConsent(null, testGtag, true, false);
 assert.deepStrictEqual(analyticsCalls, [], "Undecided visitors send no GA commands");
 console.log("  ✓ Accept, reject, manage-preference choices, persistence, and analytics gates passed.\n");
 
+// --- TEST 11: JSON ➔ CSV shape handling (regression for crash C1 and column loss H1) ---
+console.log("Test 11: JSON ➔ CSV row shapes, missing keys, nulls, nested values");
+const toCSV = (json, opts = {}) => {
+  let result;
+  assert.doesNotThrow(() => {
+    result = jsonToCSV(json, { delimiter: ",", quotes: false, ...opts });
+  }, `jsonToCSV must not throw for ${json}`);
+  return result;
+};
+const rowsOf = (csvText, delimiter = ",") => Papa.parse(csvText, { delimiter }).data;
+
+// 1. Array of numbers -> single "value" column
+const numbers = toCSV("[1,2,3]");
+assert.strictEqual(numbers.ok, true);
+assert.strictEqual(numbers.csvText, "value\r\n1\r\n2\r\n3");
+assert.strictEqual(numbers.rowCount, 3);
+assert.deepStrictEqual(numbers.warnings, []);
+
+// 2. Array of strings, including delimiter and quote characters
+const strings = toCSV('["a","b, c","say \\"hi\\""]');
+assert.strictEqual(strings.ok, true);
+assert.deepStrictEqual(rowsOf(strings.csvText), [["value"], ["a"], ["b, c"], ['say "hi"']]);
+
+// 3. Arrays containing null values
+const nullScalars = toCSV("[1,null,true]");
+assert.strictEqual(nullScalars.ok, true);
+assert.deepStrictEqual(rowsOf(nullScalars.csvText), [["value"], ["1"], [""], ["true"]]);
+assert(nullScalars.warnings.some((w) => w.includes("1 null value")), "Null-to-empty conversion is reported");
+const nullThenObject = toCSV('[null,{"a":1}]');
+assert.strictEqual(nullThenObject.ok, false, "Mixed null and object rows are rejected");
+assert.strictEqual(nullThenObject.csvText, "");
+assert.match(nullThenObject.warnings[0], /item 2 is an object/);
+const objectThenNumber = toCSV('[{"a":1},5]');
+assert.strictEqual(objectThenNumber.ok, false);
+assert.match(objectThenNumber.warnings[0], /item 1 is an object, but item 2 is a number/);
+assert.strictEqual(toCSV('[[1,2],"x"]').ok, false, "Mixed array and scalar rows are rejected");
+
+// 4. Objects with different keys -> union of columns in first-seen order
+const differentKeys = toCSV('[{"a":1},{"a":2,"b":3},{"c":4}]');
+assert.strictEqual(differentKeys.ok, true);
+assert.deepStrictEqual(rowsOf(differentKeys.csvText), [
+  ["a", "b", "c"],
+  ["1", "", ""],
+  ["2", "3", ""],
+  ["", "", "4"],
+]);
+assert.strictEqual(differentKeys.rowCount, 3);
+
+// 5. Missing keys and null fields are both empty cells and both reported
+const missingAndNull = toCSV('[{"a":1,"b":null},{"a":2}]');
+assert.deepStrictEqual(rowsOf(missingAndNull.csvText), [["a", "b"], ["1", ""], ["2", ""]]);
+assert(missingAndNull.warnings.some((w) => w.includes("1 cell(s) are empty")), "Missing keys reported");
+assert(missingAndNull.warnings.some((w) => w.includes("1 null value")), "Null fields reported");
+
+// 6. Nested objects and arrays are kept as JSON text, never "[object Object]"
+const nested = toCSV('[{"id":1,"meta":{"x":1,"y":[2,3]},"tags":["a","b"]}]');
+assert.strictEqual(nested.ok, true);
+assert(!nested.csvText.includes("[object Object]"));
+assert.deepStrictEqual(rowsOf(nested.csvText), [
+  ["id", "meta", "tags"],
+  ["1", '{"x":1,"y":[2,3]}', '["a","b"]'],
+]);
+assert(nested.warnings.some((w) => w.includes("2 nested")), "Nested values reported");
+const arrayRows = toCSV('[[1,"a"],[2,{"k":true}]]');
+assert.deepStrictEqual(rowsOf(arrayRows.csvText), [["1", "a"], ["2", '{"k":true}']]);
+
+// 7. Empty arrays and empty objects produce a clear message, not a crash
+for (const empty of ["[]", "{}", "[{}]", "[[]]"]) {
+  const result = toCSV(empty);
+  assert.strictEqual(result.ok, false, `${empty} is reported as nothing to convert`);
+  assert.strictEqual(result.csvText, "");
+  assert(result.warnings.length === 1 && result.warnings[0].length > 0);
+}
+
+// 8. Invalid JSON and non-tabular top-level values
+const invalid = toCSV("{broken");
+assert.strictEqual(invalid.ok, false);
+assert.match(invalid.warnings[0], /^Invalid JSON:/);
+assert.strictEqual(toCSV('"just a string"').ok, false);
+assert.strictEqual(toCSV("42").ok, false);
+assert.strictEqual(toCSV("null").ok, false);
+assert.strictEqual(toCSV("   ").ok, false);
+
+// 9. Existing normal conversions keep their output
+const normal = toCSV('[{"id":1,"name":"Sarah Connor","salary":95000},{"id":2,"name":"John Doe","salary":84000}]');
+assert.strictEqual(normal.csvText, "id,name,salary\r\n1,Sarah Connor,95000\r\n2,John Doe,84000");
+assert.deepStrictEqual(normal.warnings, []);
+const semicolonQuoted = toCSV('[{"a":"x;y","b":2}]', { delimiter: ";", quotes: true });
+assert.strictEqual(semicolonQuoted.csvText, '"a";"b"\r\n"x;y";"2"');
+const recordDictionary = toCSV('{"u1":{"name":"Ann"},"u2":{"name":"Bo","age":30}}');
+assert.deepStrictEqual(rowsOf(recordDictionary.csvText), [
+  ["_id", "name", "age"],
+  ["u1", "Ann", ""],
+  ["u2", "Bo", "30"],
+]);
+const scalarDictionary = toCSV('{"a":1,"b":"two","c":[3]}');
+assert.deepStrictEqual(rowsOf(scalarDictionary.csvText), [["key", "value"], ["a", "1"], ["b", "two"], ["c", "[3]"]]);
+const mixedDictionary = toCSV('{"a":{"x":1},"b":2}');
+assert.strictEqual(mixedDictionary.ok, false, "Dictionaries mixing records and values are rejected");
+// A record that already has an "_id" field keeps it; dictionary keys move to "_key"
+const idCollision = toCSV('{"k1":{"_id":"own","v":1}}');
+assert.deepStrictEqual(rowsOf(idCollision.csvText), [["_key", "_id", "v"], ["k1", "own", "1"]]);
+assert(idCollision.warnings.some((w) => w.includes('"_key"')), "Key-column rename reported");
+// "__proto__" is an ordinary column name and its value is not lost
+const protoKey = toCSV('[{"__proto__":"p","a":1}]');
+assert.deepStrictEqual(rowsOf(protoKey.csvText), [["__proto__", "a"], ["p", "1"]]);
+// Round trip CSV -> JSON -> CSV stays stable
+const roundTripJSON = csvToJSON("id,name\n1,Ann\n2,Bo", { format: "array-of-objects", parseTypes: false, indent: 2 });
+assert.strictEqual(toCSV(roundTripJSON.jsonText).csvText, "id,name\r\n1,Ann\r\n2,Bo");
+
+// 10. CSV -> JSON conversions are unchanged
+assert.deepStrictEqual(
+  JSON.parse(csvToJSON("id,name,active\n1,Ann,true", { format: "array-of-objects", parseTypes: true, indent: 2 }).jsonText),
+  [{ id: 1, name: "Ann", active: true }],
+);
+assert.deepStrictEqual(
+  JSON.parse(csvToJSON("a,b\n1,2", { format: "2d-array", parseTypes: false, indent: 0 }).jsonText),
+  [["a", "b"], ["1", "2"]],
+);
+console.log("  ✓ Primitives, nulls, mixed rows, missing keys, nested values, empty and invalid input handled without crashing.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");
