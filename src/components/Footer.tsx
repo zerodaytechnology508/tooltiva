@@ -21,6 +21,12 @@ export function Footer() {
               Free tools for CSV and JSON files. Everything you paste or upload is processed in your browser and is
               never uploaded to a server.
             </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Support:{" "}
+              <a href="mailto:support@tooltiva.net" className="font-medium text-brand-700 hover:underline dark:text-brand-400">
+                support@tooltiva.net
+              </a>
+            </p>
           </div>
 
           <div>

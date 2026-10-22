@@ -22,7 +22,7 @@ export default function TermsPage() {
         </p>
       </div>
 
-      <div className="prose dark:prose-invert max-w-none space-y-8 text-base leading-7 text-slate-700 dark:text-slate-300">
+      <div className="content-prose space-y-8">
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             1. Agreement to Terms

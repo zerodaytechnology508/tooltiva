@@ -6,6 +6,7 @@ export const SITE = {
   description:
     "Free online tools for CSV and JSON files: change delimiters, convert CSV to JSON and back, and format or fix JSON. Files are processed in your browser and never uploaded.",
   publisher: "CodingTangent",
+  supportEmail: "support@tooltiva.net",
   locale: "en_US",
   /** Google AdSense publisher ID (also in public/ads.txt). */
   adsenseClient: "ca-pub-1938055904818934",

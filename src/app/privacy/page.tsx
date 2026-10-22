@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         </p>
       </div>
 
-      <div className="prose dark:prose-invert max-w-none space-y-8 text-base leading-7 text-slate-700 dark:text-slate-300">
+      <div className="content-prose space-y-8">
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             1. Our Commitment: Local Tool Processing
@@ -236,12 +236,10 @@ export default function PrivacyPage() {
           </h2>
 
           <p>
-            Tooltiva currently does not have a verified privacy contact
-            address or a working message-submission channel. We recommend
-            avoiding the submission of personal or sensitive information
-            through unverified contact channels. A verified contact method
-            should be published so visitors can raise privacy questions or
-            requests.
+            For privacy questions or requests, email{" "}
+            <a href="mailto:support@tooltiva.net">support@tooltiva.net</a>.
+            Please don&apos;t send files that contain personal or confidential
+            data: the tools run in your browser, so we never need your files.
           </p>
         </section>
 
