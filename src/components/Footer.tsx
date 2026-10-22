@@ -1,120 +1,76 @@
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, Terminal } from "lucide-react";
+import { TOOLS } from "@/lib/tools-registry";
 import { AnalyticsConsent } from "@/components/AnalyticsConsent";
+import { BrandMark } from "@/components/BrandMark";
+
+const linkClass =
+  "text-slate-700 hover:text-brand-800 hover:underline dark:text-slate-300 dark:hover:text-brand-300";
 
 export function Footer() {
   return (
-    <footer className="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 transition-colors mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Column 1: Brand & Commitment */}
-          <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white shadow-sm">
-                <Terminal className="w-4 h-4" />
-              </div>
-              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                Tooltiva
-              </span>
+    <footer className="mt-auto border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+          <div className="space-y-4 md:col-span-2">
+            <div className="flex items-center gap-2.5">
+              <BrandMark className="h-8 w-8" />
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Tooltiva</span>
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md leading-relaxed">
-              Fast, practical, and privacy-first online tools designed for developers, analysts, and digital creators.
-              CSV and JSON tool processing runs directly in your browser.
+            <p className="max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
+              Free tools for CSV and JSON files. Everything you paste or upload is processed in your browser and is
+              never uploaded to a server.
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>100% In-Browser Execution • Zero Server File Uploads</span>
-            </div>
           </div>
 
-          {/* Column 2: Data Tools */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3">
-              Data & CSV Tools
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/tools/csv-delimiter-converter/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
-                >
-                  CSV Delimiter Converter
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/tools/csv-to-json/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
-                >
-                  CSV ⇄ JSON Converter
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/tools/json-formatter/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
-                >
-                  JSON Formatter & Fixer
-                </Link>
-              </li>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Tools</h2>
+            <ul className="mt-3 space-y-2.5 text-sm">
+              {TOOLS.map((tool) => (
+                <li key={tool.slug}>
+                  <Link href={`/tools/${tool.slug}/`} className={linkClass}>
+                    {tool.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Column 3: Platform & Trust */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3">
-              Platform & Legal
-            </h3>
-            <ul className="space-y-2 text-sm">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Tooltiva</h2>
+            <ul className="mt-3 space-y-2.5 text-sm">
               <li>
-                <Link
-                  href="/about/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
-                >
-                  About Tooltiva
+                <Link href="/about/" className={linkClass}>
+                  About
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/privacy/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
-                >
+                <Link href="/contact/" className={linkClass}>
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy/" className={linkClass}>
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/terms/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
-                >
+                <Link href="/terms/" className={linkClass}>
                   Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact/"
-                  className="text-slate-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-brand-400 transition-colors"
-                >
-                  Contact & Feedback
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Bar with Discreet CodingTangent Attribution */}
-        <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            © {new Date().getFullYear()} Tooltiva (tooltiva.net). All rights reserved.
+        <div className="mt-10 flex flex-col gap-4 border-t border-slate-200 pt-8 text-sm text-slate-600 sm:flex-row sm:items-start sm:justify-between dark:border-slate-800 dark:text-slate-400">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-6">
+            <p>© {new Date().getFullYear()} Tooltiva. All rights reserved.</p>
             <AnalyticsConsent />
           </div>
-          <div className="flex items-center gap-1.5">
-            <span>A product initiative by</span>
-            <span className="font-medium text-slate-700 dark:text-slate-300">
-              CodingTangent
-            </span>
-          </div>
+          <p>
+            A product by <span className="font-medium text-slate-800 dark:text-slate-200">CodingTangent</span>
+          </p>
         </div>
       </div>
     </footer>

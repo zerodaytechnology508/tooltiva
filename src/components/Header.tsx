@@ -2,167 +2,118 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Shield, Moon, Sun, Menu, X, Terminal, FileSpreadsheet, ArrowLeftRight, Code2 } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
+import { TOOLS } from "@/lib/tools-registry";
+import { BrandMark } from "@/components/BrandMark";
+import { ToolIcon } from "@/components/ToolIcon";
 
 export function Header() {
   const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Check initial preference
-    if (
-      localStorage.theme === "dark" ||
-      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    }
+    setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
   const toggleTheme = () => {
-    if (isDark) {
-      document.documentElement.classList.remove("dark");
-      localStorage.theme = "light";
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.theme = "dark";
-      setIsDark(true);
+    const next = !isDark;
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.theme = next ? "dark" : "light";
+    } catch {
+      // Storage can be unavailable (private mode); the theme still applies for this page.
     }
+    setIsDark(next);
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
-                <Terminal className="w-5 h-5 stroke-[2.5]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-                  Tooltiva
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
-                    v1.0
-                  </span>
-                </span>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium -mt-1 hidden sm:inline">
-                  Privacy-First Online Tools
-                </span>
-              </div>
-            </Link>
-          </div>
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-2.5 rounded-lg" aria-label="Tooltiva home">
+          <BrandMark className="h-9 w-9" />
+          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Tooltiva</span>
+        </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+          {TOOLS.map((tool) => (
             <Link
-              href="/tools/csv-delimiter-converter/"
-              className="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+              key={tool.slug}
+              href={`/tools/${tool.slug}/`}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
-              CSV Delimiter
+              {tool.navLabel}
             </Link>
-            <Link
-              href="/tools/csv-to-json/"
-              className="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
-            >
-              <ArrowLeftRight className="w-4 h-4 text-blue-500" />
-              CSV ⇄ JSON
-            </Link>
-            <Link
-              href="/tools/json-formatter/"
-              className="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
-            >
-              <Code2 className="w-4 h-4 text-indigo-500" />
-              JSON Formatter
-            </Link>
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-2" />
-            <Link
-              href="/about/"
-              className="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/privacy/"
-              className="px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1"
-            >
-              <Shield className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
-              Privacy
-            </Link>
-          </nav>
+          ))}
+          <span aria-hidden="true" className="mx-2 h-5 w-px bg-slate-200 dark:bg-slate-800" />
+          <Link
+            href="/about/"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+          >
+            About
+          </Link>
+        </nav>
 
-          {/* Right Action Buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle Theme"
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-            </button>
-
-            {/* Mobile menu toggle button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle mobile menu"
-              className="md:hidden p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+            className="rounded-lg border border-slate-200 p-2.5 text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            {isDark ? <Sun aria-hidden="true" className="h-4 w-4" /> : <Moon aria-hidden="true" className="h-4 w-4" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
+            className="rounded-lg border border-slate-200 p-2.5 text-slate-700 transition-colors hover:bg-slate-100 lg:hidden dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            {mobileMenuOpen ? <X aria-hidden="true" className="h-4 w-4" /> : <Menu aria-hidden="true" className="h-4 w-4" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile menu modal */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 pt-2 pb-4 space-y-1">
-          <Link
-            href="/tools/csv-delimiter-converter/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <FileSpreadsheet className="w-5 h-5 text-emerald-500" />
-            CSV Delimiter Converter
-          </Link>
-          <Link
-            href="/tools/csv-to-json/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <ArrowLeftRight className="w-5 h-5 text-blue-500" />
-            CSV ⇄ JSON Converter
-          </Link>
-          <Link
-            href="/tools/json-formatter/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <Code2 className="w-5 h-5 text-indigo-500" />
-            JSON Formatter & Fixer
-          </Link>
-          <div className="border-t border-slate-200 dark:border-slate-800 my-2 pt-2">
-            <Link
-              href="/about/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm text-slate-600 dark:text-slate-400"
-            >
-              About Tooltiva
-            </Link>
-            <Link
-              href="/privacy/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm text-slate-600 dark:text-slate-400"
-            >
-              Privacy & Security Policy
-            </Link>
-          </div>
-        </div>
+        <nav
+          id="mobile-menu"
+          aria-label="Main"
+          className="border-t border-slate-200 bg-white px-4 pb-4 pt-2 lg:hidden dark:border-slate-800 dark:bg-slate-950"
+        >
+          <ul className="space-y-1">
+            {TOOLS.map((tool) => (
+              <li key={tool.slug}>
+                <Link
+                  href={`/tools/${tool.slug}/`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  <ToolIcon name={tool.icon} className="h-5 w-5 text-brand-700 dark:text-brand-400" />
+                  {tool.title}
+                </Link>
+              </li>
+            ))}
+            <li className="mt-2 border-t border-slate-200 pt-2 dark:border-slate-800">
+              <Link
+                href="/about/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block rounded-lg px-3 py-2.5 text-base font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                About Tooltiva
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/privacy/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block rounded-lg px-3 py-2.5 text-base font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Privacy Policy
+              </Link>
+            </li>
+          </ul>
+        </nav>
       )}
     </header>
   );

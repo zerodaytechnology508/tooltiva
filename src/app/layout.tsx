@@ -1,7 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SITE } from "@/lib/site";
+
+// Inter (SIL Open Font License, see src/fonts/Inter-OFL.txt), self-hosted so
+// no request goes to a third-party font service.
+const inter = localFont({
+  src: "../fonts/InterVariable-latin.woff2",
+  variable: "--font-inter",
+  display: "swap",
+  weight: "100 900",
+});
 
 export const viewport: Viewport = {
   themeColor: [
@@ -13,28 +24,16 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tooltiva.net"),
+  metadataBase: new URL(SITE.url),
   title: {
-    default: "Tooltiva - Free, Fast, Privacy-First Online Tools",
-    template: "%s | Tooltiva",
+    default: `${SITE.name} — ${SITE.tagline}`,
+    template: `%s | ${SITE.name}`,
   },
-  description:
-    "Free, fast, and privacy-first online tools for developers and creators. Process CSV, JSON, and files 100% in your browser. Zero server uploads.",
-  applicationName: "Tooltiva",
-  authors: [{ name: "CodingTangent" }],
-  generator: "Next.js",
-  keywords: [
-    "online tools",
-    "developer tools",
-    "csv delimiter converter",
-    "csv to json",
-    "json formatter",
-    "privacy-first web tools",
-    "client-side utilities",
-  ],
-  referrer: "origin-when-cross-origin",
-  creator: "CodingTangent",
-  publisher: "CodingTangent",
+  description: SITE.description,
+  applicationName: SITE.name,
+  authors: [{ name: SITE.publisher }],
+  creator: SITE.publisher,
+  publisher: SITE.publisher,
   formatDetection: {
     email: false,
     address: false,
@@ -42,17 +41,18 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_US",
-    url: "https://tooltiva.net",
-    siteName: "Tooltiva",
-    title: "Tooltiva - Free, Fast, Privacy-First Online Tools",
-    description:
-      "Developer utilities that process CSV and JSON locally in your browser without uploading tool content.",
+    locale: SITE.locale,
+    url: SITE.url,
+    siteName: SITE.name,
+    title: `${SITE.name} — ${SITE.tagline}`,
+    description: SITE.description,
+    images: [{ ...SITE.ogImage }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tooltiva - Free, Fast, Privacy-First Online Tools",
-    description: "Fast developer tools that process CSV and JSON in your browser.",
+    title: `${SITE.name} — ${SITE.tagline}`,
+    description: SITE.description,
+    images: [SITE.ogImage.url],
   },
   robots: {
     index: true,
@@ -73,8 +73,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
+        {/* Google AdSense: site ownership verification and ad serving. */}
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}`}
+          crossOrigin="anonymous"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -89,9 +95,17 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-screen flex flex-col font-sans transition-colors selection:bg-brand-500 selection:text-white">
+      <body className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-screen flex flex-col font-sans transition-colors selection:bg-brand-200 selection:text-slate-900">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg focus:outline focus:outline-2 focus:outline-brand-700"
+        >
+          Skip to content
+        </a>
         <Header />
-        <main className="flex-1 w-full">{children}</main>
+        <main id="main" className="flex-1 w-full">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

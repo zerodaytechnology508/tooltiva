@@ -1,22 +1,13 @@
 import React from "react";
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ShieldCheck } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Privacy & Security Policy - Tooltiva",
-  description:
-    "Learn how Tooltiva processes CSV and JSON content locally and how Google Analytics measures general website usage.",
-  alternates: {
-    canonical: "https://tooltiva.net/privacy/",
-  },
-  openGraph: {
-    title: "Privacy & Security Policy - Tooltiva",
-    description:
-      "Learn how Tooltiva processes tool content locally and how Google Analytics measures general site usage.",
-    url: "https://tooltiva.net/privacy/",
-  },
-};
+export const metadata = buildPageMetadata({
+  title: "Privacy & Security Policy",
+  description: "Learn how Tooltiva processes CSV and JSON content locally and how Google Analytics measures general website usage.",
+  path: "/privacy/",
+});
 
 export default function PrivacyPage() {
   return (
@@ -24,21 +15,21 @@ export default function PrivacyPage() {
       <Breadcrumbs items={[{ name: "Privacy Policy" }]} />
 
       <div className="space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800 text-xs text-brand-800 dark:text-brand-300 font-medium">
+          <ShieldCheck className="w-3.5 h-3.5 text-brand-700 dark:text-brand-400" />
           <span>Local Tool Processing</span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
           Privacy & Security Policy
         </h1>
 
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Last updated: October 12, 2026
+          Last updated: October 23, 2026
         </p>
       </div>
 
-      <div className="prose dark:prose-invert max-w-none space-y-8 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+      <div className="prose dark:prose-invert max-w-none space-y-8 text-base leading-7 text-slate-700 dark:text-slate-300">
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             1. Our Commitment: Local Tool Processing
@@ -97,9 +88,9 @@ export default function PrivacyPage() {
             Tooltiva uses Google Analytics 4 with measurement ID{" "}
             <code>G-DLDHVDXG2Q</code> to measure general website usage.
             Analytics is off unless you select “Accept All” or enable Google
-            Analytics in “Manage Preferences” using the site&apos;s Privacy
-            settings. The Google tag is loaded from Google&apos;s tag domain
-            only after you consent; selecting “Reject Non-Essential” keeps it
+            Analytics under “Manage” in the analytics banner or the footer&apos;s
+            Privacy settings. The Google tag is loaded from Google&apos;s tag domain
+            only after you consent; selecting “Reject” keeps it
             disabled. You can change your choice using Privacy settings in
             the footer at any time.
           </p>
@@ -140,21 +131,60 @@ export default function PrivacyPage() {
           </p>
         </section>
 
+        <section id="advertising" className="space-y-3">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            4. Advertising (Google AdSense)
+          </h2>
+
+          <p>
+            Tooltiva uses Google AdSense to show advertising and keep the tools
+            free. Third-party vendors, including Google, use cookies to serve
+            ads based on a user&apos;s prior visits to this website or other
+            websites. Google&apos;s use of advertising cookies enables it and
+            its partners to serve ads to you based on your visit to this site
+            and/or other sites on the Internet.
+          </p>
+
+          <p>
+            You may opt out of personalised advertising by visiting{" "}
+            <a href="https://adssettings.google.com/" rel="noopener noreferrer">
+              Google Ads Settings
+            </a>
+            . You can also opt out of some third-party vendors&apos; use of
+            cookies for personalised advertising at{" "}
+            <a href="https://www.aboutads.info/choices/" rel="noopener noreferrer">
+              aboutads.info
+            </a>
+            . Learn more in{" "}
+            <a href="https://policies.google.com/technologies/ads" rel="noopener noreferrer">
+              How Google uses cookies in advertising
+            </a>
+            .
+          </p>
+
+          <p>
+            Advertising scripts receive page-visit information such as the
+            page address, browser and approximate location. They never
+            receive the text you paste or the files you open in a tool: tool
+            processing stays in your browser.
+          </p>
+        </section>
+
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            4. Security and Content Security Policy
+            5. Security and Content Security Policy
           </h2>
 
           <p>
             Tooltiva uses a Content Security Policy intended to restrict
             resources that the website can load and contact. Its configured
-            policy permits the Google Analytics resources used by the
-            application. This is a defense-in-depth measure, not a guarantee
+            policy permits the Google Analytics and Google AdSense resources
+            used by the website. This is a defense-in-depth measure, not a guarantee
             that information cannot be exposed.
           </p>
 
           <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 font-mono text-xs overflow-x-auto text-slate-800 dark:text-slate-200">
-            {`default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.google-analytics.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com; frame-ancestors 'none'; form-action 'none';`}
+            {`default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googlesyndication.com https://*.adtrafficquality.google https://*.doubleclick.net https://fundingchoicesmessages.google.com; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://*.googlesyndication.com https://www.google.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com; frame-ancestors 'none'; form-action 'none';`}
           </div>
 
           <p>
@@ -166,7 +196,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            5. Verifying Local Tool Processing
+            6. Verifying Local Tool Processing
           </h2>
 
           <p>
@@ -202,7 +232,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            6. Contact and Privacy Inquiries
+            7. Contact and Privacy Inquiries
           </h2>
 
           <p>
@@ -217,7 +247,7 @@ export default function PrivacyPage() {
 
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            7. Policy Updates
+            8. Policy Updates
           </h2>
 
           <p>

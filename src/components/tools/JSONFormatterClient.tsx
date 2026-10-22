@@ -177,14 +177,14 @@ export function JSONFormatterClient() {
         node.type === "null" ? "null" : node.type === "boolean" ? String(node.value) : node.raw;
       const tone =
         node.type === "string"
-          ? "text-emerald-600 dark:text-emerald-400"
+          ? "text-brand-700 dark:text-brand-400"
           : node.type === "number"
           ? "text-blue-600 dark:text-blue-400"
           : node.type === "boolean"
           ? "text-amber-600 dark:text-amber-400 font-semibold"
-          : "text-slate-400 italic";
+          : "text-slate-500 italic";
       return (
-        <div style={{ paddingLeft: `${depth * 16}px` }} className="py-0.5 font-mono text-xs">
+        <div style={{ paddingLeft: `${depth * 16}px` }} className="py-0.5 font-mono text-sm">
           {label}
           <span className={tone}>{text}</span>
         </div>
@@ -197,7 +197,7 @@ export function JSONFormatterClient() {
         : node.entries.map((entry) => ({ key: entry.key, value: entry.value }));
 
     return (
-      <div style={{ paddingLeft: `${depth * 16}px` }} className="py-0.5 font-mono text-xs">
+      <div style={{ paddingLeft: `${depth * 16}px` }} className="py-0.5 font-mono text-sm">
         <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
           {label}
           <span className="font-bold text-slate-500">
@@ -234,20 +234,22 @@ export function JSONFormatterClient() {
     <div className="space-y-8">
       <PrivacyBadge />
 
-      <div className="border border-slate-200 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900 p-5 sm:p-7 shadow-sm space-y-6">
+      <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm space-y-6">
         {/* Top Controls Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
           {/* Format Buttons */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-1">
+            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 mr-1">
               Indent:
             </span>
             <button
               onClick={() => handleFormat(2)}
+              type="button"
+              aria-pressed={indent === 2}
               disabled={!validation?.isValid}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-xl border text-sm font-semibold transition-colors ${
                 indent === 2
-                  ? "bg-white dark:bg-slate-900 border-brand-500 text-brand-600 dark:text-brand-400 shadow-sm"
+                  ? "bg-white dark:bg-slate-900 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm"
                   : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
@@ -255,10 +257,12 @@ export function JSONFormatterClient() {
             </button>
             <button
               onClick={() => handleFormat(4)}
+              type="button"
+              aria-pressed={indent === 4}
               disabled={!validation?.isValid}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-xl border text-sm font-semibold transition-colors ${
                 indent === 4
-                  ? "bg-white dark:bg-slate-900 border-brand-500 text-brand-600 dark:text-brand-400 shadow-sm"
+                  ? "bg-white dark:bg-slate-900 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm"
                   : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
@@ -266,10 +270,12 @@ export function JSONFormatterClient() {
             </button>
             <button
               onClick={() => handleFormat(0)}
+              type="button"
+              aria-pressed={indent === 0}
               disabled={!validation?.isValid}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-xl border text-sm font-semibold transition-colors ${
                 indent === 0
-                  ? "bg-white dark:bg-slate-900 border-brand-500 text-brand-600 dark:text-brand-400 shadow-sm"
+                  ? "bg-white dark:bg-slate-900 border-brand-500 text-brand-700 dark:text-brand-400 shadow-sm"
                   : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               } disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1`}
             >
@@ -283,22 +289,22 @@ export function JSONFormatterClient() {
             <button
               onClick={handleAutoFix}
               disabled={!inputJSON || validation?.isValid}
-              className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
               <Wrench className="w-3.5 h-3.5" />
               Auto-Fix Syntax
             </button>
             <button
               onClick={() => loadSample(false)}
-              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               Load Broken Sample
             </button>
             <button
               onClick={() => loadSample(true)}
-              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1"
+              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1"
             >
-              <Sparkles className="w-3 h-3 text-brand-500" />
+              <Sparkles className="w-3 h-3 text-brand-700" />
               Valid Sample
             </button>
           </div>
@@ -308,23 +314,23 @@ export function JSONFormatterClient() {
         {validation && (
           <div>
             {validation.isValid ? (
-              <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-emerald-900 dark:text-emerald-200 text-xs flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800/80 text-brand-900 dark:text-brand-200 text-sm flex items-center justify-between">
                 <div className="flex items-center gap-2 font-semibold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4 text-brand-700 dark:text-brand-400" />
                   <span>Valid RFC 8259 JSON</span>
                 </div>
-                <div className="font-mono text-[11px] text-emerald-700 dark:text-emerald-300">
+                <div className="font-mono text-xs text-brand-700 dark:text-brand-300">
                   {inputJSON.length.toLocaleString()} characters • {(new Blob([inputJSON]).size / 1024).toFixed(2)} KB
                 </div>
               </div>
             ) : (
-              <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 text-rose-900 dark:text-rose-200 text-xs space-y-1.5">
+              <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 text-rose-900 dark:text-rose-200 text-sm space-y-1.5">
                 <div className="flex items-center gap-2 font-bold text-rose-950 dark:text-rose-100">
                   <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                   <span>Syntax Error: {validation.error?.message}</span>
                 </div>
                 {validation.error?.line && (
-                  <div className="pl-6 font-mono text-[11px] text-rose-800 dark:text-rose-300">
+                  <div className="pl-6 font-mono text-xs text-rose-800 dark:text-rose-300">
                     Location: Line {validation.error.line}, Column {validation.error.column}
                     {validation.error.snippet !== undefined && (
                       <pre className="mt-1 p-2 rounded bg-rose-100/60 dark:bg-rose-900/40 text-rose-950 dark:text-rose-100 overflow-x-auto whitespace-pre">
@@ -342,7 +348,7 @@ export function JSONFormatterClient() {
         {dataNotices.length > 0 && (
           <div
             role="status"
-            className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs space-y-1"
+            className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-sm space-y-1"
           >
             {dataNotices.map((notice, i) => (
               <p key={i} className="flex items-start gap-2">
@@ -355,7 +361,7 @@ export function JSONFormatterClient() {
 
         {/* Explicit Repairs Applied Audit Log */}
         {repairs.length > 0 && (
-          <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs space-y-2">
+          <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-sm space-y-2">
             <div className="flex items-center justify-between font-bold text-amber-950 dark:text-amber-100">
               <span className="flex items-center gap-1.5">
                 <Wrench className="w-3.5 h-3.5 text-amber-600" />
@@ -364,14 +370,14 @@ export function JSONFormatterClient() {
               {originalBeforeRepair && (
                 <button
                   onClick={handleUndoRepair}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 dark:text-amber-300 hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-amber-800 dark:text-amber-300 hover:underline"
                 >
                   <Undo2 className="w-3 h-3" />
                   Undo Auto-Repair
                 </button>
               )}
             </div>
-            <ul className="list-disc list-inside space-y-1 pl-1 text-[11px]">
+            <ul className="list-disc list-inside space-y-1 pl-1 text-xs">
               {repairs.map((r, i) => (
                 <li key={i}>
                   <strong className="capitalize">{r.rule.replace(/-/g, " ")}:</strong> {r.description} ({r.count}x)
@@ -383,17 +389,19 @@ export function JSONFormatterClient() {
 
         {/* Input / Editor Section */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-3">
               <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <Code2 className="w-4 h-4 text-indigo-500" />
+                <Code2 className="w-4 h-4 text-brand-700" />
                 JSON Editor
               </label>
 
               {validation?.isValid && (
-                <div className="inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-medium">
+                <div className="inline-flex items-center p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-medium">
                   <button
                     onClick={() => setViewMode("code")}
+                    type="button"
+                    aria-pressed={viewMode === "code"}
                     className={`px-2 py-0.5 rounded ${
                       viewMode === "code"
                         ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold"
@@ -404,6 +412,8 @@ export function JSONFormatterClient() {
                   </button>
                   <button
                     onClick={() => setViewMode("tree")}
+                    type="button"
+                    aria-pressed={viewMode === "tree"}
                     className={`px-2 py-0.5 rounded flex items-center gap-1 ${
                       viewMode === "tree"
                         ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold"
@@ -418,7 +428,7 @@ export function JSONFormatterClient() {
             </div>
 
             <div className="flex items-center gap-3">
-              <label className="cursor-pointer text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
+              <label className="cursor-pointer text-sm font-medium text-brand-700 dark:text-brand-400 hover:underline flex items-center gap-1">
                 <Upload className="w-3.5 h-3.5" />
                 Upload .JSON
                 <input
@@ -436,7 +446,7 @@ export function JSONFormatterClient() {
                     setRepairs([]);
                     setOriginalBeforeRepair(null);
                   }}
-                  className="text-xs text-slate-400 hover:text-rose-500 transition-colors"
+                  className="rounded text-sm font-medium text-slate-600 hover:text-rose-700 dark:text-slate-400 dark:hover:text-rose-400 transition-colors"
                 >
                   Clear
                 </button>
@@ -445,23 +455,25 @@ export function JSONFormatterClient() {
           </div>
 
           {fileNotice && (
-            <p role="status" className="text-xs text-amber-800 dark:text-amber-300">
+            <p role="status" className="text-sm text-amber-800 dark:text-amber-300">
               {fileNotice}
             </p>
           )}
 
           {viewMode === "code" || !validation?.isValid ? (
             <textarea
+              wrap="off"
+              spellCheck={false}
               aria-label="JSON editor"
               value={inputJSON}
               onChange={(e) => setInputJSON(e.target.value)}
               placeholder="Paste JSON here, drag and drop a file, or click 'Load Broken Sample'..."
               rows={14}
-              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
             />
           ) : (
             <div className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 max-h-96 overflow-y-auto">
-              {parsed ? renderTree(parsed.root) : <span className="text-xs text-slate-400">Empty tree</span>}
+              {parsed ? renderTree(parsed.root) : <span className="text-sm text-slate-500">Empty tree</span>}
             </div>
           )}
         </div>
@@ -471,16 +483,16 @@ export function JSONFormatterClient() {
           <button
             onClick={handleCopy}
             disabled={!inputJSON}
-            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-brand-700" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? "Copied!" : "Copy JSON"}</span>
           </button>
 
           <button
             onClick={handleDownload}
             disabled={!inputJSON}
-            className="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-medium transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Download .JSON</span>

@@ -1,187 +1,122 @@
 import React from "react";
 import Link from "next/link";
+import { ArrowRight, Lock, ShieldCheck, UserX } from "lucide-react";
 import { TOOLS } from "@/lib/tools-registry";
-import { PrivacyBadge } from "@/components/PrivacyBadge";
-import {
-  FileSpreadsheet,
-  ArrowLeftRight,
-  Code2,
-  Zap,
-  Lock,
-  Sparkles,
-  ArrowRight,
-  CheckCircle2,
-  Terminal,
-} from "lucide-react";
+import { buildPageMetadata } from "@/lib/metadata";
+import { SITE, absoluteUrl } from "@/lib/site";
+import { ToolIcon } from "@/components/ToolIcon";
 
-export const metadata = {
-  title: "Tooltiva - Free, Fast, Privacy-First Online Tools",
-  description:
-    "Free online developer and data tools. Convert CSV delimiters, transform CSV to JSON, format and auto-fix JSON. 100% in-browser processing with zero server uploads.",
-  alternates: {
-    canonical: "https://tooltiva.net/",
+export const metadata = buildPageMetadata({
+  title: `${SITE.name} — Free CSV & JSON Tools That Run in Your Browser`,
+  description: SITE.description,
+  path: "/",
+  absoluteTitle: true,
+});
+
+const PRINCIPLES = [
+  {
+    icon: Lock,
+    title: "Your files stay on your device",
+    text: "Every tool runs in your browser. What you paste or upload is never sent to a server, so you can work with customer lists, exports and API responses safely.",
   },
-};
+  {
+    icon: ShieldCheck,
+    title: "No silent changes",
+    text: "Values are kept exactly as written. When a tool repairs or converts something, it tells you what changed, and you can review a preview before you export.",
+  },
+  {
+    icon: UserX,
+    title: "Free, no sign-up",
+    text: "Open a tool and use it. There is no account, no email gate and no upload queue.",
+  },
+];
 
 export default function HomePage() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Tooltiva",
-    "url": "https://tooltiva.net/",
-    "description": "Fast, private in-browser online tools for developers and creators.",
-    "publisher": {
+    name: SITE.name,
+    url: absoluteUrl("/"),
+    description: SITE.description,
+    publisher: {
       "@type": "Organization",
-      "name": "CodingTangent",
+      name: SITE.publisher,
     },
   };
 
-  const getToolIcon = (iconName: string) => {
-    switch (iconName) {
-      case "FileSpreadsheet":
-        return <FileSpreadsheet className="w-6 h-6 text-emerald-500" />;
-      case "ArrowLeftRight":
-        return <ArrowLeftRight className="w-6 h-6 text-blue-500" />;
-      case "Code2":
-        return <Code2 className="w-6 h-6 text-indigo-500" />;
-      default:
-        return <Terminal className="w-6 h-6 text-brand-500" />;
-    }
-  };
-
   return (
-    <div className="space-y-16 py-8 sm:py-12">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-      />
+    <div className="mx-auto w-full max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800 text-xs text-brand-800 dark:text-brand-300 font-medium">
-          <Sparkles className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
-          <span>Launch Cluster: In-Browser Data & CSV Utilities</span>
-        </div>
-
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight">
-          Practical Online Tools.{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-emerald-400">
-            CSV & JSON Processed In-Browser.
-          </span>
+      <section className="mx-auto max-w-3xl pb-14 pt-16 text-center sm:pt-20">
+        <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
+          Free CSV and JSON tools that run in your browser
         </h1>
-
-        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          Clean, fast, ad-free utilities for spreadsheets, data conversions, and code formatting.
-          CSV and JSON content is processed locally in your browser and is never uploaded by the tools.
+        <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
+          Change CSV delimiters, convert between CSV and JSON, and format or fix JSON. Your files are processed on
+          your device and never uploaded.
         </p>
-
-        {/* Global Privacy Verification Badge */}
-        <div className="max-w-3xl mx-auto pt-2">
-          <PrivacyBadge />
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            href="#tools"
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 text-base font-semibold text-white transition-colors hover:bg-brand-800 dark:bg-brand-500 dark:text-slate-950 dark:hover:bg-brand-400"
+          >
+            Browse the tools
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          </a>
+          <Link
+            href="/about/"
+            className="inline-flex min-h-11 items-center rounded-lg px-5 py-2.5 text-base font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            How Tooltiva works
+          </Link>
         </div>
       </section>
 
-      {/* Tools Grid Section */}
-      <section id="tools" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Available Tools
-            </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Engineered for speed, privacy, and functional correctness.
-            </p>
-          </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-            {TOOLS.length} Active Tools
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section id="tools" aria-labelledby="tools-title" className="scroll-mt-20">
+        <h2 id="tools-title" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          Tools
+        </h2>
+        <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {TOOLS.map((tool) => (
-            <Link
-              key={tool.id}
-              href={`/tools/${tool.slug}/`}
-              className="group relative flex flex-col justify-between p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 hover:border-brand-500/60 dark:hover:border-brand-500/60 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-200"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    {getToolIcon(tool.icon)}
-                  </div>
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                    {tool.category}
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-brand-700 dark:group-hover:text-brand-400 transition-colors">
-                    {tool.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {tool.shortDescription}
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-semibold text-brand-700 dark:text-brand-400">
-                <span>Launch Tool</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
+            <li key={tool.id}>
+              <Link
+                href={`/tools/${tool.slug}/`}
+                className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 transition-colors hover:border-brand-600/60 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/60"
+              >
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+                  <ToolIcon name={tool.icon} className="h-5 w-5" />
+                </span>
+                <span className="mt-4 text-lg font-semibold text-slate-900 group-hover:text-brand-800 dark:text-white dark:group-hover:text-brand-300">
+                  {tool.title}
+                </span>
+                <span className="mt-2 flex-1 text-base leading-7 text-slate-600 dark:text-slate-400">
+                  {tool.shortDescription}
+                </span>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 dark:text-brand-400">
+                  Open tool
+                  <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
-      {/* Feature Principles Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 p-8 sm:p-12 space-y-8">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Why Choose Tooltiva?
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Built on transparent engineering principles to replace bloated, ad-ridden utility websites.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                <Lock className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Zero Cloud Uploads
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Your spreadsheets, API tokens, and confidential customer lists never leave your device. All parsing runs locally in browser RAM.
-              </p>
+      <section aria-labelledby="principles-title" className="mt-20 border-t border-slate-200 pt-14 dark:border-slate-800">
+        <h2 id="principles-title" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          Built to be trusted with your data
+        </h2>
+        <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {PRINCIPLES.map(({ icon: Icon, title, text }) => (
+            <div key={title}>
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+                <Icon aria-hidden="true" className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+              <p className="mt-2 text-base leading-7 text-slate-600 dark:text-slate-400">{text}</p>
             </div>
-
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                <Zap className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                No Ads or Paywalls
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                No pop-ups, no artificial limits on rows, and no subscriptions. Get your files converted instantly with clean, respectful UX.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Never Silent Modifications
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Automatic syntax repairs and delimiter transformations provide explicit change logs and interactive table previews before export.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
     </div>

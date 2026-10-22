@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node tests/functional-tests.mjs"
+    "test": "node tests/functional-tests.mjs",
+    "test:output": "node tests/build-output-tests.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.447.0",

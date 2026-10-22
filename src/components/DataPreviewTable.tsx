@@ -19,7 +19,7 @@ export function DataPreviewTable({
       <div className="border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-8 text-center text-slate-500 dark:text-slate-400">
         <Table className="w-8 h-8 mx-auto mb-2 opacity-40" />
         <p className="text-sm font-medium">No tabular data to preview yet.</p>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-500 mt-1">
           Paste data or upload a file to preview structured rows and columns.
         </p>
       </div>
@@ -29,17 +29,17 @@ export function DataPreviewTable({
   return (
     <div className="space-y-3">
       {/* Table Stats Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600 dark:text-slate-400">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
-            <Table className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+            <Table className="w-3.5 h-3.5 text-brand-700 dark:text-brand-400" />
             Table Preview
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-mono text-[11px]">
+          <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-mono text-xs">
             {totalRowCount.toLocaleString()} {totalRowCount === 1 ? "row" : "rows"} × {headers.length} cols
           </span>
           {rows.length < totalRowCount && (
-            <span className="text-slate-400 dark:text-slate-500 italic text-[11px]">
+            <span className="text-slate-500 dark:text-slate-500 italic text-xs">
               (showing first {rows.length} rows)
             </span>
           )}
@@ -48,7 +48,7 @@ export function DataPreviewTable({
 
       {/* Warnings Banner */}
       {warnings.length > 0 && (
-        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2">
+        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-sm flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             {warnings.map((w, i) => (
@@ -61,10 +61,10 @@ export function DataPreviewTable({
       {/* Responsive Table Container */}
       <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
         <div className="overflow-x-auto max-h-80">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-sm border-collapse">
             <thead className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="py-2.5 px-3 font-mono font-semibold text-slate-400 dark:text-slate-500 w-12 text-center border-r border-slate-200 dark:border-slate-800">
+                <th className="py-2.5 px-3 font-mono font-semibold text-slate-500 dark:text-slate-500 w-12 text-center border-r border-slate-200 dark:border-slate-800">
                   #
                 </th>
                 {headers.map((head, idx) => (
@@ -83,7 +83,7 @@ export function DataPreviewTable({
                   key={rIdx}
                   className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors"
                 >
-                  <td className="py-2 px-3 text-slate-400 dark:text-slate-500 text-center border-r border-slate-100 dark:border-slate-800 select-none bg-slate-50/50 dark:bg-slate-850">
+                  <td className="py-2 px-3 text-slate-500 dark:text-slate-500 text-center border-r border-slate-100 dark:border-slate-800 select-none bg-slate-50/50 dark:bg-slate-850">
                     {rIdx + 1}
                   </td>
                   {headers.map((_, cIdx) => (

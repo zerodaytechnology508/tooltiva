@@ -1,47 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Lock } from "lucide-react";
+import React, { useId, useState } from "react";
+import { ChevronDown, Lock } from "lucide-react";
 
 export function PrivacyBadge() {
   const [isOpen, setIsOpen] = useState(false);
+  const panelId = useId();
 
   return (
-    <div className="w-full bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 rounded-xl p-3.5 transition-all text-xs text-emerald-900 dark:text-emerald-200">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <Lock className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="font-semibold text-emerald-950 dark:text-emerald-100 mr-1.5">
-              Local Tool Processing:
-            </span>
-            <span>Your files and text are processed in your browser and are not sent to a processing server or included in analytics.</span>
-          </div>
-        </div>
+    <div className="rounded-xl border border-brand-200 bg-brand-50/70 px-4 py-3 text-sm text-slate-700 dark:border-brand-900 dark:bg-brand-950/40 dark:text-slate-300">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <p className="flex items-start gap-2.5 leading-6">
+          <Lock aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-brand-700 dark:text-brand-400" />
+          <span>
+            <span className="font-semibold text-slate-900 dark:text-white">Processed in your browser.</span> Your files
+            and text are never uploaded or included in analytics.
+          </span>
+        </p>
         <button
+          type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center gap-1 font-medium text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:underline shrink-0 text-xs px-2 py-1 rounded"
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          className="inline-flex shrink-0 items-center gap-1 self-start rounded-md pl-6 font-medium text-brand-800 hover:underline sm:self-auto sm:pl-0 dark:text-brand-300"
         >
-          <span>{isOpen ? "Hide Verification" : "Verify Yourself"}</span>
-          {isOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          How to check
+          <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         </button>
       </div>
 
-      {isOpen && (
-        <div className="mt-3 pt-3 border-t border-emerald-200/60 dark:border-emerald-800/40 space-y-2 text-emerald-900/90 dark:text-emerald-200/90 text-xs leading-relaxed">
-          <p className="font-semibold text-emerald-950 dark:text-emerald-100">
-            Verify Tooltiva&apos;s local-processing behavior in under 15 seconds:
-          </p>
-          <ol className="list-decimal list-inside space-y-1 pl-1">
-            <li>Press <kbd className="px-1.5 py-0.5 rounded bg-emerald-200/60 dark:bg-emerald-900 font-mono text-[11px]">F12</kbd> (or right-click → <span className="font-medium">Inspect</span>) in your browser.</li>
-            <li>Click on the <span className="font-medium">Network</span> tab and clear all existing logs.</li>
-            <li>Paste your data or upload a file and run the conversion.</li>
-            <li>Tool conversions do not send your input or file contents. If you accepted optional analytics, separate general site-usage requests may appear.</li>
-          </ol>
-        </div>
-      )}
+      <div id={panelId} hidden={!isOpen} className="mt-3 border-t border-brand-200 pt-3 leading-6 dark:border-brand-900">
+        <ol className="list-decimal space-y-1 pl-5">
+          <li>
+            Open your browser&apos;s developer tools (<kbd className="rounded border border-slate-300 bg-white px-1.5 py-0.5 font-mono text-xs dark:border-slate-600 dark:bg-slate-800">F12</kbd>{" "}
+            or right-click → Inspect) and choose the Network tab.
+          </li>
+          <li>Clear the list, then paste your data or upload a file and run the tool.</li>
+          <li>
+            No request carries your input or file contents. If you allowed optional analytics, separate page-visit
+            requests may appear.
+          </li>
+        </ol>
+      </div>
     </div>
   );
 }

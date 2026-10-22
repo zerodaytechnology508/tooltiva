@@ -9,6 +9,9 @@ const config: Config = {
   darkMode: "class",
   theme: {
     extend: {
+      // One accent colour. Text and buttons on white use brand-700 or darker
+      // (5.0:1 or more against white, WCAG AA); brand-600 and lighter are for
+      // borders, icons on tinted backgrounds and dark-mode text only.
       colors: {
         brand: {
           50: "#f0fdf4",
@@ -26,17 +29,16 @@ const config: Config = {
         slate: {
           850: "#151e2e",
           950: "#0b0f17",
-        }
+        },
       },
       fontFamily: {
         sans: [
+          "var(--font-inter)",
+          "ui-sans-serif",
+          "system-ui",
           "-apple-system",
-          "BlinkMacSystemFont",
           "Segoe UI",
           "Roboto",
-          "Oxygen",
-          "Ubuntu",
-          "Cantarell",
           "sans-serif",
         ],
         mono: [

@@ -8,7 +8,16 @@ export interface FAQItem {
 export interface ToolMeta {
   id: string;
   slug: string;
+  /** Tool name used in navigation, cards, breadcrumbs and structured data. */
   title: string;
+  /** Short label for the header navigation. */
+  navLabel: string;
+  /** SEO <title> without the "| Tooltiva" suffix; leads with the task phrase. */
+  pageTitle: string;
+  /** Visible page heading. */
+  h1: string;
+  /** One- or two-sentence summary under the heading. */
+  intro: string;
   badgeTitle: string;
   shortDescription: string;
   metaDescription: string;

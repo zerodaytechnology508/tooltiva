@@ -194,19 +194,21 @@ function CSVToJSONTool({
     <div className="space-y-8">
       <PrivacyBadge />
 
-      <div className="border border-slate-200 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900 p-5 sm:p-7 shadow-sm space-y-6">
+      <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm space-y-6">
         {/* Mode Switcher Banner */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Conversion Mode:
+            <span className="hidden sm:inline text-sm font-semibold text-slate-600 dark:text-slate-400">
+              Mode
             </span>
-            <div className="inline-flex items-center p-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+            <div className="inline-flex items-center p-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold">
               <button
                 onClick={() => setDirection("csv-to-json")}
-                className={`px-3 py-1.5 rounded-lg transition-colors ${
+                type="button"
+                aria-pressed={direction === "csv-to-json"}
+                className={`whitespace-nowrap px-3 py-1.5 rounded-lg transition-colors ${
                   direction === "csv-to-json"
-                    ? "bg-brand-600 text-white shadow-sm"
+                    ? "bg-brand-700 text-white shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -214,9 +216,11 @@ function CSVToJSONTool({
               </button>
               <button
                 onClick={() => setDirection("json-to-csv")}
-                className={`px-3 py-1.5 rounded-lg transition-colors ${
+                type="button"
+                aria-pressed={direction === "json-to-csv"}
+                className={`whitespace-nowrap px-3 py-1.5 rounded-lg transition-colors ${
                   direction === "json-to-csv"
-                    ? "bg-brand-600 text-white shadow-sm"
+                    ? "bg-brand-700 text-white shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -228,16 +232,16 @@ function CSVToJSONTool({
           <div className="flex items-center gap-2">
             <button
               onClick={toggleDirection}
-              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
             >
               <ArrowLeftRight className="w-3.5 h-3.5" />
               Swap Direction
             </button>
             <button
               onClick={loadSample}
-              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+              className="py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
             >
-              <Sparkles className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+              <Sparkles className="w-3.5 h-3.5 text-brand-700 dark:text-brand-400" />
               Load Sample
             </button>
           </div>
@@ -247,14 +251,14 @@ function CSVToJSONTool({
         {direction === "csv-to-json" ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 JSON Structure Format
               </label>
               <select
                 aria-label="JSON structure format"
                 value={jsonFormat}
                 onChange={(e) => setJsonFormat(e.target.value as "array-of-objects" | "2d-array" | "keyed-object")}
-                className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="array-of-objects">Array of Objects ([{`{...}`}])</option>
                 <option value="2d-array">2D Array ([[], []])</option>
@@ -262,14 +266,14 @@ function CSVToJSONTool({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Value Types
               </label>
               <select
                 aria-label="Value types"
                 value={parseTypes ? "true" : "false"}
                 onChange={(e) => setParseTypes(e.target.value === "true")}
-                className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="false">Keep values as text (recommended)</option>
                 <option value="true">Convert exact numbers &amp; true/false</option>
@@ -277,14 +281,14 @@ function CSVToJSONTool({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 JSON Indentation
               </label>
               <select
                 aria-label="JSON indentation"
                 value={jsonIndent}
                 onChange={(e) => setJsonIndent(parseInt(e.target.value, 10))}
-                className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value={2}>2 Spaces (Pretty)</option>
                 <option value={4}>4 Spaces (Standard)</option>
@@ -295,14 +299,14 @@ function CSVToJSONTool({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Output CSV Delimiter
               </label>
               <select
                 aria-label="Output CSV delimiter"
                 value={csvDelimiter}
                 onChange={(e) => setCsvDelimiter(e.target.value)}
-                className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value=",">Comma (,)</option>
                 <option value=";">Semicolon (;)</option>
@@ -312,21 +316,21 @@ function CSVToJSONTool({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Quoting Mode
               </label>
               <select
                 aria-label="Quoting mode"
                 value={quoteAll ? "true" : "false"}
                 onChange={(e) => setQuoteAll(e.target.value === "true")}
-                className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="false">RFC 4180 (Quote only when needed)</option>
                 <option value="true">Quote All Fields</option>
               </select>
             </div>
 
-            <label className="sm:col-span-2 flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+            <label className="sm:col-span-2 flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formulaSafe}
@@ -345,22 +349,22 @@ function CSVToJSONTool({
 
         {/* Input Text Area */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between text-sm">
             <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
               {direction === "csv-to-json" ? (
                 <>
-                  <FileText className="w-4 h-4 text-emerald-500" />
+                  <FileText className="w-4 h-4 text-brand-700" />
                   Source CSV Input
                 </>
               ) : (
                 <>
-                  <Code2 className="w-4 h-4 text-indigo-500" />
+                  <Code2 className="w-4 h-4 text-brand-700" />
                   Source JSON Input
                 </>
               )}
             </label>
             <div className="flex items-center gap-3">
-              <label className="cursor-pointer text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
+              <label className="cursor-pointer text-sm font-medium text-brand-700 dark:text-brand-400 hover:underline flex items-center gap-1">
                 <Upload className="w-3.5 h-3.5" />
                 Upload {direction === "csv-to-json" ? "CSV" : "JSON"}
                 <input
@@ -376,7 +380,7 @@ function CSVToJSONTool({
                     setInputData("");
                     setFileNotice(null);
                   }}
-                  className="text-xs text-slate-400 hover:text-rose-500 transition-colors"
+                  className="rounded text-sm font-medium text-slate-600 hover:text-rose-700 dark:text-slate-400 dark:hover:text-rose-400 transition-colors"
                 >
                   Clear
                 </button>
@@ -385,6 +389,8 @@ function CSVToJSONTool({
           </div>
 
           <textarea
+            wrap="off"
+            spellCheck={false}
             aria-label={direction === "csv-to-json" ? "Source CSV input" : "Source JSON input"}
             value={inputData}
             onChange={(e) => setInputData(e.target.value)}
@@ -394,10 +400,10 @@ function CSVToJSONTool({
                 : "Paste JSON array or dictionary here..."
             }
             rows={7}
-            className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
+            className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
           />
           {fileNotice && (
-            <p role="status" className="text-xs text-amber-800 dark:text-amber-300">
+            <p role="status" className="text-sm text-amber-800 dark:text-amber-300">
               {fileNotice}
             </p>
           )}
@@ -406,9 +412,11 @@ function CSVToJSONTool({
         {/* Output Section */}
         <div className="space-y-3 pt-2">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-medium">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-medium">
               <button
                 onClick={() => setActiveTab("result")}
+                type="button"
+                aria-pressed={activeTab === "result"}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   activeTab === "result"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold"
@@ -419,6 +427,8 @@ function CSVToJSONTool({
               </button>
               <button
                 onClick={() => setActiveTab("table")}
+                type="button"
+                aria-pressed={activeTab === "table"}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   activeTab === "table"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold"
@@ -433,16 +443,16 @@ function CSVToJSONTool({
               <button
                 onClick={handleCopy}
                 disabled={!outputData}
-                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-brand-700" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? "Copied!" : "Copy Result"}</span>
               </button>
 
               <button
                 onClick={handleDownload}
                 disabled={!outputData}
-                className="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-medium transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download {direction === "csv-to-json" ? ".JSON" : ".CSV"}</span>
@@ -453,7 +463,7 @@ function CSVToJSONTool({
           {warnings.length > 0 && (hasError || activeTab === "result") && (
             <div
               role={hasError ? "alert" : "status"}
-              className={`p-3 rounded-lg border text-xs flex items-start gap-2 ${
+              className={`p-3 rounded-lg border text-sm flex items-start gap-2 ${
                 hasError
                   ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-900 dark:text-rose-200"
                   : "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200"
@@ -482,12 +492,14 @@ function CSVToJSONTool({
             />
           ) : (
             <textarea
+              wrap="off"
+              spellCheck={false}
               aria-label={direction === "csv-to-json" ? "Converted JSON output" : "Converted CSV output"}
               readOnly
               value={outputData}
               placeholder="Converted output will appear here..."
               rows={9}
-              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-xs text-slate-900 dark:text-slate-100 leading-relaxed resize-y focus:outline-none"
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-sm text-slate-900 dark:text-slate-100 leading-relaxed resize-y focus:outline-none"
             />
           )}
         </div>
@@ -534,7 +546,7 @@ class ToolErrorBoundary extends Component<
           <button
             type="button"
             onClick={this.reset}
-            className="px-3.5 py-1.5 rounded-xl border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-900 text-xs font-semibold text-rose-800 dark:text-rose-200 hover:bg-rose-100 dark:hover:bg-slate-800 transition-colors"
+            className="px-3.5 py-1.5 rounded-xl border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-900 text-sm font-semibold text-rose-800 dark:text-rose-200 hover:bg-rose-100 dark:hover:bg-slate-800 transition-colors"
           >
             Reset converter
           </button>

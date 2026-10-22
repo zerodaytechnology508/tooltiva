@@ -1,20 +1,12 @@
 import React from "react";
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
-export const metadata: Metadata = {
-  title: "Terms of Service - Tooltiva",
+export const metadata = buildPageMetadata({
+  title: "Terms of Service",
   description: "Terms of service and fair usage guidelines for Tooltiva online tools.",
-  alternates: {
-    canonical: "https://tooltiva.net/terms/",
-  },
-  openGraph: {
-    title: "Terms of Service - Tooltiva",
-    description:
-      "Terms of service and fair usage guidelines for Tooltiva online tools.",
-    url: "https://tooltiva.net/terms/",
-  },
-};
+  path: "/terms/",
+});
 
 export default function TermsPage() {
   return (
@@ -22,7 +14,7 @@ export default function TermsPage() {
       <Breadcrumbs items={[{ name: "Terms of Service" }]} />
 
       <div className="space-y-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
           Terms of Service
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -30,7 +22,7 @@ export default function TermsPage() {
         </p>
       </div>
 
-      <div className="prose dark:prose-invert max-w-none space-y-8 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+      <div className="prose dark:prose-invert max-w-none space-y-8 text-base leading-7 text-slate-700 dark:text-slate-300">
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             1. Agreement to Terms

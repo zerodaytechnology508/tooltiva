@@ -151,15 +151,15 @@ export function CSVDelimiterConverterClient() {
       <PrivacyBadge />
 
       {/* Main Tool Card */}
-      <div className="border border-slate-200 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900 p-5 sm:p-7 shadow-sm space-y-6">
+      <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm space-y-6">
         {/* Controls Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
           {/* Source Delimiter Selector */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>Source Separator</span>
               {analysis && (
-                <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-brand-100 dark:bg-brand-950 text-brand-800 dark:text-brand-300">
+                <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-brand-100 dark:bg-brand-950 text-brand-800 dark:text-brand-300">
                   Detected: {analysis.detectedDelimiter === "\t" ? "Tab" : `"${analysis.detectedDelimiter}"`}
                 </span>
               )}
@@ -168,7 +168,7 @@ export function CSVDelimiterConverterClient() {
               aria-label="Source separator"
               value={inputDelimiter}
               onChange={(e) => setInputDelimiter(e.target.value as CSVSeparator)}
-              className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="auto">⚡ Auto Detect</option>
               <option value=",">Comma (,)</option>
@@ -185,21 +185,21 @@ export function CSVDelimiterConverterClient() {
                 onChange={(e) => setCustomInputDelim(e.target.value.slice(0, 1))}
                 maxLength={1}
                 placeholder="Enter one character"
-                className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100"
+                className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100"
               />
             )}
           </div>
 
           {/* Target Delimiter Selector */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               Target Separator
             </label>
             <select
               aria-label="Target separator"
               value={targetDelimiter}
               onChange={(e) => setTargetDelimiter(e.target.value as "," | ";" | "\t" | "|" | ":" | "custom")}
-              className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value=",">Comma (,)</option>
               <option value=";">Semicolon (;)</option>
@@ -215,21 +215,21 @@ export function CSVDelimiterConverterClient() {
                 onChange={(e) => setCustomTargetDelim(e.target.value.slice(0, 1))}
                 maxLength={1}
                 placeholder="Enter one character"
-                className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100"
+                className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100"
               />
             )}
           </div>
 
           {/* Quoting Behavior */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               Field Quoting
             </label>
             <select
               aria-label="Field quoting"
               value={quoteAllFields ? "all" : "needed"}
               onChange={(e) => setQuoteAllFields(e.target.value === "all")}
-              className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="needed">RFC 4180 (Only when needed)</option>
               <option value="all">Quote All Fields</option>
@@ -238,7 +238,7 @@ export function CSVDelimiterConverterClient() {
 
           {/* Spreadsheet safety */}
           <div className="sm:col-span-2 lg:col-span-4 order-last">
-            <label className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+            <label className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formulaSafe}
@@ -258,9 +258,9 @@ export function CSVDelimiterConverterClient() {
           <div className="flex flex-col justify-end space-y-1.5">
             <button
               onClick={loadSample}
-              className="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5"
             >
-              <Sparkles className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+              <Sparkles className="w-3.5 h-3.5 text-brand-700 dark:text-brand-400" />
               Load Semicolon Sample
             </button>
           </div>
@@ -268,15 +268,15 @@ export function CSVDelimiterConverterClient() {
 
         {/* Input Area */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between text-sm">
             <label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-emerald-500" />
+              <FileText className="w-4 h-4 text-brand-700" />
               Input CSV / Delimited Text
             </label>
             <div className="flex items-center gap-3">
-              <label className="cursor-pointer text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
+              <label className="cursor-pointer text-sm font-medium text-brand-700 dark:text-brand-400 hover:underline flex items-center gap-1">
                 <Upload className="w-3.5 h-3.5" />
-                Upload CSV File
+                Upload CSV
                 <input
                   type="file"
                   accept=".csv,.tsv,.txt"
@@ -290,7 +290,7 @@ export function CSVDelimiterConverterClient() {
                     setInputCSV("");
                     setFileNotice(null);
                   }}
-                  className="text-xs text-slate-400 hover:text-rose-500 transition-colors"
+                  className="rounded text-sm font-medium text-slate-600 hover:text-rose-700 dark:text-slate-400 dark:hover:text-rose-400 transition-colors"
                 >
                   Clear
                 </button>
@@ -299,15 +299,17 @@ export function CSVDelimiterConverterClient() {
           </div>
 
           <textarea
+            wrap="off"
+            spellCheck={false}
             aria-label="Input CSV or delimited text"
             value={inputCSV}
             onChange={(e) => setInputCSV(e.target.value)}
             placeholder="Paste your CSV data here, drag and drop a file, or click 'Load Semicolon Sample'..."
             rows={7}
-            className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
+            className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
           />
           {fileNotice && (
-            <p role="status" className="text-xs text-amber-800 dark:text-amber-300">
+            <p role="status" className="text-sm text-amber-800 dark:text-amber-300">
               {fileNotice}
             </p>
           )}
@@ -316,9 +318,11 @@ export function CSVDelimiterConverterClient() {
         {/* Output Controls & Views */}
         <div className="space-y-3 pt-2">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-medium">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-medium">
               <button
                 onClick={() => setActiveTab("table")}
+                type="button"
+                aria-pressed={activeTab === "table"}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   activeTab === "table"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold"
@@ -329,6 +333,8 @@ export function CSVDelimiterConverterClient() {
               </button>
               <button
                 onClick={() => setActiveTab("raw")}
+                type="button"
+                aria-pressed={activeTab === "raw"}
                 className={`px-3 py-1.5 rounded-lg transition-colors ${
                   activeTab === "raw"
                     ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold"
@@ -343,9 +349,9 @@ export function CSVDelimiterConverterClient() {
               <button
                 onClick={handleCopy}
                 disabled={!outputCSV}
-                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-brand-700" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? "Copied!" : "Copy Result"}</span>
               </button>
 
@@ -353,7 +359,7 @@ export function CSVDelimiterConverterClient() {
                 onClick={handleDownload}
                 disabled={!outputCSV}
                 title="Downloads a UTF-8 CSV. Files with non-English characters include a byte-order mark so Excel displays them correctly."
-                className="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-medium transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download .CSV</span>
@@ -364,7 +370,7 @@ export function CSVDelimiterConverterClient() {
           {notices.length > 0 && (
             <div
               role={hasError ? "alert" : "status"}
-              className={`p-3 rounded-lg border text-xs flex items-start gap-2 ${
+              className={`p-3 rounded-lg border text-sm flex items-start gap-2 ${
                 hasError
                   ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-900 dark:text-rose-200"
                   : "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200"
@@ -389,12 +395,14 @@ export function CSVDelimiterConverterClient() {
             />
           ) : (
             <textarea
+              wrap="off"
+              spellCheck={false}
               aria-label="Converted CSV output"
               readOnly
               value={outputCSV}
               placeholder="Converted CSV output will appear here..."
               rows={9}
-              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-xs text-slate-900 dark:text-slate-100 leading-relaxed resize-y focus:outline-none"
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-sm text-slate-900 dark:text-slate-100 leading-relaxed resize-y focus:outline-none"
             />
           )}
         </div>

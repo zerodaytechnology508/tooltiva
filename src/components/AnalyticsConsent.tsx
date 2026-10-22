@@ -15,7 +15,6 @@ import {
   type ConsentChoice,
   type SavedConsentChoice,
 } from "@/lib/analytics-consent";
-import { ShieldCheck } from "lucide-react";
 
 declare global {
   interface Window {
@@ -229,30 +228,28 @@ export function AnalyticsConsent() {
       </div>
 
       {consentLoaded && bannerOpen && (
-        <div className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100dvh-1.5rem)] max-w-5xl overflow-y-auto sm:inset-x-6">
+        <div className="fixed inset-x-0 bottom-0 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto p-2 sm:p-4">
           <section
             aria-labelledby="privacy-banner-title"
             aria-describedby="privacy-banner-description"
-            className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-700 shadow-2xl shadow-slate-950/20 sm:p-6 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className={`mx-auto max-w-5xl rounded-xl border border-slate-200 bg-white p-4 text-slate-700 shadow-lg shadow-slate-950/10 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${
+              managing ? "" : "lg:flex lg:items-center lg:gap-6"
+            }`}
           >
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
-                <ShieldCheck aria-hidden="true" className="h-5 w-5" />
-              </span>
-              <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1">
                 <h2
                   id="privacy-banner-title"
-                  className="text-base font-bold text-slate-900 dark:text-white"
+                  className="text-sm font-semibold text-slate-900 dark:text-white"
                 >
-                  Your Privacy Matters
+                  Analytics preferences
                 </h2>
                 <p
                   id="privacy-banner-description"
-                  className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300"
+                  className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300"
                 >
-                  Optional analytics helps us understand site traffic and
-                  improve Tooltiva. Google Analytics may collect general usage
-                  information as explained in our{" "}
+                  We use optional Google Analytics to understand site traffic.
+                  It never receives your files or tool input. Details are in
+                  our{" "}
                   <Link
                     href="/privacy/#analytics"
                     className="font-medium text-brand-700 underline underline-offset-2 hover:text-brand-800 focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:text-brand-300 dark:hover:text-brand-200"
@@ -261,7 +258,6 @@ export function AnalyticsConsent() {
                   </Link>
                   .
                 </p>
-              </div>
             </div>
 
             {managing ? (
@@ -301,7 +297,7 @@ export function AnalyticsConsent() {
               </p>
             )}
 
-            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className={`mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap ${managing ? "" : "lg:mt-0 lg:shrink-0"}`}>
               {managing ? (
                 <>
                   <button
@@ -309,14 +305,14 @@ export function AnalyticsConsent() {
                     onClick={() =>
                       saveChoice(preferenceChoice(analyticsDraft))
                     }
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:bg-brand-400 dark:text-slate-950 dark:hover:bg-brand-300"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:bg-brand-400 dark:text-slate-950 dark:hover:bg-brand-300"
                   >
                     Save Preferences
                   </button>
                   <button
                     type="button"
                     onClick={cancelPreferences}
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
                   >
                     Cancel
                   </button>
@@ -326,16 +322,16 @@ export function AnalyticsConsent() {
                   <button
                     type="button"
                     onClick={() => saveChoice("accepted")}
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:bg-brand-400 dark:text-slate-950 dark:hover:bg-brand-300"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:bg-brand-400 dark:text-slate-950 dark:hover:bg-brand-300"
                   >
                     Accept All
                   </button>
                   <button
                     type="button"
                     onClick={() => saveChoice("rejected")}
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                    className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
                   >
-                    Reject Non-Essential
+                    Reject
                   </button>
                   <button
                     ref={manageButtonRef}
@@ -344,9 +340,9 @@ export function AnalyticsConsent() {
                       setAnalyticsDraft(canLoadAnalytics(choice));
                       setManaging(true);
                     }}
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-700 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-800 transition-colors hover:bg-brand-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:border-brand-400 dark:bg-brand-950 dark:text-brand-200 dark:hover:bg-brand-900"
+                    className="col-span-2 inline-flex min-h-10 items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 underline-offset-2 transition-colors hover:bg-slate-100 hover:underline sm:col-auto dark:text-slate-200 dark:hover:bg-slate-800"
                   >
-                    Manage Preferences
+                    Manage
                   </button>
                 </>
               )}
