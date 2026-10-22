@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import { validateJSON, repairJSON } from "@/lib/json-utils";
+import { repairJSON } from "@/lib/json-utils";
+import { formatJSON, parseJSONDocument } from "@/lib/json-ast";
+import type { JSONNode, JSONParseSuccess } from "@/lib/json-ast";
+import { readTextFile } from "@/lib/file-text";
 import type { JSONValidationResult, JSONRepairLog } from "@/lib/types";
 import { PrivacyBadge } from "@/components/PrivacyBadge";
 import {
@@ -51,44 +54,45 @@ export function JSONFormatterClient() {
   const [originalBeforeRepair, setOriginalBeforeRepair] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"code" | "tree">("code");
-  const [parsedObject, setParsedObject] = useState<unknown>(null);
+  // The lossless parse result: keeps exact number text and duplicate keys.
+  const [parsed, setParsed] = useState<JSONParseSuccess | null>(null);
+  const [fileNotice, setFileNotice] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   useEffect(() => {
     if (!inputJSON || inputJSON.trim() === "") {
       setValidation(null);
-      setParsedObject(null);
+      setParsed(null);
       return;
     }
 
     startTransition(() => {
-      const result = validateJSON(inputJSON);
-      setValidation(result);
-
-      if (result.isValid) {
-        try {
-          const parsed = JSON.parse(inputJSON);
-          setParsedObject(parsed);
-        } catch {
-          setParsedObject(null);
-        }
+      const result = parseJSONDocument(inputJSON);
+      if (result.ok) {
+        setValidation({ isValid: true });
+        setParsed(result);
       } else {
-        setParsedObject(null);
+        setValidation({
+          isValid: false,
+          error: {
+            message: result.message,
+            line: result.line,
+            column: result.column,
+            snippet: result.snippet,
+            pointer: result.pointer,
+          },
+        });
+        setParsed(null);
       }
     });
   }, [inputJSON]);
 
   const handleFormat = (spaces: number) => {
     setIndent(spaces);
-    if (!inputJSON || !validation?.isValid) return;
-
-    try {
-      const parsed = JSON.parse(inputJSON);
-      const formatted = JSON.stringify(parsed, null, spaces === 0 ? undefined : spaces);
-      setInputJSON(formatted);
-    } catch {
-      // Ignored
-    }
+    if (!inputJSON || !parsed) return;
+    // Re-indent from the lossless tree: numbers, strings and duplicate keys are
+    // written exactly as they were, so only whitespace changes.
+    setInputJSON(formatJSON(parsed.root, spaces));
   };
 
   const handleAutoFix = () => {
@@ -98,14 +102,10 @@ export function JSONFormatterClient() {
     const { repaired, logs } = repairJSON(inputJSON);
     setRepairs(logs);
 
-    // Format after repair if valid
-    try {
-      const parsed = JSON.parse(repaired);
-      const formatted = JSON.stringify(parsed, null, indent === 0 ? undefined : indent);
-      setInputJSON(formatted);
-    } catch {
-      setInputJSON(repaired);
-    }
+    // Format after repair if the result is valid; otherwise show the repaired
+    // text so the remaining error is reported with its exact position.
+    const result = parseJSONDocument(repaired);
+    setInputJSON(result.ok ? formatJSON(result.root, indent) : repaired);
   };
 
   const handleUndoRepair = () => {
@@ -117,22 +117,29 @@ export function JSONFormatterClient() {
   };
 
   const loadSample = (valid: boolean) => {
+    setFileNotice(null);
     setRepairs([]);
     setOriginalBeforeRepair(null);
     setInputJSON(valid ? SAMPLE_VALID_JSON : SAMPLE_BROKEN_JSON);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    // Reset so choosing the same file again still triggers a change event.
+    input.value = "";
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setInputJSON(event.target?.result as string);
+    try {
+      const { text, notice } = await readTextFile(file);
+      setInputJSON(text);
+      setFileNotice(notice ?? null);
       setRepairs([]);
       setOriginalBeforeRepair(null);
-    };
-    reader.readAsText(file);
+    } catch (err: unknown) {
+      console.error("Tooltiva could not read the file:", err);
+      setFileNotice("The file could not be read. Please try again or paste its contents instead.");
+    }
   };
 
   const handleCopy = async () => {
@@ -159,61 +166,69 @@ export function JSONFormatterClient() {
     URL.revokeObjectURL(url);
   };
 
-  // Simple nested interactive tree node
-  const renderTree = (data: unknown, keyName?: string, depth = 0): React.ReactNode => {
-    if (data === null) {
+  // Tree view of the lossless parse: values are shown exactly as written.
+  const renderTree = (node: JSONNode, keyName?: string, depth = 0): React.ReactNode => {
+    const label = keyName !== undefined && (
+      <span className="text-purple-600 dark:text-purple-400 font-semibold">{keyName}: </span>
+    );
+
+    if (node.type !== "object" && node.type !== "array") {
+      const text =
+        node.type === "null" ? "null" : node.type === "boolean" ? String(node.value) : node.raw;
+      const tone =
+        node.type === "string"
+          ? "text-emerald-600 dark:text-emerald-400"
+          : node.type === "number"
+          ? "text-blue-600 dark:text-blue-400"
+          : node.type === "boolean"
+          ? "text-amber-600 dark:text-amber-400 font-semibold"
+          : "text-slate-400 italic";
       return (
         <div style={{ paddingLeft: `${depth * 16}px` }} className="py-0.5 font-mono text-xs">
-          {keyName && <span className="text-purple-600 dark:text-purple-400 font-semibold">{keyName}: </span>}
-          <span className="text-slate-400 italic">null</span>
+          {label}
+          <span className={tone}>{text}</span>
         </div>
       );
     }
 
-    if (typeof data !== "object") {
-      const isString = typeof data === "string";
-      const isNum = typeof data === "number";
-      const isBool = typeof data === "boolean";
-
-      return (
-        <div style={{ paddingLeft: `${depth * 16}px` }} className="py-0.5 font-mono text-xs">
-          {keyName && <span className="text-purple-600 dark:text-purple-400 font-semibold">{keyName}: </span>}
-          <span
-            className={
-              isString
-                ? "text-emerald-600 dark:text-emerald-400"
-                : isNum
-                ? "text-blue-600 dark:text-blue-400"
-                : isBool
-                ? "text-amber-600 dark:text-amber-400 font-semibold"
-                : "text-slate-700 dark:text-slate-300"
-            }
-          >
-            {isString ? `"${data}"` : String(data)}
-          </span>
-        </div>
-      );
-    }
-
-    const isArray = Array.isArray(data);
-    const entries = isArray ? data.map((v, i) => [String(i), v]) : Object.entries(data);
+    const children =
+      node.type === "array"
+        ? node.items.map((item) => ({ key: undefined as string | undefined, value: item }))
+        : node.entries.map((entry) => ({ key: entry.key, value: entry.value }));
 
     return (
       <div style={{ paddingLeft: `${depth * 16}px` }} className="py-0.5 font-mono text-xs">
         <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
-          {keyName && <span className="text-purple-600 dark:text-purple-400 font-semibold">{keyName}: </span>}
+          {label}
           <span className="font-bold text-slate-500">
-          {isArray ? `Array [${(data as unknown[]).length}]` : `Object {${entries.length}}`}
+            {node.type === "array" ? `Array [${children.length}]` : `Object {${children.length}}`}
           </span>
         </div>
         <div className="border-l border-slate-200 dark:border-slate-800 ml-2 pl-1 space-y-0.5">
-          {entries.map(([k, v]) => (
-            <React.Fragment key={k}>{renderTree(v, isArray ? undefined : k, depth + 1)}</React.Fragment>
+          {children.map((child, i) => (
+            <React.Fragment key={i}>{renderTree(child.value, child.key, depth + 1)}</React.Fragment>
           ))}
         </div>
       </div>
     );
   };
+
+  // Facts about valid input that JSON.parse-based tools would hide or change.
+  const dataNotices: string[] = [];
+  if (parsed && parsed.duplicateKeyCount > 0) {
+    const examples = parsed.duplicateKeys
+      .slice(0, 3)
+      .map((d) => `"${d.key}" in ${d.path} (line ${d.line}, column ${d.column})`)
+      .join(", ");
+    dataNotices.push(
+      `${parsed.duplicateKeyCount} duplicate key(s): ${examples}. JSON allows this, but most programs keep only the last value. Formatting here keeps every occurrence.`
+    );
+  }
+  if (parsed && parsed.unsafeIntegerCount > 0) {
+    dataNotices.push(
+      `${parsed.unsafeIntegerCount} integer(s) are too large for JavaScript to store exactly (for example ${parsed.unsafeIntegers[0].raw} at ${parsed.unsafeIntegers[0].path}). Tooltiva keeps them exactly as written, but other tools may round them.`
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -311,15 +326,30 @@ export function JSONFormatterClient() {
                 {validation.error?.line && (
                   <div className="pl-6 font-mono text-[11px] text-rose-800 dark:text-rose-300">
                     Location: Line {validation.error.line}, Column {validation.error.column}
-                    {validation.error.snippet && (
-                      <div className="mt-1 p-2 rounded bg-rose-100/60 dark:bg-rose-900/40 text-rose-950 dark:text-rose-100 overflow-x-auto">
+                    {validation.error.snippet !== undefined && (
+                      <pre className="mt-1 p-2 rounded bg-rose-100/60 dark:bg-rose-900/40 text-rose-950 dark:text-rose-100 overflow-x-auto whitespace-pre">
                         {validation.error.snippet}
-                      </div>
+                        {validation.error.pointer && `\n${validation.error.pointer}`}
+                      </pre>
                     )}
                   </div>
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {dataNotices.length > 0 && (
+          <div
+            role="status"
+            className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs space-y-1"
+          >
+            {dataNotices.map((notice, i) => (
+              <p key={i} className="flex items-start gap-2">
+                <AlertCircle aria-hidden="true" className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
+                <span>{notice}</span>
+              </p>
+            ))}
           </div>
         )}
 
@@ -402,6 +432,7 @@ export function JSONFormatterClient() {
                 <button
                   onClick={() => {
                     setInputJSON("");
+                    setFileNotice(null);
                     setRepairs([]);
                     setOriginalBeforeRepair(null);
                   }}
@@ -412,6 +443,12 @@ export function JSONFormatterClient() {
               )}
             </div>
           </div>
+
+          {fileNotice && (
+            <p role="status" className="text-xs text-amber-800 dark:text-amber-300">
+              {fileNotice}
+            </p>
+          )}
 
           {viewMode === "code" || !validation?.isValid ? (
             <textarea
@@ -424,7 +461,7 @@ export function JSONFormatterClient() {
             />
           ) : (
             <div className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 max-h-96 overflow-y-auto">
-              {parsedObject ? renderTree(parsedObject) : <span className="text-xs text-slate-400">Empty tree</span>}
+              {parsed ? renderTree(parsed.root) : <span className="text-xs text-slate-400">Empty tree</span>}
             </div>
           )}
         </div>

@@ -3,7 +3,8 @@
 import React, { Component, useState, useEffect, useTransition } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { csvToJSON, jsonToCSV } from "@/lib/json-utils";
-import { analyzeCSV, CSVAnalysisResult } from "@/lib/csv-utils";
+import { analyzeCSV, detectDelimiter, withExcelBOM, CSVAnalysisResult } from "@/lib/csv-utils";
+import { readTextFile } from "@/lib/file-text";
 import { DataPreviewTable } from "@/components/DataPreviewTable";
 import { PrivacyBadge } from "@/components/PrivacyBadge";
 import {
@@ -41,12 +42,16 @@ function CSVToJSONTool({
 
   // CSV to JSON options
   const [jsonFormat, setJsonFormat] = useState<"array-of-objects" | "2d-array" | "keyed-object">("array-of-objects");
-  const [parseTypes, setParseTypes] = useState<boolean>(true);
+  // Off by default so values such as 00123, 1e5 or empty cells are never changed.
+  const [parseTypes, setParseTypes] = useState<boolean>(false);
   const [jsonIndent, setJsonIndent] = useState<number>(2);
 
   // JSON to CSV options
   const [csvDelimiter, setCsvDelimiter] = useState<string>(",");
   const [quoteAll, setQuoteAll] = useState<boolean>(false);
+  // On by default: protects people who open the downloaded CSV in a spreadsheet app.
+  const [formulaSafe, setFormulaSafe] = useState<boolean>(true);
+  const [fileNotice, setFileNotice] = useState<string | null>(null);
 
   const [warnings, setWarnings] = useState<string[]>([]);
   const [copied, setCopied] = useState<boolean>(false);
@@ -68,10 +73,13 @@ function CSVToJSONTool({
     startTransition(() => {
       try {
         if (direction === "csv-to-json") {
-          const stats = analyzeCSV(inputData);
+          // Detect the separator once so the preview and the conversion agree.
+          const delimiter = detectDelimiter(inputData);
+          const stats = analyzeCSV(inputData, delimiter);
           setCsvAnalysis(stats);
 
           const res = csvToJSON(inputData, {
+            delimiter,
             format: jsonFormat,
             parseTypes,
             indent: jsonIndent,
@@ -79,11 +87,12 @@ function CSVToJSONTool({
 
           setOutputData(res.jsonText);
           setWarnings(res.warnings);
-          setHasError(false);
+          setHasError(!res.ok);
         } else {
           const res = jsonToCSV(inputData, {
             delimiter: csvDelimiter,
             quotes: quoteAll,
+            formulaSafe,
           });
 
           setOutputData(res.csvText);
@@ -91,7 +100,7 @@ function CSVToJSONTool({
           setHasError(!res.ok);
 
           if (res.csvText) {
-            const stats = analyzeCSV(res.csvText, csvDelimiter);
+            const stats = analyzeCSV(res.csvText, csvDelimiter, { hasHeader: res.hasHeader });
             setCsvAnalysis(stats);
           } else {
             setCsvAnalysis(null);
@@ -108,7 +117,7 @@ function CSVToJSONTool({
         setWarnings([`Conversion failed unexpectedly: ${message}. Your input was not changed.`]);
       }
     });
-  }, [inputData, direction, jsonFormat, parseTypes, jsonIndent, csvDelimiter, quoteAll]);
+  }, [inputData, direction, jsonFormat, parseTypes, jsonIndent, csvDelimiter, quoteAll, formulaSafe]);
 
   const toggleDirection = () => {
     const nextDir = direction === "csv-to-json" ? "json-to-csv" : "csv-to-json";
@@ -125,6 +134,7 @@ function CSVToJSONTool({
   };
 
   const loadSample = () => {
+    setFileNotice(null);
     if (direction === "csv-to-json") {
       setInputData(SAMPLE_CSV);
     } else {
@@ -132,15 +142,21 @@ function CSVToJSONTool({
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    // Reset so choosing the same file again still triggers a change event.
+    input.value = "";
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setInputData(event.target?.result as string);
-    };
-    reader.readAsText(file);
+    try {
+      const { text, notice } = await readTextFile(file);
+      setInputData(text);
+      setFileNotice(notice ?? null);
+    } catch (err: unknown) {
+      console.error("Tooltiva could not read the file:", err);
+      setFileNotice("The file could not be read. Please try again or paste its contents instead.");
+    }
   };
 
   const handleCopy = async () => {
@@ -160,7 +176,10 @@ function CSVToJSONTool({
     const mimeType = isJson ? "application/json" : "text/csv";
     const ext = isJson ? "json" : "csv";
 
-    const blob = new Blob([outputData], { type: `${mimeType};charset=utf-8;` });
+    // CSV downloads get a UTF-8 byte-order mark only when they contain
+    // non-ASCII text, so Excel shows accented, non-Latin and emoji characters.
+    const content = isJson ? outputData : withExcelBOM(outputData);
+    const blob = new Blob([content], { type: `${mimeType};charset=utf-8;` });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -244,16 +263,16 @@ function CSVToJSONTool({
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Type Inference
+                Value Types
               </label>
               <select
-                aria-label="Type inference"
+                aria-label="Value types"
                 value={parseTypes ? "true" : "false"}
                 onChange={(e) => setParseTypes(e.target.value === "true")}
                 className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                <option value="true">Smart Types (Numbers & Booleans)</option>
-                <option value="false">Preserve All as Strings</option>
+                <option value="false">Keep values as text (recommended)</option>
+                <option value="true">Convert exact numbers &amp; true/false</option>
               </select>
             </div>
 
@@ -306,6 +325,21 @@ function CSVToJSONTool({
                 <option value="true">Quote All Fields</option>
               </select>
             </div>
+
+            <label className="sm:col-span-2 flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formulaSafe}
+                onChange={(e) => setFormulaSafe(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-brand-700"
+              />
+              <span>
+                <span className="font-semibold">Spreadsheet-safe output</span>{" "}
+                <span className="text-slate-600 dark:text-slate-400">
+                  Cells that start with =, +, -, @, a tab or a carriage return (other than plain numbers such as -5) get a leading apostrophe so Excel, Sheets and Calc show them as text instead of running them as formulas.
+                </span>
+              </span>
+            </label>
           </div>
         )}
 
@@ -338,7 +372,10 @@ function CSVToJSONTool({
               </label>
               {inputData && (
                 <button
-                  onClick={() => setInputData("")}
+                  onClick={() => {
+                    setInputData("");
+                    setFileNotice(null);
+                  }}
                   className="text-xs text-slate-400 hover:text-rose-500 transition-colors"
                 >
                   Clear
@@ -359,6 +396,11 @@ function CSVToJSONTool({
             rows={7}
             className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
           />
+          {fileNotice && (
+            <p role="status" className="text-xs text-amber-800 dark:text-amber-300">
+              {fileNotice}
+            </p>
+          )}
         </div>
 
         {/* Output Section */}

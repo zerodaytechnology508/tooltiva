@@ -64,7 +64,7 @@ export const TOOLS: ToolMeta[] = [
     faqs: [
       {
         question: "How does the CSV to JSON converter handle numbers and booleans?",
-        answer: "By default, Tooltiva features automatic type inference. Numeric strings like '42' are parsed as real numbers and 'true'/'false' as booleans. If you prefer to keep all values as raw string primitives, you can disable type inference with one click.",
+        answer: "By default, every value is kept exactly as text, so identifiers like '00123', codes like '1e5' and empty cells are never changed. If you choose 'Convert exact numbers & true/false', a value becomes a JSON number or boolean only when that form is spelled exactly the same, such as '42', '-7', '98.5' or 'true'; everything else stays text.",
       },
       {
         question: "Can I convert JSON back into a CSV file?",
@@ -117,7 +117,7 @@ export const TOOLS: ToolMeta[] = [
       },
       {
         question: "What happens to nested values in an object row?",
-        answer: "Nested objects are not expanded into separate CSV columns. For readable tabular output, flatten nested data into regular properties before converting.",
+        answer: "Nested objects and arrays are not expanded into separate CSV columns. Each one is written as compact JSON text inside a single cell, and the converter tells you how many were written this way. For a flat table, flatten nested data into regular properties before converting.",
       },
     ],
   },
@@ -155,7 +155,7 @@ export const TOOLS: ToolMeta[] = [
       },
       {
         question: "Can I inspect complex nested JSON structures visually?",
-        answer: "Yes. Tooltiva includes an interactive collapsible tree viewer displaying element counts and object hierarchies alongside the formatted code.",
+        answer: "Yes. Tooltiva includes a tree view that shows how objects and arrays are nested, with element counts, alongside the formatted code.",
       },
     ],
   },

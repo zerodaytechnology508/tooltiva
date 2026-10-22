@@ -101,7 +101,7 @@ export default function CSVToJSONPage() {
               Smart Type Inference
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              By default, all CSV values are plain text strings. Tooltiva intelligently identifies numbers, floating-point decimals, and boolean flags (&quot;true&quot; or &quot;false&quot;), casting them into proper native JSON types. If you need exact character-for-character preservation without numeric coercion, you can disable type inference with a single click.
+              CSV stores every value as text, and Tooltiva keeps it that way by default, so identifiers such as 00123, codes such as 1e5 and empty cells reach your JSON unchanged. If you choose &quot;Convert exact numbers &amp; true/false&quot;, a value becomes a JSON number or boolean only when that form is spelled exactly like the original (for example 42, -7, 98.5 or true); anything that would change, such as leading zeros or numbers too large to store exactly, stays text.
             </p>
           </div>
         </div>

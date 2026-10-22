@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useTransition } from "react";
 import {
-  detectDelimiter,
   analyzeCSV,
   convertCSVDelimiter,
+  resolveDelimiter,
+  withExcelBOM,
   CSVAnalysisResult,
 } from "@/lib/csv-utils";
+import { readTextFile } from "@/lib/file-text";
 import { CSVSeparator } from "@/lib/types";
 import { DataPreviewTable } from "@/components/DataPreviewTable";
 import { PrivacyBadge } from "@/components/PrivacyBadge";
@@ -17,6 +19,7 @@ import {
   Upload,
   FileText,
   Sparkles,
+  AlertCircle,
 } from "lucide-react";
 
 const SAMPLE_CSV = `ID;Full Name;Department;Salary;Location
@@ -32,6 +35,11 @@ export function CSVDelimiterConverterClient() {
   const [targetDelimiter, setTargetDelimiter] = useState<"," | ";" | "\t" | "|" | ":" | "custom">(",");
   const [customTargetDelim, setCustomTargetDelim] = useState<string>("");
   const [quoteAllFields, setQuoteAllFields] = useState<boolean>(false);
+  // On by default: protects people who open the downloaded CSV in a spreadsheet app.
+  const [formulaSafe, setFormulaSafe] = useState<boolean>(true);
+  const [notices, setNotices] = useState<string[]>([]);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [fileNotice, setFileNotice] = useState<string | null>(null);
 
   const [outputCSV, setOutputCSV] = useState<string>("");
   const [analysis, setAnalysis] = useState<CSVAnalysisResult | null>(null);
@@ -44,49 +52,68 @@ export function CSVDelimiterConverterClient() {
     if (!inputCSV || inputCSV.trim() === "") {
       setOutputCSV("");
       setAnalysis(null);
+      setNotices([]);
+      setHasError(false);
       return;
     }
 
     startTransition(() => {
-      const detected = inputDelimiter === "auto"
-        ? detectDelimiter(inputCSV)
-        : inputDelimiter === "custom"
-        ? customInputDelim || ","
-        : inputDelimiter;
+      try {
+        // Resolve the separator once so the preview and the conversion parse
+        // the text identically.
+        const source = resolveDelimiter(inputCSV, inputDelimiter, customInputDelim);
+        if (source.error) {
+          setAnalysis(null);
+          setOutputCSV("");
+          setNotices([`Source separator: ${source.error}`]);
+          setHasError(true);
+          return;
+        }
 
-      const stats = analyzeCSV(inputCSV, detected);
-      setAnalysis(stats);
+        setAnalysis(analyzeCSV(inputCSV, source.delimiter));
 
-      const result = convertCSVDelimiter(
-        inputCSV,
-        inputDelimiter,
-        customInputDelim,
-        {
+        const result = convertCSVDelimiter(inputCSV, "custom", source.delimiter, {
           delimiter: targetDelimiter,
           customDelimiter: customTargetDelim,
           quoteChar: '"',
           quoteAllFields,
           escapeChar: '"',
-        }
-      );
+          formulaSafe,
+        });
 
-      setOutputCSV(result.output);
+        setOutputCSV(result.output);
+        setNotices(result.warnings);
+        setHasError(!result.ok);
+      } catch (err: unknown) {
+        console.error("Tooltiva conversion failed:", err);
+        const message = err instanceof Error ? err.message : String(err);
+        setAnalysis(null);
+        setOutputCSV("");
+        setNotices([`Conversion failed unexpectedly: ${message}. Your input was not changed.`]);
+        setHasError(true);
+      }
     });
-  }, [inputCSV, inputDelimiter, customInputDelim, targetDelimiter, customTargetDelim, quoteAllFields]);
+  }, [inputCSV, inputDelimiter, customInputDelim, targetDelimiter, customTargetDelim, quoteAllFields, formulaSafe]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
+    // Reset so choosing the same file again still triggers a change event.
+    input.value = "";
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      setInputCSV(content);
-    };
-    reader.readAsText(file);
+    try {
+      const { text, notice } = await readTextFile(file);
+      setInputCSV(text);
+      setFileNotice(notice ?? null);
+    } catch (err: unknown) {
+      console.error("Tooltiva could not read the file:", err);
+      setFileNotice("The file could not be read. Please try again or paste its contents instead.");
+    }
   };
 
   const loadSample = () => {
+    setFileNotice(null);
     setInputCSV(SAMPLE_CSV);
     setInputDelimiter("auto");
     setTargetDelimiter(",");
@@ -105,7 +132,9 @@ export function CSVDelimiterConverterClient() {
 
   const handleDownload = () => {
     if (!outputCSV) return;
-    const blob = new Blob([outputCSV], { type: "text/csv;charset=utf-8;" });
+    // Adds a UTF-8 byte-order mark only when the CSV contains non-ASCII text,
+    // so Excel shows accented, non-Latin and emoji characters correctly.
+    const blob = new Blob([withExcelBOM(outputCSV)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -207,6 +236,24 @@ export function CSVDelimiterConverterClient() {
             </select>
           </div>
 
+          {/* Spreadsheet safety */}
+          <div className="sm:col-span-2 lg:col-span-4 order-last">
+            <label className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formulaSafe}
+                onChange={(e) => setFormulaSafe(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-brand-700"
+              />
+              <span>
+                <span className="font-semibold">Spreadsheet-safe output</span>{" "}
+                <span className="text-slate-600 dark:text-slate-400">
+                  Cells that start with =, +, -, @, a tab or a carriage return (other than plain numbers such as -5) get a leading apostrophe so Excel, Sheets and Calc show them as text instead of running them as formulas.
+                </span>
+              </span>
+            </label>
+          </div>
+
           {/* Actions & Sample */}
           <div className="flex flex-col justify-end space-y-1.5">
             <button
@@ -239,7 +286,10 @@ export function CSVDelimiterConverterClient() {
               </label>
               {inputCSV && (
                 <button
-                  onClick={() => setInputCSV("")}
+                  onClick={() => {
+                    setInputCSV("");
+                    setFileNotice(null);
+                  }}
                   className="text-xs text-slate-400 hover:text-rose-500 transition-colors"
                 >
                   Clear
@@ -256,6 +306,11 @@ export function CSVDelimiterConverterClient() {
             rows={7}
             className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 p-4 font-mono text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed resize-y"
           />
+          {fileNotice && (
+            <p role="status" className="text-xs text-amber-800 dark:text-amber-300">
+              {fileNotice}
+            </p>
+          )}
         </div>
 
         {/* Output Controls & Views */}
@@ -297,6 +352,7 @@ export function CSVDelimiterConverterClient() {
               <button
                 onClick={handleDownload}
                 disabled={!outputCSV}
+                title="Downloads a UTF-8 CSV. Files with non-English characters include a byte-order mark so Excel displays them correctly."
                 className="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
@@ -304,6 +360,24 @@ export function CSVDelimiterConverterClient() {
               </button>
             </div>
           </div>
+
+          {notices.length > 0 && (
+            <div
+              role={hasError ? "alert" : "status"}
+              className={`p-3 rounded-lg border text-xs flex items-start gap-2 ${
+                hasError
+                  ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-900 dark:text-rose-200"
+                  : "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200"
+              }`}
+            >
+              <AlertCircle aria-hidden="true" className="w-4 h-4 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                {notices.map((n, i) => (
+                  <p key={i}>{n}</p>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Active View Container */}
           {activeTab === "table" ? (

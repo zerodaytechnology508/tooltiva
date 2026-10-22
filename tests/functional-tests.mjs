@@ -1,8 +1,37 @@
 import assert from "node:assert";
+import { register } from "node:module";
 import Papa from "papaparse";
-import { detectDelimiter, analyzeCSV, convertCSVDelimiter } from "../src/lib/csv-utils.ts";
-import { validateJSON, repairJSON, csvToJSON, jsonToCSV } from "../src/lib/json-utils.ts";
-import {
+
+// The library modules import each other without file extensions, as Next.js
+// expects. Node's built-in TypeScript support needs the ".ts" extension, so for
+// this test run only, resolve extensionless relative imports to ".ts" files.
+register(
+  "data:text/javascript," +
+    encodeURIComponent(`export async function resolve(specifier, context, next) {
+  try {
+    return await next(specifier, context);
+  } catch (err) {
+    if (err && err.code === "ERR_MODULE_NOT_FOUND" && /^\\.{1,2}\\//.test(specifier) && !/\\.[cm]?[jt]sx?$/.test(specifier)) {
+      return next(specifier + ".ts", context);
+    }
+    throw err;
+  }
+}`)
+);
+
+const {
+  detectDelimiter,
+  analyzeCSV,
+  convertCSVDelimiter,
+  isFormulaRisk,
+  neutralizeFormulaCells,
+  withExcelBOM,
+  resolveDelimiter,
+} = await import("../src/lib/csv-utils.ts");
+const { validateJSON, repairJSON, csvToJSON, jsonToCSV, inferExactType } = await import("../src/lib/json-utils.ts");
+const { parseJSONDocument, formatJSON, MAX_JSON_DEPTH } = await import("../src/lib/json-ast.ts");
+const { decodeTextBytes, readTextFile } = await import("../src/lib/file-text.ts");
+const {
   applyAnalyticsConsent,
   canLoadAnalytics,
   canTrackAnalytics,
@@ -10,7 +39,7 @@ import {
   persistConsentChoice,
   preferenceChoice,
   readConsentChoice,
-} from "../src/lib/analytics-consent.ts";
+} = await import("../src/lib/analytics-consent.ts");
 
 console.log("🚀 Starting Tooltiva Comprehensive Functional Verification Suite...\n");
 
@@ -48,7 +77,10 @@ console.log("  ✓ Semicolon to comma conversion preserves internal commas insid
 console.log("Test 3: CSV Analysis & Inconsistent Column Detection");
 const raggedCSV = `col1,col2,col3\na,b,c\nd,e\nf,g,h,i`;
 const analysis = analyzeCSV(raggedCSV, ",");
-assert.strictEqual(analysis.rowCount, 4, "Row count includes the header row");
+// Phase 2: the preview counts data rows only (the header was previously counted as a row).
+assert.strictEqual(analysis.rowCount, 3, "Row count excludes the header row");
+assert.deepStrictEqual(analysis.headers, ["col1", "col2", "col3"]);
+assert.deepStrictEqual(analysis.sampleRows[0], ["a", "b", "c"], "Header is not repeated as the first data row");
 assert.strictEqual(analysis.hasRaggedRows, true);
 assert(analysis.warnings.length > 0, "Warning generated for ragged row counts");
 console.log("  ✓ Ragged rows flagged with clear warnings.\n");
@@ -343,5 +375,294 @@ assert.deepStrictEqual(
   [["a", "b"], ["1", "2"]],
 );
 console.log("  ✓ Primitives, nulls, mixed rows, missing keys, nested values, empty and invalid input handled without crashing.\n");
+
+// ===========================================================================
+// PHASE 2: data integrity, conversion correctness and output safety
+// ===========================================================================
+const parseCSV = (text, delimiter = ",") => Papa.parse(text, { delimiter }).data;
+const jsonOf = (csv, opts = {}) =>
+  JSON.parse(csvToJSON(csv, { format: "array-of-objects", parseTypes: false, indent: 0, ...opts }).jsonText);
+
+// --- TEST 12: CSV values are preserved (no silent type changes) ---
+console.log("Test 12: CSV ➔ JSON keeps values exactly; optional typing converts only exact numbers/booleans");
+const valuesCSV = "zip,account,empty,sci,neg,big,flag,spaced\n00123,0042,,1e5,-7,9007199254740993,TRUE, 5";
+assert.deepStrictEqual(jsonOf(valuesCSV), [
+  { zip: "00123", account: "0042", empty: "", sci: "1e5", neg: "-7", big: "9007199254740993", flag: "TRUE", spaced: " 5" },
+], "Default keeps every cell as the original text");
+assert.deepStrictEqual(jsonOf(valuesCSV, { parseTypes: true }), [
+  { zip: "00123", account: "0042", empty: "", sci: "1e5", neg: -7, big: "9007199254740993", flag: "TRUE", spaced: " 5" },
+], "Typed mode converts only values whose JSON form is spelled identically");
+for (const [cell, expected] of [
+  ["42", 42], ["-7", -7], ["0", 0], ["98.5", 98.5], ["0.25", 0.25], ["true", true], ["false", false],
+  ["00123", "00123"], ["1e5", "1e5"], ["1E5", "1E5"], ["1.50", "1.50"], ["+5", "+5"], [" 5", " 5"], ["5 ", "5 "],
+  ["-0", "-0"], ["9007199254740993", "9007199254740993"], ["1.", "1."], [".5", ".5"], ["0x1F", "0x1F"],
+  ["NaN", "NaN"], ["TRUE", "TRUE"], ["", ""], ["0.1000000000000000055511151231257827", "0.1000000000000000055511151231257827"],
+]) {
+  assert.strictEqual(inferExactType(cell), expected, `inferExactType(${JSON.stringify(cell)})`);
+}
+assert.deepStrictEqual(
+  JSON.parse(csvToJSON("a,b\n00123,", { format: "2d-array", parseTypes: true, indent: 0 }).jsonText),
+  [["a", "b"], ["00123", ""]],
+  "2D arrays follow the same rules; empty cells never become null",
+);
+const dupHeaders = csvToJSON("a,a,a_1\n1,2,3", { format: "array-of-objects", parseTypes: false, indent: 0 });
+assert.deepStrictEqual(JSON.parse(dupHeaders.jsonText), [{ a: "1", a_1: "2", a_1_1: "3" }]);
+assert(dupHeaders.warnings.some((w) => w.includes("renamed")), "Duplicate column renames are reported");
+const ragged = csvToJSON("a,b\n1\n2,3,4", { format: "array-of-objects", parseTypes: false, indent: 0 });
+assert.deepStrictEqual(JSON.parse(ragged.jsonText), [{ a: "1" }, { a: "2", b: "3", column_3: "4" }]);
+assert(ragged.warnings.some((w) => w.includes("fewer fields")) && ragged.warnings.some((w) => w.includes("column_3")));
+assert.deepStrictEqual(jsonOf("__proto__,constructor\nx,y"), [JSON.parse('{"__proto__":"x","constructor":"y"}')]);
+assert.strictEqual(csvToJSON("__proto__\nx", { format: "array-of-objects", parseTypes: false, indent: 0 }).jsonText, '[{"__proto__":"x"}]');
+// Quoted delimiters, quotes, line breaks and non-Latin text survive CSV -> JSON -> CSV
+const richCSV = 'name,note,city\r\n"Doe, Jane","He said ""hi""\nthen left",Lahore\r\nعلی,😀 ok,"São Paulo"';
+const richJSON = csvToJSON(richCSV, { format: "array-of-objects", parseTypes: false, indent: 2 });
+assert.deepStrictEqual(JSON.parse(richJSON.jsonText), [
+  { name: "Doe, Jane", note: 'He said "hi"\nthen left', city: "Lahore" },
+  { name: "علی", note: "😀 ok", city: "São Paulo" },
+]);
+assert.deepStrictEqual(parseCSV(jsonToCSV(richJSON.jsonText, { delimiter: ",", quotes: false }).csvText), parseCSV(richCSV));
+assert(csvToJSON('a,b\n"unclosed,1', { format: "array-of-objects", parseTypes: false, indent: 0 }).warnings.some((w) => /quote/i.test(w)),
+  "Unclosed quotes are reported");
+console.log("  ✓ Leading zeros, empty cells, scientific notation, large integers and text are preserved.\n");
+
+// --- TEST 13: Lossless JSON parsing, formatting, duplicates and error positions ---
+console.log("Test 13: JSON formatter keeps numbers exactly, reports duplicate keys, and pinpoints errors");
+const numbersJSON = '{"a":9007199254740993,"b":123456789012345678901234567890,"c":1.0,"d":1e5,"e":-0,"f":1.10,"g":"\\u00e9"}';
+const numbersDoc = parseJSONDocument(numbersJSON);
+assert.strictEqual(numbersDoc.ok, true);
+assert.strictEqual(formatJSON(numbersDoc.root, 0), numbersJSON, "Minify is byte-identical for already-compact input");
+assert.strictEqual(
+  formatJSON(numbersDoc.root, 2),
+  '{\n  "a": 9007199254740993,\n  "b": 123456789012345678901234567890,\n  "c": 1.0,\n  "d": 1e5,\n  "e": -0,\n  "f": 1.10,\n  "g": "\\u00e9"\n}',
+);
+assert.strictEqual(numbersDoc.unsafeIntegerCount, 2, "Integers beyond 2^53 are reported");
+assert.deepStrictEqual(numbersDoc.unsafeIntegers.map((u) => u.path), ["$.a", "$.b"]);
+// Layout matches JSON.stringify for ordinary data
+const ordinary = { users: [{ id: 1, name: "Ann", tags: [], meta: {} }, { id: 2, name: 'Bo "B"', score: 9.5, ok: null }] };
+for (const indent of [0, 2, 4]) {
+  assert.strictEqual(
+    formatJSON(parseJSONDocument(JSON.stringify(ordinary)).root, indent),
+    JSON.stringify(ordinary, null, indent || undefined),
+    `Formatting layout matches JSON.stringify at indent ${indent}`,
+  );
+}
+// Duplicate keys are found with their location and kept when formatting
+const dupDoc = parseJSONDocument('{\n  "a": 1,\n  "list": [{"x": 1, "x": 2}],\n  "a": 3\n}');
+assert.strictEqual(dupDoc.duplicateKeyCount, 2);
+assert.deepStrictEqual(dupDoc.duplicateKeys.map(({ path, key, line, column }) => [path, key, line, column]), [
+  ["$.list[0]", "x", 3, 21],
+  ["$", "a", 4, 3],
+]);
+assert.strictEqual(formatJSON(dupDoc.root, 0), '{"a":1,"list":[{"x":1,"x":2}],"a":3}', "Formatting keeps both duplicates");
+// Repair then format keeps large numbers
+const repairedBig = repairJSON("{id: 9007199254740993, price: 1.50, /* c */ tags: ['a',],}");
+const repairedDoc = parseJSONDocument(repairedBig.repaired);
+assert.strictEqual(repairedDoc.ok, true);
+assert.strictEqual(formatJSON(repairedDoc.root, 0), '{"id":9007199254740993,"price":1.50,"tags":["a"]}');
+// Exact error positions, independent of the JavaScript engine's message format
+for (const [text, line, column, pattern] of [
+  ['{\n  "key": "value",\n  "broken": unquotedVal\n}', 3, 13, /double quotes/],
+  ["[1,\n2,,\n3]", 2, 3, /extra comma/],
+  ['{"a":1,}', 1, 8, /Trailing comma/],
+  ["[1,2,]", 1, 6, /Trailing comma/],
+  ["{'a':1}", 1, 2, /double quotes/],
+  ["{a:1}", 1, 2, /double quotes/],
+  ['{"a":01}', 1, 6, /leading zeros/],
+  ['{"a":1.}', 1, 8, /decimal point/],
+  ['{"a":NaN}', 1, 6, /NaN/],
+  ['{"a":1}x', 1, 8, /one top-level value/],
+  ['{"a":"x\ny"}', 1, 8, /Line break/],
+  ['{"a":[1,2}', 1, 10, /Expected ',' or ']'/],
+  ['{"a":1', 1, 1, /not closed/],
+  ['"abc', 1, 1, /Unterminated/],
+  ['{"a":"\\x"}', 1, 7, /escape/],
+]) {
+  const result = validateJSON(text);
+  assert.strictEqual(result.isValid, false, `${JSON.stringify(text)} is invalid`);
+  assert.deepStrictEqual([result.error.line, result.error.column], [line, column], `Position for ${JSON.stringify(text)}`);
+  assert.match(result.error.message, pattern);
+  assert(/^ *\^$/.test(result.error.pointer) && result.error.pointer.length <= result.error.snippet.length + 1, "Caret lies within the snippet");
+}
+const pointed = validateJSON('{\n  "key": "value",\n  "broken": unquotedVal\n}').error;
+assert.strictEqual(pointed.snippet, '  "broken": unquotedVal');
+assert.strictEqual(pointed.pointer, "            ^", "Caret sits under the error column");
+assert.strictEqual(validateJSON("").isValid, false);
+assert.strictEqual(validateJSON("\uFEFF{\"a\":1}").isValid, true, "A leading byte-order mark is tolerated");
+assert.strictEqual(parseJSONDocument("[".repeat(MAX_JSON_DEPTH) + "]".repeat(MAX_JSON_DEPTH)).ok, true);
+assert.match(parseJSONDocument("[".repeat(MAX_JSON_DEPTH + 1) + "]".repeat(MAX_JSON_DEPTH + 1)).message, /Nesting/);
+// Agreement with JSON.parse on validity for a mixed sample
+for (const text of ['{"a":[1,2,{"b":null}]}', '"\\ud83d\\ude00"', "[]", "0", "-0.5e-3", "[1,]", "{,}", "[01]", '"\\u12"', "tru", "nul", '{"a" "b"}', " [ ] ", "[1 2]"]) {
+  let native = true;
+  try { JSON.parse(text); } catch { native = false; }
+  assert.strictEqual(parseJSONDocument(text).ok, native, `Validity of ${text} matches JSON.parse`);
+}
+console.log("  ✓ Numbers keep their exact text, duplicates are reported and kept, and errors point at the exact character.\n");
+
+// --- TEST 14: JSON -> CSV correctness on the lossless parser ---
+console.log("Test 14: JSON ➔ CSV keeps exact numbers, column order and reports every lossy step");
+const exactNumbers = toCSV('[{"id":9007199254740993,"price":1.0,"big":1e5,"zero":-0}]');
+assert.strictEqual(exactNumbers.csvText, "id,price,big,zero\r\n9007199254740993,1.0,1e5,-0", "Numbers are written exactly as in the JSON");
+const identicalKeys = toCSV('[{"a":1,"b":"x"},{"a":2,"b":"y"}]');
+assert.strictEqual(identicalKeys.csvText, "a,b\r\n1,x\r\n2,y");
+assert.deepStrictEqual(identicalKeys.warnings, []);
+// Column order follows the document, even for integer-like keys (JSON.parse would reorder these)
+assert.strictEqual(toCSV('[{"b":1,"2":2,"a":3}]').csvText, "b,2,a\r\n1,2,3");
+// Duplicate keys: last value is used and the user is told
+const dupRows = toCSV('[{"a":1,"a":2,"b":3}]');
+assert.strictEqual(dupRows.csvText, "a,b\r\n2,3");
+assert(dupRows.warnings.some((w) => w.includes("duplicate key") && w.includes("last value")));
+// Empty strings, delimiters, quotes and line breaks survive and parse back identically
+const tricky = toCSV('[{"empty":"","comma":"x,y","quote":"say \\"hi\\"","newline":"l1\\nl2","semi":"a;b"}]', { delimiter: ";" });
+assert.deepStrictEqual(parseCSV(tricky.csvText, ";"), [["empty", "comma", "quote", "newline", "semi"], ["", "x,y", 'say "hi"', "l1\nl2", "a;b"]]);
+// Arrays of arrays have no header row
+const arrayRowsNoHeader = toCSV('[["a",1],["b",2]]');
+assert.strictEqual(arrayRowsNoHeader.hasHeader, false);
+assert.strictEqual(toCSV('[{"a":1}]').hasHeader, true);
+// Unsupported shapes and invalid JSON give understandable messages with positions
+assert.match(toCSV('[{"a":1},[1]]').warnings[0], /mixes row types/);
+assert.match(toCSV('{"a":1,"b":{"c":2}}').warnings[0], /mixes record and non-record/);
+assert.match(toCSV("true").warnings[0], /must be an array or an object/);
+assert.match(toCSV('[{"a":1,}]').warnings[0], /^Invalid JSON: Trailing comma .*\(line 1, column 9\)$/);
+console.log("  ✓ Exact numbers, document column order, duplicate-key notices and unsupported shapes verified.\n");
+
+// --- TEST 15: Spreadsheet formula injection ---
+console.log("Test 15: Formula-like cells are neutralized in spreadsheet-safe mode and reported otherwise");
+for (const risky of ["=1+1", "+1+1", "-1+2", "@SUM(A1)", "\t=1", "\r=1", '=HYPERLINK("http://x","y")', "=cmd|' /C calc'!A0", "+1 555 123 4567", "-x"]) {
+  assert.strictEqual(isFormulaRisk(risky), true, `${JSON.stringify(risky)} is treated as a formula risk`);
+}
+for (const safe of ["-5", "+3.2", "-1,234.50", "-12%", "1e-3", "-1.5E+3", "-", "---", "+", " =1", "a=1", "", "hello", "email@example.com", "2026-10-20"]) {
+  assert.strictEqual(isFormulaRisk(safe), false, `${JSON.stringify(safe)} is ordinary data`);
+}
+const formulaJSON = '[{"=bad":"=1+1","amount":-5,"text":"-5","at":"@SUM(A1)","tab":"\\t=1","ok":"plain"}]';
+const safeCSV = toCSV(formulaJSON, { formulaSafe: true });
+assert.deepStrictEqual(parseCSV(safeCSV.csvText), [
+  ["'=bad", "amount", "text", "at", "tab", "ok"],
+  ["'=1+1", "-5", "-5", "'@SUM(A1)", "'\t=1", "plain"],
+], "Risky cells (including headers) get an apostrophe; numbers stay numeric");
+assert(safeCSV.warnings.some((w) => w.startsWith("4 cell(s)") && w.includes("apostrophe")));
+const rawCSV = toCSV(formulaJSON, { formulaSafe: false });
+assert.deepStrictEqual(parseCSV(rawCSV.csvText)[1], ["=1+1", "-5", "-5", "@SUM(A1)", "\t=1", "plain"], "Unprotected mode keeps values unchanged");
+assert(rawCSV.warnings.some((w) => w.includes("may run as formulas")), "Unprotected mode still warns");
+const delimiterSafe = convertCSVDelimiter("a;b\n=1+1;-5\n@x;ok", ";", "", {
+  delimiter: ",", quoteChar: '"', quoteAllFields: false, escapeChar: '"', formulaSafe: true,
+});
+assert.deepStrictEqual(parseCSV(delimiterSafe.output), [["a", "b"], ["'=1+1", "-5"], ["'@x", "ok"]]);
+assert.strictEqual(delimiterSafe.formulaCells, 2);
+assert.strictEqual(neutralizeFormulaCells([["=1"]], false).rows[0][0], "=1", "Disabled neutralization changes nothing");
+console.log("  ✓ Formula payloads neutralized, negative numbers and ordinary text untouched, behavior reported.\n");
+
+// --- TEST 16: UTF-8, BOM and file decoding ---
+console.log("Test 16: UTF-8 text, Excel BOM and uploaded-file decoding");
+assert.strictEqual(withExcelBOM("a,b\r\n1,2"), "a,b\r\n1,2", "ASCII downloads are unchanged");
+for (const text of ["café", "نام,شہر", "😀", "Müller"]) {
+  assert.strictEqual(withExcelBOM(text), "\uFEFF" + text, `Non-ASCII download ${text} gets a UTF-8 BOM`);
+}
+const utfConverted = convertCSVDelimiter('نام;شہر;emoji\r\n"علی; خان";لاہور;😀\r\n"é\nü";;x', ";", "", {
+  delimiter: ",", quoteChar: '"', quoteAllFields: false, escapeChar: '"',
+});
+assert.deepStrictEqual(parseCSV(utfConverted.output), [["نام", "شہر", "emoji"], ["علی; خان", "لاہور", "😀"], ["é\nü", "", "x"]]);
+const encoder = new TextEncoder();
+assert.deepStrictEqual(decodeTextBytes(new Uint8Array([0xef, 0xbb, 0xbf, ...encoder.encode("id,név")])), { text: "id,név" }, "UTF-8 BOM is removed");
+const cp1252 = decodeTextBytes(new Uint8Array([0x4d, 0xfc, 0x6c, 0x6c, 0x65, 0x72, 0x3b, 0x80]), '"legacy.csv"');
+assert.strictEqual(cp1252.text, "Müller;€", "Invalid UTF-8 falls back to Windows-1252");
+assert.match(cp1252.notice, /legacy\.csv.*not valid UTF-8/);
+const utf16 = new Uint8Array([0xff, 0xfe, 0x61, 0x00, 0x3b, 0x00, 0xe9, 0x00]);
+assert.deepStrictEqual(decodeTextBytes(utf16), { text: "a;é" }, "UTF-16 files with a BOM are decoded");
+assert.deepStrictEqual(await readTextFile(new Blob([encoder.encode("x,ü\n1,2")])), { text: "x,ü\n1,2" });
+// A BOM at the start of pasted/uploaded CSV does not leak into the first header
+assert.deepStrictEqual(jsonOf("\uFEFFid,name\n1,Ann"), [{ id: "1", name: "Ann" }]);
+console.log("  ✓ Non-Latin text, emoji and multiline cells round-trip; downloads and uploads handle encodings explicitly.\n");
+
+// --- TEST 17: Preview counts and delimiter consistency ---
+console.log("Test 17: Preview counts data rows only and uses the same delimiter as the conversion");
+const preview = analyzeCSV('id,note\n1,"multi\nline"\n\n2,b\n\n\n', ",");
+assert.strictEqual(preview.rowCount, 2, "Header, blank lines and trailing newlines are not counted");
+assert.deepStrictEqual(preview.sampleRows, [["1", "multi\nline"], ["2", "b"]]);
+assert(preview.warnings.some((w) => w.includes("1 blank line")), "Blank lines between records are reported");
+assert.strictEqual(analyzeCSV("a,b\n1,2\n", ",").warnings.length, 0, "A trailing newline is not a warning");
+const noHeader = analyzeCSV("1,2\n3,4,5", ",", { hasHeader: false });
+assert.deepStrictEqual([noHeader.headers, noHeader.rowCount], [["Column 1", "Column 2", "Column 3"], 2]);
+assert.strictEqual(convertCSVDelimiter("a;b\n1;2\n\n", ";", "", {
+  delimiter: ",", quoteChar: '"', quoteAllFields: false, escapeChar: '"',
+}).rowCount, 2, "Converted record count ignores trailing blank lines");
+for (const [label, text, expected] of [
+  ["comma", "id,name\n1,Ann\n2,Bo", ","],
+  ["semicolon with decimal commas", "name;price\nA;10,50\nB;3,20", ";"],
+  ["tab with commas in values", "id\tnote\n1\ta, b, c\n2\td, e, f", "\t"],
+  ["pipe", "a|b|c\n1|2|3", "|"],
+  ["colon", "a:b\n1:2\n3:4", ":"],
+  ["comma file with times", "time,value\n10:20:30,5\n11:22:33,6", ","],
+  ["quoted semicolons in comma file", 'a,b\n"x;y;z",1\n"p;q;r",2', ","],
+  ["multiline quoted field", 'a;b\n"line1\nline2";2\nx;y', ";"],
+  ["single line", "a;b;c", ";"],
+  ["single column", "name\nAnn\nBo", ","],
+]) {
+  assert.strictEqual(detectDelimiter(text), expected, `Detects ${label}`);
+  const previewHeaders = analyzeCSV(text).headers;
+  const converted = JSON.parse(csvToJSON(text, { format: "2d-array", parseTypes: false, indent: 0 }).jsonText);
+  assert.deepStrictEqual(converted[0], previewHeaders, `Preview and conversion agree for ${label}`);
+}
+assert.deepStrictEqual(resolveDelimiter("a,b", "custom", ""), { delimiter: "", error: "Enter a custom separator character." });
+assert.match(resolveDelimiter("a,b", "custom", '"').error, /quote/);
+assert.strictEqual(convertCSVDelimiter("a,b", "custom", "", { delimiter: ",", quoteChar: '"', quoteAllFields: false, escapeChar: '"' }).ok, false,
+  "A blank custom separator is an error, not a silent fallback");
+console.log("  ✓ Row counts exclude the header and blank lines; preview and conversion use one parser and one detector.\n");
+
+// --- TEST 18: Malformed quoting is rejected with a location; valid quoting still works ---
+console.log("Test 18: Malformed CSV quoting is an error with a line/column; valid quoted fields are unaffected");
+const toJSON = (csv, opts = {}) => csvToJSON(csv, { format: "array-of-objects", parseTypes: false, indent: 0, ...opts });
+const delimOpts = { delimiter: ";", quoteChar: '"', quoteAllFields: false, escapeChar: '"' };
+// Finding A: an unclosed quote must not swallow the next row into a misleading record.
+for (const [label, text] of [
+  ["LF", 'Name,Description\nAli,"Unclosed quoted field\nSara,Karachi\n'],
+  ["LF without final newline", 'Name,Description\nAli,"Unclosed quoted field\nSara,Karachi'],
+  ["CRLF", 'Name,Description\r\nAli,"Unclosed quoted field\r\nSara,Karachi\r\n'],
+]) {
+  const unclosed = toJSON(text);
+  assert.strictEqual(unclosed.ok, false, `Unclosed quote is an error (${label})`);
+  assert.strictEqual(unclosed.jsonText, "", `No records are produced for an unclosed quote (${label})`);
+  assert.strictEqual(unclosed.warnings.length, 1, `One clear message (${label})`);
+  assert.match(unclosed.warnings[0], /Line 2, column 5: .*never closed/, `Error names the opening quote (${label})`);
+  const unclosedPreview = analyzeCSV(text);
+  assert.strictEqual(unclosedPreview.rowCount, 0, `Preview shows no misleading rows (${label})`);
+  assert.match(unclosedPreview.error, /Line 2, column 5/);
+  const unclosedConvert = convertCSVDelimiter(text, "auto", "", delimOpts);
+  assert.deepStrictEqual([unclosedConvert.ok, unclosedConvert.output], [false, ""], `Delimiter converter refuses it (${label})`);
+  assert.match(unclosedConvert.warnings[0], /Line 2, column 5/);
+}
+// Location is reported on later lines and after blank lines.
+assert.match(toJSON('a,b\n1,2\n\n3,"never closed\n4,5').warnings[0], /^Malformed CSV\. Line 4, column 3:/);
+assert.match(toJSON('a;b\n1;2\n3;"x').warnings[0], /Line 3, column 3/, "Works with other separators");
+// Finding B: text after a closing quote is reported once, not once per later quote.
+const trailing = toJSON('Name,Description\nAli,"abc"def,x\nSara,"x"y');
+assert.strictEqual(trailing.ok, false);
+assert.strictEqual(trailing.warnings.length, 1, "A malformed quote is reported once, without repeated warnings");
+assert.match(trailing.warnings[0], /Line 2, column 5: .*extra text after its closing quote/);
+// Finding B: JSON pasted in CSV mode gets a hint about the conversion mode.
+const wrongMode = toJSON('[\n  {"Name":"Ali","Note":"=1+1"}\n]');
+assert.match(wrongMode.warnings[0], /looks like JSON.*JSON ➔ CSV/, "Wrong-mode JSON paste is explained");
+assert(!toJSON("a,b\n[x],{y}").warnings.some((w) => w.includes("looks like JSON")), "Ordinary CSV gets no JSON hint");
+// Finding H: valid quoting, embedded commas/newlines, escaped quotes, empty cells and CRLF still work.
+const validMultiline = toJSON('Name,Description\nAli,"Developer, designer"\nSara,"First line\nSecond line"');
+assert.strictEqual(validMultiline.ok, true);
+assert.deepStrictEqual(JSON.parse(validMultiline.jsonText), [
+  { Name: "Ali", Description: "Developer, designer" },
+  { Name: "Sara", Description: "First line\nSecond line" },
+]);
+const validMixed = toJSON('a,b,c\r\n"say ""hi""","",x\r\n"multi\r\nline",,"q,""r"""\r\n"spaced" ,ok,z\r\n');
+assert.deepStrictEqual([validMixed.ok, validMixed.warnings], [true, []]);
+assert.deepStrictEqual(JSON.parse(validMixed.jsonText), [
+  { a: 'say "hi"', b: "", c: "x" },
+  { a: "multi\r\nline", b: "", c: 'q,"r"' },
+  { a: "spaced", b: "ok", c: "z" },
+]);
+assert.strictEqual(toJSON('a,b\n1,ab"c').ok, true, "A quote inside an unquoted value is kept as text, as before");
+// Finding C: quoted newlines are not counted as rows.
+assert.strictEqual(analyzeCSV('Name,Description\nAli,"x"\nSara,"First line\nSecond line"\nBo,y').rowCount, 3);
+// Finding I: empty and header-only input.
+assert.deepStrictEqual(toJSON("Name,City,Amount"), { jsonText: "[]", rowCount: 0, warnings: [], ok: true });
+assert.strictEqual(toJSON("").ok, true);
+assert.strictEqual(toJSON("").jsonText, "[]");
+console.log("  ✓ Unclosed and malformed quotes are rejected once with a location; valid quoting, CRLF and header-only input unchanged.\n");
 
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

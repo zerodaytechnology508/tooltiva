@@ -37,6 +37,8 @@ export interface CSVOutputOptions {
   quoteChar: '"' | "'";
   quoteAllFields: boolean;
   escapeChar: '"' | "\\";
+  /** Prefix formula-like cells with an apostrophe (see csv-utils isFormulaRisk). */
+  formulaSafe?: boolean;
 }
 
 export interface JSONRepairLog {
@@ -53,6 +55,8 @@ export interface JSONValidationResult {
     line?: number;
     column?: number;
     snippet?: string;
+    /** Caret under the error position, aligned with `snippet`. */
+    pointer?: string;
   };
   repairedText?: string;
   repairsApplied?: JSONRepairLog[];
