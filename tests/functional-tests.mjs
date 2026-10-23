@@ -665,4 +665,69 @@ assert.strictEqual(toJSON("").ok, true);
 assert.strictEqual(toJSON("").jsonText, "[]");
 console.log("  ✓ Unclosed and malformed quotes are rejected once with a location; valid quoting, CRLF and header-only input unchanged.\n");
 
+// --- TEST 19: CSV Viewer table, search, sort and export ---
+console.log("Test 19: CSV Viewer builds a rectangular table, searches, sorts naturally and exports the view");
+const viewer = await import("../src/lib/csv-viewer.ts");
+{
+  const { parseCSVRows } = await import("../src/lib/csv-utils.ts");
+  const parsed = parseCSVRows('id,name,amount,code\n3,Ann,10.5,00123\n1,bob,2,A2\n2,Céline,,A10\n4,Dan,-7,\n5,ann', ",").rows;
+  const table = viewer.buildViewerTable(parsed, true);
+  assert.deepStrictEqual(table.headers, ["id", "name", "amount", "code"]);
+  assert.strictEqual(table.rows.length, 5);
+  assert.deepStrictEqual(table.rows[4], ["5", "ann", "", ""], "Short rows are padded with empty cells");
+  assert.deepStrictEqual([table.raggedCount, table.raggedRows], [1, [5]], "Ragged rows are counted and located");
+  assert.strictEqual(table.rows[0][3], "00123", "Leading zeros are kept as written");
+
+  // Header off: generated names, first line becomes data.
+  const noHeader = viewer.buildViewerTable(parsed, false);
+  assert.deepStrictEqual(noHeader.headers, ["Column 1", "Column 2", "Column 3", "Column 4"]);
+  assert.strictEqual(noHeader.rows.length, 6);
+  // Blank header names get a generated name; extra columns beyond the header are kept.
+  const wide = viewer.buildViewerTable([["a", ""], ["1", "2", "3"]], true);
+  assert.deepStrictEqual(wide.headers, ["a", "Column 2", "Column 3"]);
+  assert.deepStrictEqual(wide.rows[0], ["1", "2", "3"]);
+
+  // Numeric detection and sorting: numbers by value, empties last, stable ties.
+  assert.strictEqual(viewer.isNumericColumn(table.rows, 2), true);
+  assert.strictEqual(viewer.isNumericColumn(table.rows, 3), false, "Codes such as A2 make a text column");
+  const byAmount = viewer.sortIndices(table.rows, [0, 1, 2, 3, 4], { column: 2, direction: "asc" }).map((i) => table.rows[i][2]);
+  assert.deepStrictEqual(byAmount, ["-7", "2", "10.5", "", ""], "Numeric ascending with empty cells last");
+  const byAmountDesc = viewer.sortIndices(table.rows, [0, 1, 2, 3, 4], { column: 2, direction: "desc" }).map((i) => table.rows[i][0]);
+  assert.deepStrictEqual(byAmountDesc, ["3", "1", "4", "2", "5"], "Descending keeps empties last and ties in file order");
+  const byCode = viewer.sortIndices(table.rows, [0, 1, 2, 3, 4], { column: 3, direction: "asc" }).map((i) => table.rows[i][3]);
+  assert.deepStrictEqual(byCode, ["00123", "A2", "A10", "", ""], "Natural text order: A2 before A10");
+  const byName = viewer.sortIndices(table.rows, [0, 1, 2, 3, 4], { column: 1, direction: "asc" }).map((i) => table.rows[i][0]);
+  assert.deepStrictEqual(byName, ["3", "5", "1", "2", "4"], "Case-insensitive names; equal names keep file order");
+  assert.deepStrictEqual(viewer.sortIndices(table.rows, [2, 0], null), [2, 0], "No sort keeps the given order");
+
+  // Search: case-insensitive, any column or one column, accents kept.
+  assert.deepStrictEqual(viewer.filterIndices(table.rows, "ANN", "all"), [0, 4]);
+  assert.deepStrictEqual(viewer.filterIndices(table.rows, "a1", 3), [2]);
+  assert.deepStrictEqual(viewer.filterIndices(table.rows, "céline", "all"), [2]);
+  assert.deepStrictEqual(viewer.filterIndices(table.rows, "  ", "all"), [0, 1, 2, 3, 4], "Blank search shows every row");
+  assert.deepStrictEqual(viewer.viewIndices(table.rows, "a", 1, { column: 0, direction: "desc" }), [4, 3, 0],
+    "Search then sort");
+
+  // Export of the current view: header plus shown rows, quoting and formula safety.
+  const risky = viewer.buildViewerTable([["name", "note"], ["x", "=1+1"], ["y", "a, b"], ["z", "-5"]], true);
+  const exported = viewer.exportView(risky, [1, 0], { delimiter: ",", formulaSafe: true, includeHeader: true });
+  assert.strictEqual(exported.csvText, 'name,note\r\ny,"a, b"\r\nx,\'=1+1');
+  assert.deepStrictEqual([exported.rowCount, exported.formulaCells], [2, 1]);
+  const raw = viewer.exportView(risky, [0, 2], { delimiter: ";", formulaSafe: false, includeHeader: false });
+  assert.strictEqual(raw.csvText, "x;=1+1\r\nz;-5", "Formula safety off and no header when the file had none");
+
+  // Column widths stay within readable bounds.
+  const widths = viewer.columnWidths(viewer.buildViewerTable([["a", "b"], ["1", "x".repeat(500)]], true));
+  assert.deepStrictEqual(widths, [96, 360]);
+
+  // A larger table filters and sorts quickly enough for interactive use.
+  const big = Array.from({ length: 100000 }, (_, i) => [String(100000 - i), `name ${i % 997}`, i % 3 ? "x" : ""]);
+  const started = performance.now();
+  const bigView = viewer.viewIndices(big, "name 5", "all", { column: 0, direction: "asc" });
+  const elapsed = performance.now() - started;
+  assert(bigView.length > 0 && Number(big[bigView[0]][0]) <= Number(big[bigView[1]][0]), "Large view is sorted");
+  assert(elapsed < 2000, `100,000-row search and sort took ${elapsed.toFixed(0)} ms`);
+}
+console.log("  ✓ Padding, ragged-row report, natural and numeric sort, search, export and performance verified.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

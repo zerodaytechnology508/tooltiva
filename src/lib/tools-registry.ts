@@ -2,6 +2,56 @@ import { ToolMeta } from "./types";
 
 export const TOOLS: ToolMeta[] = [
   {
+    id: "csv-viewer",
+    slug: "csv-viewer",
+    title: "CSV Viewer",
+    navLabel: "CSV Viewer",
+    pageTitle: "CSV Viewer – Open and View CSV Files Online",
+    h1: "CSV Viewer",
+    intro: "Open a CSV file in your browser and see it as a table. Search, sort by any column and export the rows you need. Values are shown exactly as stored, so leading zeros and long numbers stay intact.",
+    badgeTitle: "CSV Viewer",
+    shortDescription: "Open CSV files as a searchable, sortable table, even large ones, and export the rows you need.",
+    metaDescription: "Open and view CSV files online as a table. Search, sort by any column and export the filtered rows. Values stay exactly as written. Your file never leaves your browser.",
+    category: "Data & CSV",
+    primaryKeyword: "csv viewer",
+    secondaryKeywords: [
+      "csv viewer online",
+      "open csv file online",
+      "csv file opener",
+      "view csv file",
+      "csv reader online",
+    ],
+    icon: "Table2",
+    canonicalUrl: "https://tooltiva.net/tools/csv-viewer/",
+    lastUpdated: "2026-10-23",
+    faqs: [
+      {
+        question: "Is my CSV file uploaded anywhere?",
+        answer: "No. The file is read and displayed by your browser on your own device and is never sent to a server. Optional site analytics, if you allow it, never receives file contents.",
+      },
+      {
+        question: "Why does my CSV look different here than in Excel?",
+        answer: "Excel converts values as it opens a CSV: it removes leading zeros from codes such as 00123, shows long numbers in scientific notation and reformats anything that looks like a date. The CSV Viewer shows every value exactly as it is stored in the file.",
+      },
+      {
+        question: "How large a CSV file can I open?",
+        answer: "The table only draws the rows on screen, so files with hundreds of thousands of rows stay responsive. The practical limit is your device's memory: files of tens of megabytes work in current desktop browsers. For very large files, a desktop browser works better than a phone.",
+      },
+      {
+        question: "How does sorting work?",
+        answer: "Click a column name to sort ascending, again for descending, and a third time to return to the file's order. Columns that contain only numbers sort by value; other columns sort in natural order, so A2 comes before A10. Empty cells are always listed last.",
+      },
+      {
+        question: "Which separators are supported?",
+        answer: "Comma, semicolon, tab and pipe are detected automatically, and you can choose the separator yourself if a file is unusual. Values in quotes keep any separators, quotes and line breaks they contain.",
+      },
+      {
+        question: "Can I edit cells?",
+        answer: "Not at the moment. You can search, sort and export the rows you need as a new CSV file. To change the separator of a file, use the CSV Delimiter Converter.",
+      },
+    ],
+  },
+  {
     id: "csv-delimiter-converter",
     slug: "csv-delimiter-converter",
     title: "CSV Delimiter Converter",
