@@ -1,5 +1,5 @@
 import { ToolMeta } from "./types";
-import { SITE, absoluteUrl } from "./site";
+import { absoluteUrl, publisherSchema } from "./site";
 
 /**
  * Structured data for a tool page. Breadcrumbs match the visible trail:
@@ -22,10 +22,7 @@ export function generateToolJsonLd(tool: ToolMeta) {
       price: "0",
       priceCurrency: "USD",
     },
-    creator: {
-      "@type": "Organization",
-      name: SITE.publisher,
-    },
+    creator: publisherSchema(),
   };
 
   const faqSchema = {

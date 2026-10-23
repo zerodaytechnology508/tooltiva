@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Lock, ShieldCheck, UserX } from "lucide-react";
 import { TOOLS } from "@/lib/tools-registry";
 import { buildPageMetadata } from "@/lib/metadata";
-import { SITE, absoluteUrl } from "@/lib/site";
+import { SITE, absoluteUrl, publisherSchema } from "@/lib/site";
 import { ToolCard } from "@/components/ToolCard";
 import { GUIDES } from "@/lib/guides-registry";
 
@@ -39,10 +39,7 @@ export default function HomePage() {
     name: SITE.name,
     url: absoluteUrl("/"),
     description: SITE.description,
-    publisher: {
-      "@type": "Organization",
-      name: SITE.publisher,
-    },
+    publisher: publisherSchema(),
   };
 
   return (

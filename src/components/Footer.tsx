@@ -3,6 +3,7 @@ import Link from "next/link";
 import { TOOLS } from "@/lib/tools-registry";
 import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 import { BrandMark } from "@/components/BrandMark";
+import { SITE } from "@/lib/site";
 
 const linkClass =
   "text-slate-700 hover:text-brand-800 hover:underline dark:text-slate-300 dark:hover:text-brand-300";
@@ -85,7 +86,15 @@ export function Footer() {
             <AnalyticsConsent />
           </div>
           <p>
-            A product by <span className="font-medium text-slate-800 dark:text-slate-200">CodingTangent</span>
+            A product by{" "}
+            <a
+              href={SITE.publisherProfile}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-slate-800 hover:underline dark:text-slate-200"
+            >
+              CodingTangent
+            </a>
           </p>
         </div>
       </div>

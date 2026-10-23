@@ -3,6 +3,7 @@ import { buildPageMetadata } from "@/lib/metadata";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import Link from "next/link";
 import { AUTHOR } from "@/lib/authors";
+import { SITE } from "@/lib/site";
 import { Shield, Zap } from "lucide-react";
 
 export const metadata = buildPageMetadata({
@@ -89,7 +90,16 @@ export default function AboutPage() {
             <span className="font-semibold text-brand-700 dark:text-brand-400">
               CodingTangent
             </span>
-            . While CodingTangent oversees engineering, infrastructure, and feature updates, Tooltiva operates as an independent platform with its own identity and roadmap.
+            {" "}(
+            <a
+              href={SITE.publisherProfile}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-brand-700 underline underline-offset-2 dark:text-brand-400"
+            >
+              CodingTangent on Facebook
+            </a>
+            ). While CodingTangent oversees engineering, infrastructure, and feature updates, Tooltiva operates as an independent platform with its own identity and roadmap.
           </p>
         </section>
       </div>

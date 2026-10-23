@@ -4,8 +4,8 @@ import { ArrowRight } from "lucide-react";
 import type { GuideMeta } from "@/lib/guides-registry";
 import { GUIDES } from "@/lib/guides-registry";
 import { TOOLS } from "@/lib/tools-registry";
-import { AUTHOR } from "@/lib/authors";
-import { SITE, absoluteUrl } from "@/lib/site";
+import { AUTHOR, authorSchema } from "@/lib/authors";
+import { SITE, absoluteUrl, publisherSchema } from "@/lib/site";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolIcon } from "@/components/ToolIcon";
 
@@ -28,14 +28,8 @@ export function GuideLayout({ guide, children }: { guide: GuideMeta; children: R
     datePublished: guide.datePublished,
     dateModified: guide.dateModified,
     image: absoluteUrl(SITE.ogImage.url),
-    author: {
-      "@type": "Person",
-      name: AUTHOR.name,
-      jobTitle: AUTHOR.role,
-      url: AUTHOR.url,
-      ...(AUTHOR.sameAs.length > 0 ? { sameAs: AUTHOR.sameAs } : {}),
-    },
-    publisher: { "@type": "Organization", name: SITE.publisher },
+    author: authorSchema(),
+    publisher: publisherSchema(),
   };
   const breadcrumbsSchema = {
     "@context": "https://schema.org",
