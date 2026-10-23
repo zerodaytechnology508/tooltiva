@@ -72,6 +72,21 @@ body {
   .content-prose td {
     @apply border-b border-slate-200 px-3 py-2 align-top dark:border-slate-800;
   }
+  .guide-prose > * + * {
+    @apply mt-4;
+  }
+  .guide-prose h2 {
+    @apply mt-10 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl dark:text-white;
+  }
+  .guide-prose h3 {
+    @apply mt-7 text-lg font-semibold text-slate-900 dark:text-white;
+  }
+  .guide-prose pre {
+    @apply overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200;
+  }
+  .guide-prose pre code {
+    @apply bg-transparent p-0;
+  }
   .content-prose a {
     @apply font-medium text-brand-700 underline underline-offset-2 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300;
   }

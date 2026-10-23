@@ -1,6 +1,8 @@
 import React from "react";
 import { buildPageMetadata } from "@/lib/metadata";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import Link from "next/link";
+import { AUTHOR } from "@/lib/authors";
 import { Shield, Zap } from "lucide-react";
 
 export const metadata = buildPageMetadata({
@@ -61,6 +63,20 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
+        </section>
+
+        <section id="author" className="scroll-mt-24 space-y-4">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Who builds Tooltiva</h2>
+          <p className="text-base leading-7 text-slate-700 dark:text-slate-300">
+            <strong>{AUTHOR.name}</strong>, {AUTHOR.role}. {AUTHOR.bio}
+          </p>
+          <p className="text-base leading-7 text-slate-700 dark:text-slate-300">
+            Every tool is tested against real-world files, including malformed ones, before it is published, and the{" "}
+            <Link href="/guides/" className="font-medium text-brand-700 underline underline-offset-2 dark:text-brand-400">
+              guides
+            </Link>{" "}
+            describe only what has been checked. Corrections and suggestions are welcome at support@tooltiva.net.
+          </p>
         </section>
 
         {/* Ownership Disclosure */}

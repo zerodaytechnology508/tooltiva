@@ -51,6 +51,11 @@ export function Footer() {
             <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Tooltiva</h2>
             <ul className="mt-3 space-y-2.5 text-sm">
               <li>
+                <Link href="/guides/" className={linkClass}>
+                  Guides
+                </Link>
+              </li>
+              <li>
                 <Link href="/about/" className={linkClass}>
                   About
                 </Link>

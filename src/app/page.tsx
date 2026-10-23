@@ -5,6 +5,7 @@ import { TOOLS } from "@/lib/tools-registry";
 import { buildPageMetadata } from "@/lib/metadata";
 import { SITE, absoluteUrl } from "@/lib/site";
 import { ToolCard } from "@/components/ToolCard";
+import { GUIDES } from "@/lib/guides-registry";
 
 export const metadata = buildPageMetadata({
   title: `${SITE.name} — Free CSV & JSON Tools That Run in Your Browser`,
@@ -86,6 +87,29 @@ export default function HomePage() {
           {TOOLS.map((tool) => (
             <li key={tool.id}>
               <ToolCard tool={tool} />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="guides-title" className="mt-20">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 id="guides-title" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            Guides
+          </h2>
+          <Link href="/guides/" className="text-sm font-semibold text-brand-700 hover:underline dark:text-brand-400">
+            All guides
+          </Link>
+        </div>
+        <ul className="mt-6 grid grid-cols-1 gap-x-10 gap-y-3 md:grid-cols-2">
+          {GUIDES.map((guide) => (
+            <li key={guide.slug}>
+              <Link
+                href={`/guides/${guide.slug}/`}
+                className="text-base font-medium text-slate-800 underline decoration-slate-300 underline-offset-4 hover:text-brand-800 hover:decoration-brand-600 dark:text-slate-200 dark:decoration-slate-600 dark:hover:text-brand-300"
+              >
+                {guide.h1}
+              </Link>
             </li>
           ))}
         </ul>

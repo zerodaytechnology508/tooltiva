@@ -2,6 +2,8 @@ import React from "react";
 import type { ToolMeta } from "@/lib/types";
 import { generateToolJsonLd } from "@/lib/seo-utils";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import Link from "next/link";
+import { guidesForTool } from "@/lib/guides-registry";
 import { FAQAccordion } from "@/components/FAQAccordion";
 import { RelatedTools } from "@/components/RelatedTools";
 import { ToolIcon } from "@/components/ToolIcon";
@@ -47,6 +49,17 @@ export function ToolPageLayout({
 
       <div className="mt-16 space-y-12">
         {content}
+        {guidesForTool(tool.slug).length > 0 && (
+          <ContentSection title="Guides">
+            <ul>
+              {guidesForTool(tool.slug).map((guide) => (
+                <li key={guide.slug}>
+                  <Link href={`/guides/${guide.slug}/`}>{guide.h1}</Link>
+                </li>
+              ))}
+            </ul>
+          </ContentSection>
+        )}
         <FAQAccordion items={tool.faqs} />
         <RelatedTools currentSlug={tool.slug} />
       </div>

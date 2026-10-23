@@ -138,6 +138,9 @@ export function Header() {
           >
             JSON Formatter
           </Link>
+          <Link href="/guides/" className={navLinkClass}>
+            Guides
+          </Link>
           <span aria-hidden="true" className="mx-2 h-5 w-px bg-slate-200 dark:bg-slate-800" />
           <Link
             href="/about/"
@@ -199,6 +202,15 @@ export function Header() {
               </li>
             ))}
             <li className="mt-2 border-t border-slate-200 pt-2 dark:border-slate-800">
+              <Link
+                href="/guides/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block rounded-lg px-3 py-2.5 text-base font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                Guides
+              </Link>
+            </li>
+            <li>
               <Link
                 href="/about/"
                 onClick={() => setMobileMenuOpen(false)}
