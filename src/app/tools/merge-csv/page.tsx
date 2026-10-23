@@ -102,7 +102,8 @@ export default function MergeCSVPage() {
               To go the other way and break one large file into smaller ones,{" "}
               <Link href="/tools/split-csv/">split the CSV file</Link> by rows or by a column. To look through the
               merged result, open it in the <Link href="/tools/csv-viewer/">CSV Viewer</Link>, where you can search
-              and sort it.
+              and sort it. If the same records appear in more than one file,{" "}
+              <Link href="/tools/remove-duplicates-csv/">remove the duplicate rows</Link> afterwards.
             </p>
           </ContentSection>
         </>

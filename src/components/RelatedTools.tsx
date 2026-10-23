@@ -4,9 +4,22 @@ import { ArrowRight } from "lucide-react";
 import { TOOLS } from "@/lib/tools-registry";
 import { ToolIcon } from "@/components/ToolIcon";
 
-/** Links to every other tool, generated from the registry so no page is left out. */
+const MAX_RELATED = 6;
+
+/**
+ * Links to the most related tools: the registry's hand-picked `related` list first,
+ * then tools of the same category, then the rest. Every tool stays reachable from
+ * the header menu, the footer and the /tools/ hub.
+ */
 export function RelatedTools({ currentSlug }: { currentSlug: string }) {
-  const others = TOOLS.filter((tool) => tool.slug !== currentSlug);
+  const current = TOOLS.find((tool) => tool.slug === currentSlug);
+  const picked = (current?.related ?? [])
+    .map((slug) => TOOLS.find((tool) => tool.slug === slug))
+    .filter((tool): tool is (typeof TOOLS)[number] => !!tool && tool.slug !== currentSlug);
+  const rest = TOOLS.filter((tool) => tool.slug !== currentSlug && !picked.includes(tool)).sort(
+    (a, b) => Number(b.category === current?.category) - Number(a.category === current?.category)
+  );
+  const others = [...picked, ...rest].slice(0, MAX_RELATED);
   return (
     <section aria-labelledby="related-tools" className="border-t border-slate-200 pt-10 dark:border-slate-800">
       <h2 id="related-tools" className="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">

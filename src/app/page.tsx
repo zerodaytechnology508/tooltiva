@@ -53,7 +53,7 @@ export default function HomePage() {
           Free CSV and JSON tools that run in your browser
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
-          View, split and merge CSV files, change delimiters, convert between CSV and JSON, and format or fix
+          View, split, merge and dedupe CSV files, change delimiters, convert between CSV and JSON, and format or fix
           JSON. Your files are processed on your device and never uploaded.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

@@ -26,6 +26,8 @@ export interface ToolMeta {
   secondaryKeywords: string[];
   icon: string;
   faqs: FAQItem[];
+  /** Slugs of the most related tools, in order, shown under "Related tools" (up to 6). */
+  related?: string[];
   canonicalUrl: string;
   lastUpdated: string;
 }

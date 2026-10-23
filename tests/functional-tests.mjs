@@ -860,4 +860,47 @@ console.log("Test 21: Merge CSV matches columns by name or position and never ch
 }
 console.log("  ✓ Name and position matching, source column, duplicate/extra columns, per-file report and output verified.\n");
 
+console.log("Test 22: Remove duplicate rows by whole row or key columns, keeping first or last");
+{
+  const { findDuplicateRows } = await import("../src/lib/csv-dedupe.ts");
+  const rows = [
+    ["1", "Ann", "ann@example.com"],
+    ["2", "Bob", "bob@example.com"],
+    ["1", "Ann", "ann@example.com"],
+    ["3", "ann", " Ann@Example.com "],
+    ["4", "Cy", ""],
+    ["5", "Dee", ""],
+  ];
+  const whole = findDuplicateRows(rows, { columns: "all", keep: "first", ignoreCase: false, trimSpaces: false, keepEmpty: false });
+  assert.deepStrictEqual(whole, { kept: [0, 1, 3, 4, 5], removed: [2], duplicateGroups: 1 }, "Exact whole-row duplicates");
+
+  const byEmail = findDuplicateRows(rows, { columns: [2], keep: "first", ignoreCase: true, trimSpaces: true, keepEmpty: false });
+  assert.deepStrictEqual(byEmail.kept, [0, 1, 4], "Case and outer spaces ignored; empty emails count as one value");
+  assert.deepStrictEqual(byEmail.removed, [2, 3, 5]);
+  assert.strictEqual(byEmail.duplicateGroups, 2);
+
+  const keepBlank = findDuplicateRows(rows, { columns: [2], keep: "first", ignoreCase: true, trimSpaces: true, keepEmpty: true });
+  assert.deepStrictEqual(keepBlank.removed, [2, 3], "Rows with an empty key are kept when keepEmpty is on");
+  assert.strictEqual(keepBlank.duplicateGroups, 1);
+  assert.deepStrictEqual(findDuplicateRows([[""], [""]], { columns: "all", keep: "first", ignoreCase: false, trimSpaces: false, keepEmpty: true }).removed, []);
+
+  const strictEmail = findDuplicateRows(rows, { columns: [2], keep: "first", ignoreCase: false, trimSpaces: false, keepEmpty: false });
+  assert.deepStrictEqual(strictEmail.removed, [2, 5], "Without the options, differently written emails stay");
+
+  const last = findDuplicateRows(rows, { columns: [2], keep: "last", ignoreCase: true, trimSpaces: true, keepEmpty: false });
+  assert.deepStrictEqual(last.kept, [1, 3, 5], "Keep last keeps the final occurrence, in file order");
+  assert.deepStrictEqual(last.removed, [0, 2, 4]);
+
+  const twoCols = findDuplicateRows([["a", "b", "1"], ["a", "b", "2"], ["ab", "", "3"], ["a", "", "4"]], { columns: [0, 1], keep: "first", ignoreCase: false, trimSpaces: false, keepEmpty: false });
+  assert.deepStrictEqual(twoCols.removed, [1], "Multi-column keys never collide by concatenation (a|b vs ab|)");
+
+  const big = Array.from({ length: 200000 }, (_, i) => [String(i % 50000), "x"]);
+  const t0 = performance.now();
+  const bigResult = findDuplicateRows(big, { columns: [0], keep: "first", ignoreCase: true, trimSpaces: true, keepEmpty: false });
+  const ms = performance.now() - t0;
+  assert.strictEqual(bigResult.kept.length, 50000);
+  assert.ok(ms < 2000, `200k rows deduplicated in ${ms.toFixed(0)} ms`);
+}
+console.log("  ✓ Whole-row and key-column matching, case/space options, keep first/last and 200k-row speed verified.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

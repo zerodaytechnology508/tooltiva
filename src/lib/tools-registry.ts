@@ -22,6 +22,7 @@ export const TOOLS: ToolMeta[] = [
       "csv reader online",
     ],
     icon: "Table2",
+    related: ["split-csv", "remove-duplicates-csv", "csv-delimiter-converter", "merge-csv", "csv-to-json", "json-to-csv"],
     canonicalUrl: "https://tooltiva.net/tools/csv-viewer/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -72,6 +73,7 @@ export const TOOLS: ToolMeta[] = [
       "split csv into multiple files",
     ],
     icon: "Scissors",
+    related: ["merge-csv", "csv-viewer", "remove-duplicates-csv", "csv-delimiter-converter", "csv-to-json", "json-to-csv"],
     canonicalUrl: "https://tooltiva.net/tools/split-csv/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -122,6 +124,7 @@ export const TOOLS: ToolMeta[] = [
       "append csv files",
     ],
     icon: "Combine",
+    related: ["remove-duplicates-csv", "split-csv", "csv-viewer", "csv-delimiter-converter", "csv-to-json", "json-to-csv"],
     canonicalUrl: "https://tooltiva.net/tools/merge-csv/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -152,6 +155,57 @@ export const TOOLS: ToolMeta[] = [
     ],
   },
   {
+    id: "remove-duplicates-csv",
+    slug: "remove-duplicates-csv",
+    title: "Remove Duplicate Rows from CSV",
+    navLabel: "Remove Duplicates",
+    pageTitle: "Remove Duplicates from CSV – Online CSV Dedupe Tool",
+    h1: "Remove Duplicate Rows from CSV",
+    intro: "Find and remove duplicate rows in a CSV file, comparing whole rows or only the columns you choose, such as an email or ID. Download the cleaned file and, separately, the rows that were removed.",
+    badgeTitle: "Remove Duplicates",
+    shortDescription: "Remove duplicate rows by whole row or by chosen columns like email, and download the removed rows too.",
+    metaDescription: "Remove duplicate rows from a CSV file online. Compare whole rows or chosen columns, ignore case and spaces, keep first or last. Your file stays in your browser.",
+    category: "Data & CSV",
+    primaryKeyword: "remove duplicates from csv",
+    secondaryKeywords: [
+      "remove duplicate rows csv",
+      "csv dedupe",
+      "csv duplicate remover",
+      "remove duplicates csv based on one column",
+      "find duplicates in csv",
+    ],
+    icon: "CopyMinus",
+    related: ["merge-csv", "csv-viewer", "split-csv", "csv-delimiter-converter", "csv-to-json", "json-to-csv"],
+    canonicalUrl: "https://tooltiva.net/tools/remove-duplicates-csv/",
+    lastUpdated: "2026-10-23",
+    faqs: [
+      {
+        question: "Is my CSV file uploaded to remove duplicates?",
+        answer: "No. The file is read and checked by your browser on your own device. Nothing is sent to a server, and optional site analytics, if you allow it, never receives file contents.",
+      },
+      {
+        question: "How do I remove duplicates based on one column, such as email?",
+        answer: "Choose \"The selected columns match\" and select the email column. Rows with the same email are then treated as duplicates even if other columns, such as the name or city, differ. You can select several columns to compare a combination, for example first name and last name.",
+      },
+      {
+        question: "Which row is kept when there are duplicates?",
+        answer: "The first occurrence by default, or the last one if you choose it, which is useful when later rows hold newer data. The kept rows stay in their original order.",
+      },
+      {
+        question: "Are \"Ann@Example.com\" and \"ann@example.com\" treated as duplicates?",
+        answer: "Yes, with the default options: upper and lower case are ignored, and so are spaces before and after a value. Turn the options off to compare values exactly.",
+      },
+      {
+        question: "What happens to rows with an empty email?",
+        answer: "They are kept. A missing value usually means unknown, not the same, so rows whose compared columns are all empty are never removed unless you turn that option off.",
+      },
+      {
+        question: "Can I see which rows were removed?",
+        answer: "Yes. Switch the preview to Removed rows, or download them as a separate CSV file to check them or keep a record.",
+      },
+    ],
+  },
+  {
     id: "csv-delimiter-converter",
     slug: "csv-delimiter-converter",
     title: "CSV Delimiter Converter",
@@ -174,6 +228,7 @@ export const TOOLS: ToolMeta[] = [
       "fix csv delimiter",
     ],
     icon: "FileSpreadsheet",
+    related: ["csv-viewer", "split-csv", "merge-csv", "remove-duplicates-csv", "csv-to-json", "json-to-csv"],
     canonicalUrl: "https://tooltiva.net/tools/csv-delimiter-converter/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -227,6 +282,7 @@ export const TOOLS: ToolMeta[] = [
       "csv to json array",
     ],
     icon: "ArrowLeftRight",
+    related: ["json-to-csv", "json-formatter", "csv-viewer", "csv-delimiter-converter", "merge-csv", "split-csv"],
     canonicalUrl: "https://tooltiva.net/tools/csv-to-json/",
     lastUpdated: "2026-10-10",
     faqs: [
@@ -268,6 +324,7 @@ export const TOOLS: ToolMeta[] = [
       "json to comma separated values",
     ],
     icon: "ArrowLeftRight",
+    related: ["csv-to-json", "json-formatter", "csv-delimiter-converter", "csv-viewer", "merge-csv", "remove-duplicates-csv"],
     canonicalUrl: "https://tooltiva.net/tools/json-to-csv/",
     lastUpdated: "2026-10-16",
     faqs: [
@@ -316,6 +373,7 @@ export const TOOLS: ToolMeta[] = [
       "json viewer",
     ],
     icon: "Code2",
+    related: ["json-to-csv", "csv-to-json", "csv-viewer", "csv-delimiter-converter", "merge-csv", "split-csv"],
     canonicalUrl: "https://tooltiva.net/tools/json-formatter/",
     lastUpdated: "2026-10-23",
     faqs: [

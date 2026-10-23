@@ -19,7 +19,7 @@ const GROUPS: { category: ToolCategory; id: string; title: string; intro: string
     category: "Data & CSV",
     id: "csv-tools",
     title: "CSV and data tools",
-    intro: "Open, split, merge and clean up CSV files, and convert data between CSV and JSON.",
+    intro: "Open, split, merge and remove duplicates from CSV files, and convert data between CSV and JSON.",
   },
   {
     category: "Developer",
