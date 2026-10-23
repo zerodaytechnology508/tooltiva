@@ -32,6 +32,11 @@ export function Footer() {
           <div>
             <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Tools</h2>
             <ul className="mt-3 space-y-2.5 text-sm">
+              <li>
+                <Link href="/tools/" className={`${linkClass} font-semibold`}>
+                  All tools
+                </Link>
+              </li>
               {TOOLS.map((tool) => (
                 <li key={tool.slug}>
                   <Link href={`/tools/${tool.slug}/`} className={linkClass}>

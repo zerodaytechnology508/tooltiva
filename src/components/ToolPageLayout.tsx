@@ -29,7 +29,7 @@ export function ToolPageLayout({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }} />
 
-      <Breadcrumbs items={[{ name: tool.title }]} />
+      <Breadcrumbs items={[{ name: "Tools", href: "/tools/" }, { name: tool.title }]} />
 
       <header className="mt-4 flex items-start gap-4">
         <span className="mt-1 hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 sm:flex dark:bg-brand-950 dark:text-brand-300">

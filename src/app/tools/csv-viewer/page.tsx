@@ -36,7 +36,9 @@ export default function CSVViewerPage() {
             </p>
             <p>
               If you need the data in another format afterwards, export the rows you want, or use the{" "}
-              <Link href="/tools/csv-to-json/">CSV to JSON converter</Link>.
+              <Link href="/tools/csv-to-json/">CSV to JSON converter</Link>. If the file opens in a single column in
+              Excel, <Link href="/tools/csv-delimiter-converter/">change the CSV delimiter</Link> to the one Excel
+              expects.
             </p>
           </ContentSection>
 
@@ -61,7 +63,10 @@ export default function CSVViewerPage() {
 
           <ContentSection title="Large files and messy data">
             <ul>
-              <li>Only the rows on screen are drawn, so scrolling stays smooth with very large files.</li>
+              <li>
+                Only the rows on screen are drawn, so scrolling stays smooth with very large files. To break a file
+                into smaller ones, <Link href="/tools/split-csv/">split the CSV</Link> by rows or by a column.
+              </li>
               <li>
                 Rows with missing or extra fields are shown with empty cells and reported, instead of breaking the
                 table.

@@ -2,8 +2,8 @@ import { ToolMeta } from "./types";
 import { SITE, absoluteUrl } from "./site";
 
 /**
- * Structured data for a tool page. Breadcrumbs list only real, crawlable pages
- * (Home → tool); a category level is added once category hub pages exist.
+ * Structured data for a tool page. Breadcrumbs match the visible trail:
+ * Home → Tools (the /tools/ hub) → tool.
  * FAQPage markup is kept because it describes the visible FAQ accurately, but
  * Google no longer shows FAQ rich results, so no search feature is expected.
  */
@@ -54,6 +54,12 @@ export function generateToolJsonLd(tool: ToolMeta) {
       {
         "@type": "ListItem",
         position: 2,
+        name: "Tools",
+        item: absoluteUrl("/tools/"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
         name: tool.title,
         item: tool.canonicalUrl,
       },

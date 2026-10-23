@@ -61,7 +61,9 @@ export default function CSVToJSONPage() {
               </li>
             </ol>
             <p>
-              Starting from JSON instead? Use the <Link href="/tools/json-to-csv/">JSON to CSV converter</Link>.
+              Starting from JSON instead? Use the <Link href="/tools/json-to-csv/">JSON to CSV converter</Link>. To
+              check or pretty-print JSON you already have, use the{" "}
+              <Link href="/tools/json-formatter/">JSON formatter and validator</Link>.
             </p>
           </ContentSection>
         </>

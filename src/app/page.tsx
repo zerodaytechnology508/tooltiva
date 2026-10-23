@@ -4,7 +4,7 @@ import { ArrowRight, Lock, ShieldCheck, UserX } from "lucide-react";
 import { TOOLS } from "@/lib/tools-registry";
 import { buildPageMetadata } from "@/lib/metadata";
 import { SITE, absoluteUrl } from "@/lib/site";
-import { ToolIcon } from "@/components/ToolIcon";
+import { ToolCard } from "@/components/ToolCard";
 
 export const metadata = buildPageMetadata({
   title: `${SITE.name} — Free CSV & JSON Tools That Run in Your Browser`,
@@ -53,8 +53,8 @@ export default function HomePage() {
           Free CSV and JSON tools that run in your browser
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
-          Change CSV delimiters, convert between CSV and JSON, and format or fix JSON. Your files are processed on
-          your device and never uploaded.
+          View, split and merge CSV files, change delimiters, convert between CSV and JSON, and format or fix
+          JSON. Your files are processed on your device and never uploaded.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
@@ -74,30 +74,18 @@ export default function HomePage() {
       </section>
 
       <section id="tools" aria-labelledby="tools-title" className="scroll-mt-20">
-        <h2 id="tools-title" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-          Tools
-        </h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 id="tools-title" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            Tools
+          </h2>
+          <Link href="/tools/" className="text-sm font-semibold text-brand-700 hover:underline dark:text-brand-400">
+            All tools by category
+          </Link>
+        </div>
         <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {TOOLS.map((tool) => (
             <li key={tool.id}>
-              <Link
-                href={`/tools/${tool.slug}/`}
-                className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 transition-colors hover:border-brand-600/60 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/60"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
-                  <ToolIcon name={tool.icon} className="h-5 w-5" />
-                </span>
-                <span className="mt-4 text-lg font-semibold text-slate-900 group-hover:text-brand-800 dark:text-white dark:group-hover:text-brand-300">
-                  {tool.title}
-                </span>
-                <span className="mt-2 flex-1 text-base leading-7 text-slate-600 dark:text-slate-400">
-                  {tool.shortDescription}
-                </span>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 dark:text-brand-400">
-                  Open tool
-                  <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </Link>
+              <ToolCard tool={tool} />
             </li>
           ))}
         </ul>

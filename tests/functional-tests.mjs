@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { register } from "node:module";
 import Papa from "papaparse";
+import { join } from "node:path";
 
 // The library modules import each other without file extensions, as Next.js
 // expects. Node's built-in TypeScript support needs the ".ts" extension, so for
@@ -729,5 +730,134 @@ const viewer = await import("../src/lib/csv-viewer.ts");
   assert(elapsed < 2000, `100,000-row search and sort took ${elapsed.toFixed(0)} ms`);
 }
 console.log("  ✓ Padding, ragged-row report, natural and numeric sort, search, export and performance verified.\n");
+
+// --- TEST 20: Split CSV and ZIP export ---
+console.log("Test 20: Split CSV by rows, file count and column value; dependency-free ZIP is valid");
+{
+  const split = await import("../src/lib/csv-split.ts");
+  const zip = await import("../src/lib/zip.ts");
+  const rows = Array.from({ length: 10 }, (_, i) => [String(i + 1), i % 3 === 0 ? "Lahore" : i % 3 === 1 ? "Karachi" : "", `=cmd${i}`]);
+
+  const byRows = split.splitRows(rows, { kind: "rows", rowsPerFile: 4 }, "orders.csv");
+  assert.deepStrictEqual(byRows.parts.map((p) => [p.name, p.rows.length]),
+    [["orders.csv-part-001.csv", 4], ["orders.csv-part-002.csv", 4], ["orders.csv-part-003.csv", 2]]);
+  assert.deepStrictEqual(byRows.parts.flatMap((p) => p.rows.map((r) => r[0])), rows.map((r) => r[0]), "Every row appears once, in order");
+
+  const byFiles = split.splitRows(rows, { kind: "files", fileCount: 3 }, "orders");
+  assert.deepStrictEqual(byFiles.parts.map((p) => p.rows.length), [4, 3, 3], "Rows are divided as evenly as possible");
+  assert.deepStrictEqual(byFiles.parts.flatMap((p) => p.rows.map((r) => r[0])), rows.map((r) => r[0]));
+  const six = split.splitRows(rows, { kind: "files", fileCount: 6 }, "x");
+  assert.deepStrictEqual(six.parts.map((p) => p.rows.length), [2, 2, 2, 2, 1, 1], "Exactly the requested number of files");
+  assert.match(split.splitRows(rows, { kind: "files", fileCount: 1 }, "x").error, /2 or more/);
+  assert.match(split.splitRows(rows, { kind: "files", fileCount: 11 }, "x").error, /at most 10 files/);
+  assert.match(split.splitRows(rows, { kind: "rows", rowsPerFile: 0 }, "x").error, /whole number/);
+  assert.match(split.splitRows(rows, { kind: "rows", rowsPerFile: 2.5 }, "x").error, /whole number/);
+  assert.match(split.splitRows([], { kind: "rows", rowsPerFile: 5 }, "x").error, /no data rows/);
+  const many = Array.from({ length: 2001 }, (_, i) => [String(i)]);
+  assert.match(split.splitRows(many, { kind: "rows", rowsPerFile: 2 }, "x").error, /1,000 files or fewer/);
+
+  const byCity = split.splitRows(rows, { kind: "column", column: 1 }, "orders");
+  assert.deepStrictEqual(byCity.parts.map((p) => [p.name, p.rows.length, p.value]),
+    [["orders-Lahore.csv", 4, "Lahore"], ["orders-Karachi.csv", 3, "Karachi"], ["orders-empty.csv", 3, ""]],
+    "One file per value in order of first appearance; empty values grouped");
+  const clash = split.splitRows([["A/B"], ["A B"], ["x"], ["X"], ["A-B"]], { kind: "column", column: 0 }, "t");
+  assert.deepStrictEqual(clash.parts.map((p) => p.name), ["t-A-B.csv", "t-A-B-2.csv", "t-x.csv", "t-X-2.csv", "t-A-B-3.csv"],
+    "Colliding file names (also case-insensitive) get unique suffixes");
+  assert.strictEqual(split.safeFileStem('  ..con:tro"l*?.  '), "con-tro-l");
+  assert.strictEqual(split.safeFileStem("علی  خان"), "علی-خان", "Non-Latin values are kept in file names");
+  assert.strictEqual(split.safeFileStem("???"), "empty");
+
+  const csvPart = split.partToCSV(byRows.parts[2], ["id", "city", "note"], { delimiter: ";", formulaSafe: true });
+  assert.strictEqual(csvPart.csvText, "id;city;note\r\n9;;'=cmd8\r\n10;Lahore;'=cmd9", "Header repeated; formulas neutralized");
+  assert.strictEqual(csvPart.formulaCells, 2);
+  assert.strictEqual(split.partToCSV(byRows.parts[2], null, { delimiter: ",", formulaSafe: false }).csvText, "9,,=cmd8\r\n10,Lahore,=cmd9");
+
+  // ZIP: known CRC-32 value, and the archive opens with Python's zipfile with identical contents.
+  assert.strictEqual(zip.crc32(new TextEncoder().encode("123456789")), 0xcbf43926);
+  const files = [
+    { name: "orders-part-001.csv", data: new TextEncoder().encode("id\r\n1\r\n") },
+    { name: "orders-علی.csv", data: new TextEncoder().encode("﻿name\r\nعلی 😀\r\n") },
+    { name: "empty.csv", data: new Uint8Array(0) },
+  ];
+  const archive = zip.createZip(files, new Date(2026, 9, 23, 18, 30, 10));
+  const { execFileSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const zipPath = join(mkdtempSync(join(tmpdir(), "tooltiva-zip-")), "test.zip");
+  writeFileSync(zipPath, archive);
+  let python = null;
+  for (const cmd of ["python3", "python"]) {
+    try {
+      execFileSync(cmd, ["--version"], { stdio: "ignore" });
+      python = cmd;
+      break;
+    } catch {}
+  }
+  if (python) {
+    const listing = JSON.parse(execFileSync(python, ["-c",
+      "import zipfile,sys,json;z=zipfile.ZipFile(sys.argv[1]);assert z.testzip() is None;print(json.dumps([[i.filename,z.read(i).decode('utf-8'),list(i.date_time)] for i in z.infolist()]))",
+      zipPath]).toString());
+    assert.deepStrictEqual(listing, [
+      ["orders-part-001.csv", "id\r\n1\r\n", [2026, 10, 23, 18, 30, 10]],
+      ["orders-علی.csv", "﻿name\r\nعلی 😀\r\n", [2026, 10, 23, 18, 30, 10]],
+      ["empty.csv", "", [2026, 10, 23, 18, 30, 10]],
+    ], "ZIP opens in a standard reader with identical names, contents and dates");
+  } else {
+    console.log("  (Python not found: ZIP structure checked without a third-party reader)");
+  }
+  const view = new DataView(archive.buffer);
+  assert.strictEqual(view.getUint32(archive.length - 22, true), 0x06054b50, "End-of-central-directory record present");
+  assert.strictEqual(view.getUint16(archive.length - 12, true), 3, "Entry count recorded");
+}
+console.log("  ✓ Row, file-count and column splits, safe unique names, header repeat, formula safety and ZIP output verified.\n");
+
+console.log("Test 21: Merge CSV matches columns by name or position and never changes values");
+{
+  const merge = await import("../src/lib/csv-merge.ts");
+  const jan = { name: "jan.csv", rows: [["id", "Name", "city"], ["001", "Ayesha", "Lahore"], ["002", "Liam", "Cork"]] };
+  const feb = { name: "feb.csv", rows: [[" name ", "ID", "discount"], ["Sofia", "003", "=5%"]] };
+
+  const byName = merge.mergeCSVTables([jan, feb], { hasHeader: true, matchBy: "name", sourceColumn: false });
+  assert.deepStrictEqual(byName.headers, ["id", "Name", "city", "discount"], "Union of columns, first spelling kept");
+  assert.deepStrictEqual(byName.rows, [
+    ["001", "Ayesha", "Lahore", ""],
+    ["002", "Liam", "Cork", ""],
+    ["003", "Sofia", "", "=5%"],
+  ], "Columns matched by name in any order, ignoring case and spaces; leading zeros kept");
+  assert.deepStrictEqual(byName.files[1].newColumns, ["discount"]);
+  assert.deepStrictEqual(byName.files[1].missingColumns, ["city"]);
+  assert.deepStrictEqual(byName.files[0].missingColumns, ["discount"]);
+  assert.deepStrictEqual(byName.files.map((f) => f.dataRows), [2, 1]);
+
+  const withSource = merge.mergeCSVTables([jan, feb], { hasHeader: true, matchBy: "name", sourceColumn: true });
+  assert.deepStrictEqual(withSource.headers[0], "source_file");
+  assert.deepStrictEqual(withSource.rows.map((r) => r[0]), ["jan.csv", "jan.csv", "feb.csv"]);
+  const clash = merge.mergeCSVTables([{ name: "a.csv", rows: [["source_file", "x"], ["s", "1"]] }], { hasHeader: true, matchBy: "name", sourceColumn: true });
+  assert.deepStrictEqual(clash.headers, ["source_file_2", "source_file", "x"], "Source column never overwrites a real column");
+
+  const dupes = merge.mergeCSVTables([{ name: "d.csv", rows: [["id", "id", ""], ["1", "2", "3"]] }, { name: "e.csv", rows: [["id", ""], ["4", "5"]] }],
+    { hasHeader: true, matchBy: "name", sourceColumn: false });
+  assert.deepStrictEqual(dupes.headers, ["id", "id", "Column 3", "Column 4"], "Duplicate names stay separate; unnamed columns only match at the same position");
+  assert.deepStrictEqual(dupes.rows, [["1", "2", "3", ""], ["4", "", "", "5"]]);
+
+  const extra = merge.mergeCSVTables([{ name: "x.csv", rows: [["a", "b"], ["1", "2", "overflow"]] }, jan], { hasHeader: true, matchBy: "name", sourceColumn: false });
+  assert.deepStrictEqual(extra.headers, ["a", "b", "id", "Name", "city", "Column 6"], "Extra fields kept in their own column at the end");
+  assert.ok(extra.rows.every((r) => r.length === extra.headers.length), "Every row has every column");
+  assert.deepStrictEqual(extra.rows[0], ["1", "2", "", "", "", "overflow"]);
+
+  const byPos = merge.mergeCSVTables([jan, feb], { hasHeader: true, matchBy: "position", sourceColumn: false });
+  assert.deepStrictEqual(byPos.headers, ["id", "Name", "city"]);
+  assert.deepStrictEqual(byPos.rows[2], ["Sofia", "003", "=5%"], "Position matching stacks rows as they are");
+  assert.strictEqual(byPos.files[1].columnCountDiffers, undefined);
+  const noHeader = merge.mergeCSVTables([{ name: "a", rows: [["1", "2"]] }, { name: "b", rows: [["3", "4", "5"]] }], { hasHeader: false, matchBy: "position", sourceColumn: false });
+  assert.deepStrictEqual(noHeader.rows, [["1", "2", ""], ["3", "4", "5"]]);
+  assert.deepStrictEqual(noHeader.files[1].columnCountDiffers, { expected: 2, actual: 3 });
+
+  const out = merge.mergedToCSV(byName, { delimiter: ";", formulaSafe: true, includeHeader: true });
+  assert.strictEqual(out.formulaCells, 1);
+  assert.strictEqual(out.csvText.split("\r\n")[3], "003;Sofia;;'=5%", "Semicolon output with spreadsheet-safe formula cell");
+  assert.strictEqual(merge.mergedToCSV(noHeader, { delimiter: ",", formulaSafe: false, includeHeader: false }).csvText, "1,2,\r\n3,4,5");
+}
+console.log("  ✓ Name and position matching, source column, duplicate/extra columns, per-file report and output verified.\n");
 
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

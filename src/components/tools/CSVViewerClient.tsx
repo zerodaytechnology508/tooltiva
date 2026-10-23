@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useCallback, useDeferredValue, useMemo, useRef, useState, useTransition } from "react";
-import { AlertCircle, Check, Copy, Download, FileUp, Search, Sparkles, X } from "lucide-react";
+import React, { useCallback, useDeferredValue, useMemo, useState, useTransition } from "react";
+import { AlertCircle, Check, Copy, Download, Search, X } from "lucide-react";
 import { detectDelimiter, isFormulaRisk, parseCSVRows, withExcelBOM } from "@/lib/csv-utils";
-import { readTextFile } from "@/lib/file-text";
 import {
   buildViewerTable,
   columnWidths,
@@ -14,6 +13,17 @@ import {
 } from "@/lib/csv-viewer";
 import { PrivacyBadge } from "@/components/PrivacyBadge";
 import { VirtualTable } from "@/components/tools/VirtualTable";
+import {
+  CSVFileInput,
+  DELIMITER_NAMES,
+  DELIMITER_OPTIONS,
+  buttonClass as button,
+  downloadBlob,
+  fieldClass as field,
+  fileStem,
+  primaryButtonClass,
+  type LoadedFile,
+} from "@/components/tools/csv-ui";
 
 const SAMPLE_CSV = `order_id,customer,country,product,quantity,unit_price,order_date,zip
 1001,"Khan, Ayesha",Pakistan,USB-C Hub,2,24.99,2026-09-14,54000
@@ -29,33 +39,11 @@ const SAMPLE_CSV = `order_id,customer,country,product,quantity,unit_price,order_
 1011,Yuki Tanaka,Japan,Mechanical Keyboard,1,89.90,2026-09-22,100-0001
 1012,Noah Smith,United States,Webcam 1080p,1,45.00,2026-09-22,02108`;
 
-const DELIMITERS = [
-  { value: "auto", label: "Detect automatically" },
-  { value: ",", label: "Comma (,)" },
-  { value: ";", label: "Semicolon (;)" },
-  { value: "\t", label: "Tab" },
-  { value: "|", label: "Pipe (|)" },
-];
-
 /** Browsers cap element heights at roughly 15–30 million pixels; beyond this, ask the user to search. */
 const MAX_SCROLL_ROWS = 400_000;
 
-const DELIMITER_NAMES: Record<string, string> = { ",": "comma", ";": "semicolon", "\t": "tab", "|": "pipe", ":": "colon" };
-
-interface LoadedFile {
-  name: string;
-  text: string;
-  notice?: string;
-}
-
-const button =
-  "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700";
-const field =
-  "min-h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100";
-
 export function CSVViewerClient() {
   const [file, setFile] = useState<LoadedFile | null>(null);
-  const [pasteText, setPasteText] = useState("");
   const [delimiterChoice, setDelimiterChoice] = useState("auto");
   const [hasHeader, setHasHeader] = useState(true);
   const [query, setQuery] = useState("");
@@ -64,9 +52,7 @@ export function CSVViewerClient() {
   const [formulaSafe, setFormulaSafe] = useState(true);
   const [readError, setReadError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [dragging, setDragging] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const fileInput = useRef<HTMLInputElement>(null);
 
   // Parse once per file, delimiter and header choice.
   const parsed = useMemo(() => {
@@ -100,20 +86,8 @@ export function CSVViewerClient() {
     });
   }, []);
 
-  const openFile = async (picked: File | undefined) => {
-    if (!picked) return;
-    try {
-      const { text, notice } = await readTextFile(picked);
-      load({ name: picked.name, text, notice });
-    } catch (err) {
-      console.error("Tooltiva could not read the file:", err);
-      setReadError(`"${picked.name}" could not be read. Try again, or paste its contents instead.`);
-    }
-  };
-
   const reset = () => {
     setFile(null);
-    setPasteText("");
     setQuery("");
     setSort(null);
     setReadError(null);
@@ -141,16 +115,7 @@ export function CSVViewerClient() {
   const handleDownload = () => {
     const result = exported();
     if (!result || !file) return;
-    const blob = new Blob([withExcelBOM(result.csvText)], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const base = file.name.replace(/\.[^.]+$/, "") || "data";
-    link.href = url;
-    link.download = `${base}-view.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    downloadBlob(new Blob([withExcelBOM(result.csvText)], { type: "text/csv;charset=utf-8;" }), `${fileStem(file.name)}-view.csv`);
   };
 
   const handleCopy = async () => {
@@ -186,86 +151,8 @@ export function CSVViewerClient() {
     return (
       <div className="space-y-4">
         <PrivacyBadge />
-        <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              openFile(e.dataTransfer.files?.[0]);
-            }}
-            className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 text-center transition-colors ${
-              dragging
-                ? "border-brand-600 bg-brand-50 dark:bg-brand-950/40"
-                : "border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-950"
-            }`}
-          >
-            <FileUp aria-hidden="true" className="h-8 w-8 text-brand-700 dark:text-brand-400" />
-            <p className="text-base font-semibold text-slate-900 dark:text-white">Drop a CSV file here</p>
-            <p className="text-sm text-slate-600 dark:text-slate-400">.csv, .tsv or .txt — the file stays on your device</p>
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => fileInput.current?.click()}
-                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 dark:bg-brand-500 dark:text-slate-950 dark:hover:bg-brand-400"
-              >
-                <FileUp aria-hidden="true" className="h-4 w-4" />
-                Open CSV file
-              </button>
-              <button type="button" onClick={() => load({ name: "sample-orders.csv", text: SAMPLE_CSV })} className={button}>
-                <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-700 dark:text-brand-400" />
-                Load sample
-              </button>
-            </div>
-            <input
-              ref={fileInput}
-              type="file"
-              accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain"
-              className="sr-only"
-              aria-label="Choose a CSV file"
-              onChange={(e) => {
-                const picked = e.target.files?.[0];
-                e.target.value = "";
-                openFile(picked);
-              }}
-            />
-          </div>
-
-          <details className="group rounded-xl border border-slate-200 dark:border-slate-800">
-            <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
-              Or paste CSV text
-            </summary>
-            <div className="space-y-3 px-4 pb-4">
-              <textarea
-                wrap="off"
-                spellCheck={false}
-                aria-label="CSV text"
-                value={pasteText}
-                onChange={(e) => setPasteText(e.target.value)}
-                rows={8}
-                placeholder="id,name,city&#10;1,Ayesha,Lahore"
-                className="w-full rounded-lg border border-slate-300 bg-slate-50 p-3 font-mono text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-              />
-              <button
-                type="button"
-                disabled={pasteText.trim() === ""}
-                onClick={() => load({ name: "pasted.csv", text: pasteText })}
-                className={button}
-              >
-                View pasted CSV
-              </button>
-            </div>
-          </details>
-
-          {readError && (
-            <p role="alert" className="text-sm text-rose-700 dark:text-rose-300">
-              {readError}
-            </p>
-          )}
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+          <CSVFileInput onLoad={load} sample={{ name: "sample-orders.csv", text: SAMPLE_CSV }} />
         </div>
       </div>
     );
@@ -346,7 +233,7 @@ export function CSVViewerClient() {
           <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
             <span className="whitespace-nowrap font-medium">Separator</span>
             <select value={delimiterChoice} onChange={(e) => setDelimiterChoice(e.target.value)} className={`${field} flex-1`}>
-              {DELIMITERS.map((d) => (
+              {DELIMITER_OPTIONS.map((d) => (
                 <option key={d.value} value={d.value}>
                   {d.label}
                 </option>
@@ -416,7 +303,7 @@ export function CSVViewerClient() {
                   onClick={handleDownload}
                   disabled={indices.length === 0}
                   title="Download the rows shown (search and sort applied) as a CSV file"
-                  className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-700 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-500 dark:text-slate-950 dark:hover:bg-brand-400"
+                  className={primaryButtonClass}
                 >
                   <Download aria-hidden="true" className="h-4 w-4" />
                   Download CSV

@@ -4,7 +4,7 @@ export const SITE = {
   url: "https://tooltiva.net",
   tagline: "Free CSV & JSON tools that run in your browser",
   description:
-    "Free online tools for CSV and JSON files: change delimiters, convert CSV to JSON and back, and format or fix JSON. Files are processed in your browser and never uploaded.",
+    "Free CSV and JSON tools: view, split, merge and convert CSV files, change delimiters, and format or fix JSON. Everything runs in your browser; nothing is uploaded.",
   publisher: "CodingTangent",
   supportEmail: "support@tooltiva.net",
   locale: "en_US",

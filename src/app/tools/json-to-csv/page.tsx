@@ -46,7 +46,9 @@ export default function JSONToCSVPage() {
               <li>Copy the CSV or download it as a file.</li>
             </ol>
             <p>
-              Starting from CSV instead? Use the <Link href="/tools/csv-to-json/">CSV to JSON converter</Link>.
+              If the converter reports invalid JSON, <Link href="/tools/json-formatter/">fix the JSON</Link> first:
+              the formatter shows the line and column of each error and repairs common mistakes. Starting from CSV
+              instead? Use the <Link href="/tools/csv-to-json/">CSV to JSON converter</Link>.
             </p>
           </ContentSection>
         </>
