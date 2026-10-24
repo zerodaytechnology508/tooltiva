@@ -45,7 +45,9 @@ body {
   .content-prose p + p,
   .content-prose div + p,
   .content-prose p + ul,
-  .content-prose ul + p {
+  .content-prose ul + p,
+  .content-prose p + ol,
+  .content-prose ol + p {
     @apply mt-4;
   }
   .content-prose code {

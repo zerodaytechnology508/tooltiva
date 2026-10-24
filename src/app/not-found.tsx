@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { TOOLS } from "@/lib/tools-registry";
+import { TOOLS, toolPath } from "@/lib/tools-registry";
 
 export const metadata: Metadata = {
   title: "Page not found",
@@ -20,7 +20,7 @@ export default function NotFound() {
         {TOOLS.map((tool) => (
           <li key={tool.slug}>
             <Link
-              href={`/tools/${tool.slug}/`}
+              href={toolPath(tool)}
               className="font-medium text-brand-700 underline underline-offset-2 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300"
             >
               {tool.title}

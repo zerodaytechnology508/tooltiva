@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { GuideMeta } from "@/lib/guides-registry";
 import { GUIDES } from "@/lib/guides-registry";
-import { TOOLS } from "@/lib/tools-registry";
+import { TOOLS, toolPath } from "@/lib/tools-registry";
 import { AUTHOR, authorSchema } from "@/lib/authors";
 import { SITE, absoluteUrl, publisherSchema } from "@/lib/site";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -76,7 +76,7 @@ export function GuideLayout({ guide, children }: { guide: GuideMeta; children: R
             {tools.map((tool) => (
               <li key={tool.slug}>
                 <Link
-                  href={`/tools/${tool.slug}/`}
+                  href={toolPath(tool)}
                   className="group flex h-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-brand-600/60 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/60"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">

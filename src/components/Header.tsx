@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Moon, Sun, Menu, X } from "lucide-react";
-import { TOOLS } from "@/lib/tools-registry";
+import { DATA_TOOLS, IMAGE_TOOLS, toolPath } from "@/lib/tools-registry";
 import { BrandMark } from "@/components/BrandMark";
 import { ToolIcon } from "@/components/ToolIcon";
 
@@ -88,10 +88,10 @@ export function Header() {
               className="absolute left-0 top-full mt-2 w-[40rem] rounded-2xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-700 dark:bg-slate-900"
             >
               <ul className="grid grid-cols-2 gap-1">
-                {TOOLS.map((tool) => (
+                {DATA_TOOLS.map((tool) => (
                   <li key={tool.slug}>
                     <Link
-                      href={`/tools/${tool.slug}/`}
+                      href={toolPath(tool)}
                       onClick={() => setToolsOpen(false)}
                       className="flex gap-3 rounded-xl p-3 hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
@@ -120,17 +120,14 @@ export function Header() {
               </div>
             </div>
           </div>
+          <Link href="/image-tools/" className={navLinkClass}>
+            Image Tools
+          </Link>
           <Link
             href="/tools/csv-viewer/"
             className={navLinkClass}
           >
             CSV Viewer
-          </Link>
-          <Link
-            href="/tools/csv-to-json/"
-            className={navLinkClass}
-          >
-            CSV to JSON
           </Link>
           <Link
             href="/tools/json-formatter/"
@@ -189,10 +186,20 @@ export function Header() {
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
             </li>
-            {TOOLS.map((tool) => (
-              <li key={tool.slug}>
+            {[...DATA_TOOLS, ...IMAGE_TOOLS].map((tool, index) => (
+              <li key={tool.slug} className={index === DATA_TOOLS.length ? "mt-2 border-t border-slate-200 pt-2 dark:border-slate-800" : undefined}>
+                {index === DATA_TOOLS.length && (
+                  <Link
+                    href="/image-tools/"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mb-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-semibold text-slate-900 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800"
+                  >
+                    Image Tools
+                    <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                  </Link>
+                )}
                 <Link
-                  href={`/tools/${tool.slug}/`}
+                  href={toolPath(tool)}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                 >

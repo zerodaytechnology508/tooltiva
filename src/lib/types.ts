@@ -1,4 +1,4 @@
-export type ToolCategory = "Data & CSV" | "Developer" | "Formatters";
+export type ToolCategory = "Data & CSV" | "Developer" | "Formatters" | "Image";
 
 export interface FAQItem {
   question: string;

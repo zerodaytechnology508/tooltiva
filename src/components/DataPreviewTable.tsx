@@ -60,7 +60,7 @@ export function DataPreviewTable({
 
       {/* Responsive Table Container */}
       <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
-        <div className="overflow-x-auto max-h-80">
+        <div className="overflow-x-auto max-h-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600" tabIndex={0} role="region" aria-label="Table preview, scrollable">
           <table className="w-full text-left text-sm border-collapse">
             <thead className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 z-10 border-b border-slate-200 dark:border-slate-800">
               <tr>

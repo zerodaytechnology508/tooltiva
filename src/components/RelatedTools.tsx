@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { TOOLS } from "@/lib/tools-registry";
+import { TOOLS, toolPath } from "@/lib/tools-registry";
 import { ToolIcon } from "@/components/ToolIcon";
 
 const MAX_RELATED = 6;
@@ -16,10 +16,13 @@ export function RelatedTools({ currentSlug }: { currentSlug: string }) {
   const picked = (current?.related ?? [])
     .map((slug) => TOOLS.find((tool) => tool.slug === slug))
     .filter((tool): tool is (typeof TOOLS)[number] => !!tool && tool.slug !== currentSlug);
-  const rest = TOOLS.filter((tool) => tool.slug !== currentSlug && !picked.includes(tool)).sort(
+  // Image tools link only to image tools, so each section's pages stay on one topic.
+  const pool = current?.category === "Image" ? TOOLS.filter((t) => t.category === "Image") : TOOLS.filter((t) => t.category !== "Image");
+  const rest = pool.filter((tool) => tool.slug !== currentSlug && !picked.includes(tool)).sort(
     (a, b) => Number(b.category === current?.category) - Number(a.category === current?.category)
   );
   const others = [...picked, ...rest].slice(0, MAX_RELATED);
+  if (others.length === 0) return null;
   return (
     <section aria-labelledby="related-tools" className="border-t border-slate-200 pt-10 dark:border-slate-800">
       <h2 id="related-tools" className="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -29,7 +32,7 @@ export function RelatedTools({ currentSlug }: { currentSlug: string }) {
         {others.map((tool) => (
           <li key={tool.slug}>
             <Link
-              href={`/tools/${tool.slug}/`}
+              href={toolPath(tool)}
               className="group flex h-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-brand-600/60 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/60"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">

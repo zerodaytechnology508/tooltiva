@@ -73,7 +73,7 @@ export const TOOLS: ToolMeta[] = [
       "split csv into multiple files",
     ],
     icon: "Scissors",
-    related: ["merge-csv", "csv-viewer", "remove-duplicates-csv", "csv-delimiter-converter", "csv-to-json", "json-to-csv"],
+    related: ["merge-csv", "csv-viewer", "remove-duplicates-csv", "csv-delimiter-converter", "csv-to-json", "csv-to-vcf"],
     canonicalUrl: "https://tooltiva.net/tools/split-csv/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -175,7 +175,7 @@ export const TOOLS: ToolMeta[] = [
       "find duplicates in csv",
     ],
     icon: "CopyMinus",
-    related: ["merge-csv", "csv-viewer", "split-csv", "csv-delimiter-converter", "csv-to-json", "json-to-csv"],
+    related: ["merge-csv", "csv-viewer", "csv-to-vcf", "split-csv", "csv-delimiter-converter", "csv-to-json"],
     canonicalUrl: "https://tooltiva.net/tools/remove-duplicates-csv/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -202,6 +202,220 @@ export const TOOLS: ToolMeta[] = [
       {
         question: "Can I see which rows were removed?",
         answer: "Yes. Switch the preview to Removed rows, or download them as a separate CSV file to check them or keep a record.",
+      },
+    ],
+  },
+  {
+    id: "resize-image-to-kb",
+    slug: "resize-image-to-kb",
+    title: "Resize Image to KB",
+    navLabel: "Resize to KB",
+    pageTitle: "Resize Image to KB – Reduce Photo Size to 20KB, 50KB",
+    h1: "Resize Image to KB",
+    intro: "Reduce a photo to an exact file size in KB, such as 20 KB, 50 KB or 100 KB, or a range like 10–20 KB, for online forms and applications. Quality and dimensions are adjusted for you, and the photo never leaves your device.",
+    badgeTitle: "Resize Image to KB",
+    shortDescription: "Reduce a photo to 20 KB, 50 KB, 100 KB or any range for online forms, without uploading it.",
+    metaDescription: "Resize image to KB online: reduce photo size to 20KB, 50KB, 100KB or a range like 10–20KB for forms. Free JPG size reducer that works on phones, no upload.",
+    category: "Image",
+    primaryKeyword: "resize image to kb",
+    secondaryKeywords: [
+      "resize image to 20kb",
+      "image resizer in kb",
+      "image kb converter",
+      "jpg to 20kb",
+      "photo compress to 20kb",
+      "image resize in kb",
+      "reduce photo size in kb",
+      "jpg size reducer",
+      "compress image to 50kb",
+      "resize image to 50kb to 100kb",
+    ],
+    icon: "ImageDown",
+    related: ["signature-resizer"],
+    canonicalUrl: "https://tooltiva.net/image-tools/resize-image-to-kb/",
+    lastUpdated: "2026-10-23",
+    faqs: [
+      {
+        question: "How do I resize an image to 20 KB?",
+        answer: "Open the photo, choose Under 20 KB, and download the JPG. The tool lowers the JPEG quality first and, only if that is not enough, the dimensions, until the file is just under 20 KB. The same works for 50 KB, 100 KB, 200 KB or any size you type in.",
+      },
+      {
+        question: "My form asks for a size between 20 KB and 50 KB. Can I set a range?",
+        answer: "Yes. Choose 20–50 KB, or Custom to type your own minimum and maximum. Many forms reject files that are too small as well as too large, and the result always lands inside the range. If a photo is too small to reach the minimum, it is enlarged, which adds pixels but no detail; at fixed dimensions, empty data is added inside the file instead.",
+      },
+      {
+        question: "Will my photo lose quality?",
+        answer: "Some, because a smaller file holds less information, but the tool keeps as much as possible: it uses the highest JPEG quality that fits and reduces the dimensions instead of over-compressing. A passport-size photo of about 200 × 230 pixels fits under 20 KB at high quality.",
+      },
+      {
+        question: "Is my photo uploaded to a server?",
+        answer: "No. The photo is resized by your browser on your own phone or computer and never leaves it. That matters for ID photos, signatures and documents. Hidden details such as GPS location and camera model are also removed from the result.",
+      },
+      {
+        question: "Can I set the exact width and height in pixels?",
+        answer: "Yes. Choose Exact size in pixels and enter the width and height the form asks for, such as 200 × 230. If that shape differs from your photo, the edges are trimmed evenly so the photo is never stretched, and the file size is then fitted to your KB target.",
+      },
+      {
+        question: "Does a form count 1 KB as 1,000 or 1,024 bytes?",
+        answer: "It varies, so the tool plays it safe: the maximum is counted as 1,000 bytes per KB and the minimum as 1,024. A file made for Under 20 KB is at most 20,000 bytes, which passes a 20 KB limit either way.",
+      },
+    ],
+  },
+  {
+    id: "signature-resizer",
+    slug: "signature-resizer",
+    title: "Signature Resizer",
+    navLabel: "Signature Resizer",
+    pageTitle: "Signature Resizer in KB – Resize Signature to 10–20 KB",
+    h1: "Signature Resizer",
+    intro: "Resize a photo or scan of your signature to the size an online form asks for: 10–20 KB, under 50 KB, an exact size in pixels or in centimetres. Empty space is trimmed and the paper turned pure white, and nothing is uploaded.",
+    badgeTitle: "Signature Resizer",
+    shortDescription: "Resize a signature to 10–20 KB, pixels or cm, with the paper cleaned to pure white. No upload.",
+    metaDescription: "Free signature resizer: resize your signature to 10–20 KB or 50 KB, set pixels or cm, and clean the background to white. Works on phones, no upload.",
+    category: "Image",
+    primaryKeyword: "signature resizer",
+    secondaryKeywords: [
+      "signature resize to 20 kb",
+      "signature resizer in 20 kb",
+      "photo and signature resizer",
+      "signature resize 10 to 20 kb",
+      "signature resizer in kb",
+      "signature resize in cm",
+      "signature size should be at least 20kb",
+      "signature resize in pixels",
+    ],
+    icon: "Signature",
+    related: ["resize-image-to-kb"],
+    canonicalUrl: "https://tooltiva.net/image-tools/signature-resizer/",
+    lastUpdated: "2026-10-23",
+    faqs: [
+      {
+        question: "How do I resize my signature to 10–20 KB?",
+        answer: "Sign on plain white paper with a dark pen, take a photo or scan, and open it here. Keep 10–20 KB selected, set the dimensions if the form gives them, and download. The file always lands between 10 and 20 KB.",
+      },
+      {
+        question: "The form says the signature size should be at least 20 KB. What do I do?",
+        answer: "Choose 20–50 KB, or Custom with a minimum of 20. A clean signature on white compresses very well, so the tool first raises the quality and, if the dimensions are free, the size. If it still falls short, for example at a fixed 140 × 60 px, empty data is added inside the file to reach the minimum; the signature itself is unchanged.",
+      },
+      {
+        question: "Can I set the signature size in centimetres?",
+        answer: "Yes. Choose Centimetres, enter the width and height, and pick the resolution (DPI) the form mentions, or 200 DPI if it does not say. The tool works out the pixels and writes the DPI into the file, so programs that check the print size read it correctly.",
+      },
+      {
+        question: "Why does my signature photo look grey or have shadows?",
+        answer: "Phone photos pick up the colour of the light and the shadow of your hand. Make the paper pure white turns everything lighter than the ink into clean white and keeps the strokes smooth. Make the ink black also helps when a form asks for a black signature.",
+      },
+      {
+        question: "Is my signature uploaded anywhere?",
+        answer: "No. Your signature is processed by your browser on your own device and never sent to a server. That matters for a signature more than for almost any other image.",
+      },
+      {
+        question: "What if the form gives a size in pixels with a different shape from my signature?",
+        answer: "Enter the pixels, for example 140 × 60. If your signature is wider or taller than that shape, white space is added around it so nothing is cut off or stretched.",
+      },
+    ],
+  },
+  {
+    id: "csv-to-vcf",
+    slug: "csv-to-vcf",
+    title: "CSV to VCF Converter",
+    navLabel: "CSV to VCF",
+    pageTitle: "CSV to VCF Converter – Excel Contacts to vCard Online",
+    h1: "CSV to VCF Converter",
+    intro: "Turn a contact list from Excel or Google Sheets, saved as CSV, into one VCF file you can import into an Android phone, an iPhone or Google Contacts. Columns are matched automatically, and you can add the country code that WhatsApp needs.",
+    badgeTitle: "CSV to VCF",
+    shortDescription: "Convert an Excel or CSV contact list into a VCF file for Android, iPhone and Google Contacts.",
+    metaDescription: "Free CSV to VCF converter: turn Excel contacts into a vCard file for Android, iPhone or Google Contacts. Columns matched for you, country codes added. No upload.",
+    category: "Data & CSV",
+    primaryKeyword: "csv to vcf",
+    secondaryKeywords: [
+      "csv to vcf converter",
+      "csv to vcf converter online free",
+      "excel to vcf",
+      "excel to vcf converter online free",
+      "convert csv to vcard",
+      "excel contacts to phone",
+    ],
+    icon: "BookUser",
+    related: ["vcf-to-csv", "remove-duplicates-csv", "merge-csv", "csv-viewer", "split-csv", "csv-delimiter-converter"],
+    canonicalUrl: "https://tooltiva.net/tools/csv-to-vcf/",
+    lastUpdated: "2026-10-24",
+    faqs: [
+      {
+        question: "Is my contact list uploaded anywhere?",
+        answer: "No. The file is read and converted by your browser on your own device. Names and numbers are never sent to a server, and optional site analytics, if you allow it, never receives file contents.",
+      },
+      {
+        question: "How do I convert Excel contacts to a VCF file?",
+        answer: "In Excel, choose File, Save As, and pick CSV UTF-8 (Comma delimited). Open that CSV here, check that the name, phone and email columns are matched correctly, and download the VCF file.",
+      },
+      {
+        question: "How do I import the VCF file into my phone?",
+        answer: "On Android, open the Contacts app, choose Fix & manage, then Import from file, and select the VCF. On an iPhone, email the file to yourself or save it in Files, tap it and choose Add All Contacts. In Google Contacts on the web, choose Import and select the file.",
+      },
+      {
+        question: "Why add a country code to the numbers?",
+        answer: "A number saved as 0300 1234567 only works from a phone in the same country. Saved as +923001234567, it works anywhere, and WhatsApp can match it to the person's account. Enter your country code, such as +92 for Pakistan, and local numbers are rewritten; numbers that already start with + are left as they are.",
+      },
+      {
+        question: "What if one cell has two phone numbers?",
+        answer: "Numbers in one cell separated by a slash, comma or semicolon, such as 0300 1234567 / 042 35761234, are saved as separate phone numbers of the same contact. Exact duplicates are removed.",
+      },
+      {
+        question: "Which VCF version does it create?",
+        answer: "vCard 3.0, the version Android, iPhone and Google Contacts all read. Every contact is saved in one file, with names in any language kept as written.",
+      },
+    ],
+  },
+  {
+    id: "vcf-to-csv",
+    slug: "vcf-to-csv",
+    title: "VCF to CSV Converter",
+    navLabel: "VCF to CSV",
+    pageTitle: "VCF to CSV Converter – Open VCF Contacts in Excel",
+    h1: "VCF to CSV Converter",
+    intro: "Open a VCF contacts file and see every contact in a table, then download it as a CSV file for Excel or Google Sheets. Works with exports from Android, iPhone, Google Contacts and Outlook, with one or thousands of contacts.",
+    badgeTitle: "VCF to CSV",
+    shortDescription: "Open a VCF contacts file as a table and save it as CSV for Excel or Google Sheets.",
+    metaDescription: "Free VCF to CSV converter and VCF viewer: open vCard contacts from Android, iPhone or Google, see them as a table and download a CSV for Excel. No upload.",
+    category: "Data & CSV",
+    primaryKeyword: "vcf to csv",
+    secondaryKeywords: [
+      "vcf to csv converter",
+      "vcf to csv converter online free",
+      "vcf file to excel",
+      "vcf file viewer online",
+      "open vcf file online",
+      "vcard to csv",
+    ],
+    icon: "Contact",
+    related: ["csv-to-vcf", "csv-viewer", "remove-duplicates-csv", "merge-csv", "split-csv", "csv-to-json"],
+    canonicalUrl: "https://tooltiva.net/tools/vcf-to-csv/",
+    lastUpdated: "2026-10-24",
+    faqs: [
+      {
+        question: "Is my VCF file uploaded?",
+        answer: "No. Your browser reads the file on your own device, so the contacts are never sent to a server, and optional site analytics, if you allow it, never receives file contents.",
+      },
+      {
+        question: "How do I open a VCF file in Excel?",
+        answer: "Open the VCF here and download it as CSV, then open the CSV in Excel. To keep long phone numbers exactly as written, import the CSV with Data, From Text/CSV and set the phone columns to Text.",
+      },
+      {
+        question: "Can I just view a VCF file without converting it?",
+        answer: "Yes. As soon as you open the file, every contact is shown in a table with names, phone numbers, emails, addresses and notes, so you can check it without downloading anything.",
+      },
+      {
+        question: "Which VCF files can it read?",
+        answer: "vCard versions 2.1, 3.0 and 4.0, as exported by Android, iPhone and iCloud, Google Contacts and Outlook, with any number of contacts in one file. Names in Urdu, Arabic, Hindi and other scripts are decoded correctly, including the encoded form older Android phones use.",
+      },
+      {
+        question: "Are contact photos included?",
+        answer: "No. A CSV file holds text only, so photos stored in the VCF are left out. Names, numbers, emails, companies, addresses, websites, birthdays and notes are all kept.",
+      },
+      {
+        question: "How do I export my phone contacts as a VCF file?",
+        answer: "On Android, open the Contacts app, choose Fix & manage, then Export to file. For an iPhone, sign in to iCloud.com, open Contacts, select the contacts and choose Export vCard.",
       },
     ],
   },
@@ -400,3 +614,22 @@ export const TOOLS: ToolMeta[] = [
 export function getToolBySlug(slug: string): ToolMeta | undefined {
   return TOOLS.find((t) => t.slug === slug);
 }
+
+/** The site sections tools live in: CSV/JSON tools under /tools/, image tools under /image-tools/. */
+export const SECTIONS = {
+  data: { name: "Tools", path: "/tools/" },
+  image: { name: "Image Tools", path: "/image-tools/" },
+} as const;
+
+export function toolSection(tool: ToolMeta) {
+  return tool.category === "Image" ? SECTIONS.image : SECTIONS.data;
+}
+
+/** Site path of a tool page, with a trailing slash, e.g. "/image-tools/resize-image-to-kb/". */
+export function toolPath(tool: ToolMeta): string {
+  return `${toolSection(tool).path}${tool.slug}/`;
+}
+
+/** CSV, JSON and other data tools (everything outside the Image Tools section). */
+export const DATA_TOOLS = TOOLS.filter((t) => t.category !== "Image");
+export const IMAGE_TOOLS = TOOLS.filter((t) => t.category === "Image");

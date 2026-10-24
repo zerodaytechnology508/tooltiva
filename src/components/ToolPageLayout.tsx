@@ -4,6 +4,7 @@ import { generateToolJsonLd } from "@/lib/seo-utils";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import Link from "next/link";
 import { guidesForTool } from "@/lib/guides-registry";
+import { toolSection } from "@/lib/tools-registry";
 import { FAQAccordion } from "@/components/FAQAccordion";
 import { RelatedTools } from "@/components/RelatedTools";
 import { ToolIcon } from "@/components/ToolIcon";
@@ -31,7 +32,7 @@ export function ToolPageLayout({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }} />
 
-      <Breadcrumbs items={[{ name: "Tools", href: "/tools/" }, { name: tool.title }]} />
+      <Breadcrumbs items={[{ name: toolSection(tool).name, href: toolSection(tool).path }, { name: tool.title }]} />
 
       <header className="mt-4 flex items-start gap-4">
         <span className="mt-1 hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 sm:flex dark:bg-brand-950 dark:text-brand-300">

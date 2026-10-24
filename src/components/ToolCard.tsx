@@ -3,13 +3,14 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { ToolMeta } from "@/lib/types";
 import { ToolIcon } from "@/components/ToolIcon";
+import { toolPath } from "@/lib/tools-registry";
 
 /** A linked card for one tool, used on the home page and the All tools page. */
 export function ToolCard({ tool, headingLevel = "h3" }: { tool: ToolMeta; headingLevel?: "h2" | "h3" }) {
   const Heading = headingLevel;
   return (
     <Link
-      href={`/tools/${tool.slug}/`}
+      href={toolPath(tool)}
       className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 transition-colors hover:border-brand-600/60 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/60"
     >
       <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">

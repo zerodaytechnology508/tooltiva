@@ -81,12 +81,19 @@ export function CSVFileInput({
   sample,
   multiple = false,
   pastePlaceholder = "id,name,city\n1,Ayesha,Lahore",
+  kind = "CSV",
+  accept = CSV_ACCEPT,
+  formatsHint = ".csv, .tsv or .txt",
 }: {
   /** Called once per file (several times when `multiple` is set). */
   onLoad: (file: LoadedFile) => void;
   sample: LoadedFile | LoadedFile[];
   multiple?: boolean;
   pastePlaceholder?: string;
+  /** File type named in labels, e.g. "CSV" or "VCF". */
+  kind?: string;
+  accept?: string;
+  formatsHint?: string;
 }) {
   const [dragging, setDragging] = useState(false);
   const [pasteText, setPasteText] = useState("");
@@ -99,7 +106,7 @@ export function CSVFileInput({
     setError(errors.length ? errors.join(" ") : null);
     loaded.forEach(onLoad);
   };
-  const noun = multiple ? "CSV files" : "a CSV file";
+  const noun = multiple ? `${kind} files` : `a ${kind} file`;
 
   return (
     <div className="space-y-5">
@@ -122,11 +129,11 @@ export function CSVFileInput({
       >
         <FileUp aria-hidden="true" className="h-8 w-8 text-brand-700 dark:text-brand-400" />
         <p className="text-base font-semibold text-slate-900 dark:text-white">Drop {noun} here</p>
-        <p className="text-sm text-slate-600 dark:text-slate-400">.csv, .tsv or .txt — {multiple ? "files stay" : "the file stays"} on your device</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">{formatsHint} — {multiple ? "files stay" : "the file stays"} on your device</p>
         <div className="mt-2 flex flex-wrap justify-center gap-2">
           <button type="button" onClick={() => fileInput.current?.click()} className={primaryButtonClass}>
             <FileUp aria-hidden="true" className="h-4 w-4" />
-            {multiple ? "Open CSV files" : "Open CSV file"}
+            {multiple ? `Open ${kind} files` : `Open ${kind} file`}
           </button>
           <button type="button" onClick={() => (Array.isArray(sample) ? sample : [sample]).forEach(onLoad)} className={buttonClass}>
             <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-700 dark:text-brand-400" />
@@ -136,10 +143,10 @@ export function CSVFileInput({
         <input
           ref={fileInput}
           type="file"
-          accept={CSV_ACCEPT}
+          accept={accept}
           multiple={multiple}
           className="sr-only"
-          aria-label={multiple ? "Choose CSV files" : "Choose a CSV file"}
+          aria-label={multiple ? `Choose ${kind} files` : `Choose a ${kind} file`}
           tabIndex={-1}
           onChange={(e) => {
             const picked = e.target.files ? Array.from(e.target.files) : [];
@@ -151,13 +158,13 @@ export function CSVFileInput({
 
       <details className="rounded-xl border border-slate-200 dark:border-slate-800">
         <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
-          Or paste CSV text
+          Or paste {kind} text
         </summary>
         <div className="space-y-3 px-4 pb-4">
           <textarea
             wrap="off"
             spellCheck={false}
-            aria-label="CSV text"
+            aria-label={`${kind} text`}
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
             rows={8}
@@ -167,10 +174,10 @@ export function CSVFileInput({
           <button
             type="button"
             disabled={pasteText.trim() === ""}
-            onClick={() => onLoad({ name: "pasted.csv", text: pasteText })}
+            onClick={() => onLoad({ name: `pasted.${kind.toLowerCase()}`, text: pasteText })}
             className={buttonClass}
           >
-            Use pasted CSV
+            Use pasted {kind}
           </button>
         </div>
       </details>

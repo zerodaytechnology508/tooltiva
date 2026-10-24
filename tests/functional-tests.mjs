@@ -903,4 +903,199 @@ console.log("Test 22: Remove duplicate rows by whole row or key columns, keeping
 }
 console.log("  ✓ Whole-row and key-column matching, case/space options, keep first/last and 200k-row speed verified.\n");
 
+console.log("Test 23: Image size fitting reaches KB ranges by quality, then by dimensions");
+{
+  const img = await import("../src/lib/image-size.ts");
+  // Size model: bytes grow with pixel count and steeply with quality, like JPEG.
+  let calls = 0;
+  const model = async (w, h, q) => { calls++; return { size: Math.round(w * h * (0.05 + 2.5 * q ** 3)), w, h, q }; };
+
+  assert.deepStrictEqual(img.kbRange(10, 20), { minBytes: 10240, maxBytes: 20000 }, "Max uses 1,000 bytes per KB, min 1,024");
+  assert.strictEqual(img.formatBytes(19456), "19.0 KB");
+  assert.strictEqual(img.formatBytes(2 * 1024 * 1024), "2.00 MB");
+
+  const photo = await img.fitToSize(4000, 3000, img.kbRange(0, 20), model);
+  assert.strictEqual(photo.status, "ok");
+  assert.ok(photo.result.size <= 20000 && photo.resized && photo.quality >= 0.3, `12 MP photo shrunk under 20 KB (${photo.result.size} bytes, ${photo.width}x${photo.height}, q${photo.quality.toFixed(2)})`);
+  assert.ok(Math.abs(photo.width / photo.height - 4 / 3) < 0.01, "Aspect ratio kept");
+
+  const range = await img.fitToSize(2000, 1500, img.kbRange(50, 100), model);
+  assert.strictEqual(range.status, "ok");
+  assert.ok(range.result.size >= 51200 && range.result.size <= 100000, `50–100 KB range hit (${range.result.size})`);
+
+  const tiny = await img.fitToSize(60, 45, img.kbRange(20, 50), model);
+  assert.strictEqual(tiny.status, "ok", "A small image is enlarged to reach a minimum size");
+  assert.ok(tiny.result.size >= 20480 && tiny.result.size <= 50000 && tiny.width > 60, `enlarged to ${tiny.width}x${tiny.height}, ${tiny.result.size} bytes`);
+
+  const already = await img.fitToSize(300, 200, img.kbRange(0, 500), model);
+  assert.deepStrictEqual([already.status, already.width, already.quality], ["ok", 300, 0.95], "Already small: original size, top quality");
+
+  const sig = await img.fitToSize(140, 60, img.kbRange(10, 20), model, { fixedSize: true });
+  assert.strictEqual(sig.status, "ok");
+  assert.deepStrictEqual([sig.width, sig.height], [140, 60], "Fixed dimensions are never changed");
+  assert.ok(sig.result.size >= 10240 && sig.result.size <= 20000, `fixed size in range (${sig.result.size})`);
+
+  const cannot = await img.fitToSize(50, 50, img.kbRange(20, 30), model, { fixedSize: true });
+  assert.strictEqual(cannot.status, "too-small", "Reports when a fixed small size cannot reach the minimum");
+  const huge = await img.fitToSize(4000, 4000, img.kbRange(0, 5), model, { fixedSize: true });
+  assert.strictEqual(huge.status, "too-large", "Reports when fixed large dimensions cannot get under the maximum");
+
+  calls = 0;
+  await img.fitToSize(6000, 4000, img.kbRange(0, 20), model);
+  assert.ok(calls < 80, `bounded number of encodes (${calls})`);
+}
+console.log("  ✓ KB limits, shrinking, ranges, enlarging to a minimum, fixed sizes and failure reports verified.\n");
+
+console.log("Test 24: Signature analysis, background cleaning and JPEG DPI");
+{
+  const sig = await import("../src/lib/signature.ts");
+  const W = 200, H = 100;
+  const data = new Uint8ClampedArray(W * H * 4);
+  let seed = 3;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    const paper = 200 + ((seed >> 16) % 15) - (x / W) * 20; // grey paper with a shadow gradient
+    const isInk = x >= 50 && x < 150 && y >= 30 && y < 70 && (x + y) % 7 < 3;
+    const i = (y * W + x) * 4;
+    data[i] = isInk ? 30 : paper; data[i + 1] = isInk ? 40 : paper; data[i + 2] = isInk ? 110 : paper; data[i + 3] = 255;
+  }
+  const speck = (5 * W + 5) * 4; data[speck] = data[speck + 1] = data[speck + 2] = 20; // a single dust speck
+
+  const a = sig.analyzeSignature(data, W, H);
+  assert.ok(a.paper > 170 && a.ink < 80, `paper ${a.paper}, ink ${a.ink}`);
+  assert.ok(a.box && a.box.x <= 50 && a.box.x >= 40 && a.box.x + a.box.width >= 150 && a.box.y <= 30 && a.box.y + a.box.height >= 70, `box ${JSON.stringify(a.box)}`);
+  assert.ok(a.box.x > 5 && a.box.y > 5, "A lone speck does not stretch the crop");
+  assert.strictEqual(sig.analyzeSignature(new Uint8ClampedArray(40 * 40 * 4).fill(230), 40, 40).box, null, "Blank paper: no signature found");
+
+  const black = data.slice();
+  sig.cleanSignature(black, a.paper, a.ink, "black");
+  const px = (arr, x, y) => Array.from(arr.slice((y * W + x) * 4, (y * W + x) * 4 + 3));
+  assert.deepStrictEqual(px(black, 10, 90), [255, 255, 255], "Paper becomes pure white");
+  assert.ok(px(black, 54, 30)[0] < 40, `ink becomes near black (${px(black, 54, 30)})`);
+  const kept = data.slice();
+  sig.cleanSignature(kept, a.paper, a.ink, "original");
+  const inkPx = px(kept, 54, 30);
+  assert.ok(inkPx[2] > inkPx[0], `original ink colour (blue) is kept: ${inkPx}`);
+  assert.deepStrictEqual(px(kept, 190, 10), [255, 255, 255]);
+
+  assert.strictEqual(sig.cmToPx(3.5, 300), 413);
+  assert.strictEqual(sig.cmToPx(2.54, 200), 200);
+  const jfif = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 16, 0x4a, 0x46, 0x49, 0x46, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0xff, 0xd9]);
+  const withDpi = sig.setJpegDpi(jfif, 300);
+  assert.strictEqual(withDpi.length, jfif.length, "Existing JFIF header updated in place");
+  assert.strictEqual(sig.readJpegDpi(withDpi), 300);
+  const bare = new Uint8Array([0xff, 0xd8, 0xff, 0xdb, 0, 4, 1, 2, 0xff, 0xd9]);
+  const added = sig.setJpegDpi(bare, 200);
+  assert.strictEqual(added.length, bare.length + 18, "JFIF header added when missing");
+  assert.strictEqual(sig.readJpegDpi(added), 200);
+  assert.deepStrictEqual(Array.from(added.slice(20)), Array.from(bare.slice(2)), "Image data untouched");
+  const bytes = await import("../src/lib/jpeg-bytes.ts");
+  const padded = bytes.padJpeg(withDpi, 10240);
+  assert.strictEqual(padded.length, 10240, "Padded to exactly the minimum");
+  assert.strictEqual(bytes.readJpegDpi(padded), 300, "JFIF header (and DPI) stays first");
+  assert.deepStrictEqual([padded[20], padded[21]], [0xff, 0xfe], "Padding is a JPEG comment segment after the header");
+  assert.deepStrictEqual(Array.from(padded.slice(-2)), [0xff, 0xd9], "End marker intact");
+  const big = bytes.padJpeg(bare, 150000);
+  assert.ok(big.length >= 150000 && big.length < 150010, `multi-segment padding (${big.length})`);
+  let pos = 2, segs = 0;
+  while (big[pos] === 0xff && big[pos + 1] === 0xfe) { pos += 2 + ((big[pos + 2] << 8) | big[pos + 3]); segs++; }
+  assert.ok(segs >= 3 && big[pos] === 0xff && big[pos + 1] === 0xdb, "Comment segments chain to the original image data");
+  assert.strictEqual(bytes.padJpeg(withDpi, 10), withDpi, "Already big enough: unchanged");
+}
+console.log("  ✓ Paper/ink levels, crop box ignoring specks, white background, ink colour modes and DPI header verified.\n");
+
+console.log("Test 25: vCard reading (2.1/3.0/4.0) and writing, CSV column mapping, country codes");
+{
+  const v = await import("../src/lib/vcard.ts");
+
+  // Android-style vCard 2.1: quoted-printable UTF-8 name with a soft line break, bare TEL types.
+  const android = [
+    "BEGIN:VCARD",
+    "VERSION:2.1",
+    "N;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=D8=AE=D8=A7=D9=86;=D8=B9=D9=84=DB=8C;;;",
+    "FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=D8=B9=D9=84=DB=8C=20=D8=AE=D8=A7=",
+    "=D9=86",
+    "TEL;CELL;PREF:+923001234567",
+    "TEL;HOME:042-35761234",
+    "PHOTO;ENCODING=BASE64;JPEG:/9j/4AAQSkZJRgABAQ",
+    " AAAQABAAD",
+    "",
+    "END:VCARD",
+  ].join("\r\n");
+  // iPhone-style vCard 3.0: groups with custom labels, folded NOTE, escaped comma and newline.
+  const iphone = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    "N:O'Brien;Liam;;Dr.;",
+    "FN:Dr. Liam O'Brien",
+    "ORG:Acme\\, Inc.;Sales",
+    "item1.TEL;type=pref:+353 87 123 4567",
+    "item1.X-ABLabel:_$!<Mobile>!$_",
+    "item2.TEL:+353 1 234 5678",
+    "item2.X-ABLabel:Office line",
+    "EMAIL;type=INTERNET;type=WORK;type=pref:liam@acme.example",
+    "ADR;type=HOME:;;12 Main St;Cork;;T12 ABC;Ireland",
+    "NOTE:Met at the trade fair\\, booth 4.\\nCall after 3pm about the long-runnin",
+    " g order.",
+    "END:VCARD",
+  ].join("\n");
+  const v4 = "BEGIN:VCARD\nVERSION:4.0\nFN:Sofia Rossi\nTEL;VALUE=uri;TYPE=\"voice,work\":tel:+39-02-1234567\nEND:VCARD\nBEGIN:VCARD\nVERSION:3.0\nEND:VCARD\n";
+
+  const parsed = v.parseVCF(android + "\r\n" + iphone + "\n" + v4);
+  assert.strictEqual(parsed.contacts.length, 3, "Three contacts; the empty card is skipped");
+  assert.strictEqual(parsed.skippedEmpty, 1);
+  const [ali, liam, sofia] = parsed.contacts;
+  assert.strictEqual(ali.fullName, "علی خان", "Quoted-printable UTF-8 with a soft line break");
+  assert.strictEqual(ali.firstName, "علی");
+  assert.deepStrictEqual(ali.phones, [{ value: "+923001234567", type: "Mobile" }, { value: "042-35761234", type: "Home" }]);
+  assert.strictEqual(liam.organization, "Acme, Inc., Sales", "Escaped comma kept; ORG parts joined");
+  assert.deepStrictEqual(liam.phones.map((p) => p.type), ["Mobile", "Office line"], "Apple custom labels");
+  assert.deepStrictEqual(liam.emails, [{ value: "liam@acme.example", type: "Work" }]);
+  assert.strictEqual(liam.note, "Met at the trade fair, booth 4.\nCall after 3pm about the long-running order.", "Folded line and \\n unescaped");
+  assert.strictEqual(v.formatAddress(liam.addresses[0]), "12 Main St, Cork T12 ABC, Ireland");
+  assert.deepStrictEqual(sofia.phones, [{ value: "+39-02-1234567", type: "Work" }], "vCard 4.0 tel: URI and quoted TYPE list");
+  assert.strictEqual(v.parseVCF("name,phone\nA,1").notVCard, true);
+
+  const table = v.contactsToTable(parsed.contacts);
+  assert.deepStrictEqual(table.headers.slice(0, 4), ["Full name", "First name", "Last name", "Prefix"]);
+  assert.ok(table.headers.includes("Phone 2 type") && table.headers.includes("Address 1") && table.headers.includes("Note"));
+  assert.strictEqual(table.rows[1][table.headers.indexOf("Phone 2")], "+353 1 234 5678");
+
+  // Writing: escaping, folding at 75 octets without splitting UTF-8, CRLF, and a round trip.
+  const card = v.contactToVCard(liam);
+  assert.ok(card.startsWith("BEGIN:VCARD\r\nVERSION:3.0\r\nN:O'Brien;Liam;;Dr.;\r\nFN:Dr. Liam O'Brien\r\n"));
+  assert.ok(card.includes("ORG:Acme\\, Inc.\\, Sales"));
+  for (const line of card.split("\r\n")) assert.ok(new TextEncoder().encode(line).length <= 75, "Every line at most 75 octets");
+  const longUrdu = v.foldLine("NOTE:" + "علی ".repeat(30));
+  assert.ok(longUrdu.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75) && !longUrdu.includes("�"));
+  const round = v.parseVCF(v.contactsToVCF(parsed.contacts)).contacts;
+  assert.deepStrictEqual(round.map((c) => [c.fullName, c.phones.map((p) => p.value), c.note]), parsed.contacts.map((c) => [c.fullName, c.phones.map((p) => p.value), c.note]), "Round trip keeps names, phones and notes");
+  const nameless = v.contactToVCard({ ...v.emptyContact(), phones: [{ value: "+923331112222", type: "Mobile" }] });
+  assert.ok(nameless.includes("N:;+923331112222;;;") && nameless.includes("FN:+923331112222"), "N and FN always present");
+
+  // Country codes.
+  assert.strictEqual(v.withCountryCode("0300 1234567", "+92"), "+923001234567");
+  assert.strictEqual(v.withCountryCode("0300-1234567", "92"), "+923001234567");
+  assert.strictEqual(v.withCountryCode("+44 20 7946 0958", "+92"), "+442079460958");
+  assert.strictEqual(v.withCountryCode("0092 300 1234567", "+92"), "+923001234567");
+  assert.strictEqual(v.withCountryCode("923001234567", "+92"), "+923001234567");
+  assert.strictEqual(v.withCountryCode("3001234567", "+92"), "+923001234567");
+  assert.strictEqual(v.withCountryCode("ext 12", "+92"), "ext 12", "Non-numbers untouched");
+  assert.ok(v.isScientificNotation("9.23001E+11") && !v.isScientificNotation("923001234567"));
+
+  // Column mapping from headers, and from values when there is no header.
+  const headers = ["Customer Name", "Mobile No.", "WhatsApp", "E-mail", "City", "Company"];
+  const rows = [["Ayesha Khan", "0300 1234567 / 0321 7654321", "0300 1234567", "ayesha@example.com", "Lahore", "Khan Traders"], ["", "", "", "", "", ""], ["Hira", "9.23001E+11", "", "", "", ""]];
+  const map = v.guessMapping(headers, rows);
+  assert.deepStrictEqual([map.fullName, map.phone1, map.phone2, map.email1, map.organization], [0, 1, 2, 3, 5]);
+  const conv = v.rowsToContacts(rows, map, { countryCode: "+92" });
+  assert.strictEqual(conv.contacts.length, 2);
+  assert.strictEqual(conv.skippedEmpty, 1);
+  assert.strictEqual(conv.damagedPhones, 1, "Excel-damaged number reported");
+  assert.deepStrictEqual(conv.contacts[0].phones.map((p) => p.value), ["+923001234567", "+923217654321"], "Split cell, country code, duplicates merged");
+  const noHeader = v.guessMapping(["Column 1", "Column 2", "Column 3"], [["Ali", "03001234567", "ali@example.com"], ["Sara", "03111234567", "sara@example.com"]]);
+  assert.deepStrictEqual([noHeader.fullName, noHeader.phone1, noHeader.email1], [0, 1, 2]);
+}
+console.log("  ✓ vCard 2.1 quoted-printable, Apple labels, 4.0 URIs, folding, escaping, round trip, mapping and country codes verified.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

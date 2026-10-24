@@ -1,9 +1,10 @@
 import { ToolMeta } from "./types";
 import { absoluteUrl, publisherSchema } from "./site";
+import { toolSection } from "./tools-registry";
 
 /**
  * Structured data for a tool page. Breadcrumbs match the visible trail:
- * Home → Tools (the /tools/ hub) → tool.
+ * Home → section hub (/tools/ or /image-tools/) → tool.
  * FAQPage markup is kept because it describes the visible FAQ accurately, but
  * Google no longer shows FAQ rich results, so no search feature is expected.
  */
@@ -13,7 +14,7 @@ export function generateToolJsonLd(tool: ToolMeta) {
     "@type": "WebApplication",
     name: tool.title,
     url: tool.canonicalUrl,
-    applicationCategory: "DeveloperApplication",
+    applicationCategory: tool.category === "Image" ? "MultimediaApplication" : "DeveloperApplication",
     operatingSystem: "All",
     browserRequirements: "Requires JavaScript. Requires HTML5.",
     description: tool.metaDescription,
@@ -51,8 +52,8 @@ export function generateToolJsonLd(tool: ToolMeta) {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Tools",
-        item: absoluteUrl("/tools/"),
+        name: toolSection(tool).name,
+        item: absoluteUrl(toolSection(tool).path),
       },
       {
         "@type": "ListItem",

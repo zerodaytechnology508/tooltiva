@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { getToolBySlug } from "@/lib/tools-registry";
+import { getToolBySlug, toolPath } from "@/lib/tools-registry";
 import { buildPageMetadata } from "@/lib/metadata";
 import { ToolPageLayout, ContentSection } from "@/components/ToolPageLayout";
 import { CSVViewerClient } from "@/components/tools/CSVViewerClient";
@@ -10,7 +10,7 @@ const tool = getToolBySlug("csv-viewer")!;
 export const metadata = buildPageMetadata({
   title: tool.pageTitle,
   description: tool.metaDescription,
-  path: `/tools/${tool.slug}/`,
+  path: toolPath(tool),
 });
 
 export default function CSVViewerPage() {

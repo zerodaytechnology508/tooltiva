@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { TOOLS } from "@/lib/tools-registry";
+import { DATA_TOOLS, IMAGE_TOOLS, toolPath } from "@/lib/tools-registry";
 import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 import { BrandMark } from "@/components/BrandMark";
 import { SITE } from "@/lib/site";
@@ -19,7 +19,7 @@ export function Footer() {
               <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Tooltiva</span>
             </div>
             <p className="max-w-md text-sm leading-6 text-slate-600 dark:text-slate-400">
-              Free tools for CSV and JSON files. Everything you paste or upload is processed in your browser and is
+              Free tools for CSV, JSON and image files. Everything you paste or upload is processed in your browser and is
               never uploaded to a server.
             </p>
             <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -38,14 +38,32 @@ export function Footer() {
                   All tools
                 </Link>
               </li>
-              {TOOLS.map((tool) => (
+              {DATA_TOOLS.map((tool) => (
                 <li key={tool.slug}>
-                  <Link href={`/tools/${tool.slug}/`} className={linkClass}>
+                  <Link href={toolPath(tool)} className={linkClass}>
                     {tool.title}
                   </Link>
                 </li>
               ))}
             </ul>
+            {IMAGE_TOOLS.length > 0 && (
+              <>
+                <h2 className="mt-6 text-sm font-semibold text-slate-900 dark:text-white">
+                  <Link href="/image-tools/" className="hover:underline">
+                    Image Tools
+                  </Link>
+                </h2>
+                <ul className="mt-3 space-y-2.5 text-sm">
+                  {IMAGE_TOOLS.map((tool) => (
+                    <li key={tool.slug}>
+                      <Link href={toolPath(tool)} className={linkClass}>
+                        {tool.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
 
           <div>

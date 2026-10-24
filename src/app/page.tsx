@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Lock, ShieldCheck, UserX } from "lucide-react";
-import { TOOLS } from "@/lib/tools-registry";
+import { DATA_TOOLS, IMAGE_TOOLS } from "@/lib/tools-registry";
 import { buildPageMetadata } from "@/lib/metadata";
 import { SITE, absoluteUrl, publisherSchema } from "@/lib/site";
 import { ToolCard } from "@/components/ToolCard";
@@ -51,8 +51,8 @@ export default function HomePage() {
           Free CSV and JSON tools that run in your browser
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
-          View, split, merge and dedupe CSV files, change delimiters, convert between CSV and JSON, and format or fix
-          JSON. Your files are processed on your device and never uploaded.
+          View, split, merge and dedupe CSV files, convert between CSV and JSON, fix JSON, and resize photos and
+          signatures to an exact size in KB. Your files are processed on your device and never uploaded.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a
@@ -81,13 +81,36 @@ export default function HomePage() {
           </Link>
         </div>
         <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {TOOLS.map((tool) => (
+          {DATA_TOOLS.map((tool) => (
             <li key={tool.id}>
               <ToolCard tool={tool} />
             </li>
           ))}
         </ul>
       </section>
+
+      {IMAGE_TOOLS.length > 0 && (
+        <section aria-labelledby="image-tools-title" className="mt-20">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 id="image-tools-title" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+              Image tools
+            </h2>
+            <Link href="/image-tools/" className="text-sm font-semibold text-brand-700 hover:underline dark:text-brand-400">
+              All image tools
+            </Link>
+          </div>
+          <p className="mt-2 max-w-2xl text-base text-slate-600 dark:text-slate-400">
+            Resize photos and signatures to the exact size online forms ask for. Your photos stay on your device.
+          </p>
+          <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {IMAGE_TOOLS.map((tool) => (
+              <li key={tool.id}>
+                <ToolCard tool={tool} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section aria-labelledby="guides-title" className="mt-20">
         <div className="flex flex-wrap items-baseline justify-between gap-3">

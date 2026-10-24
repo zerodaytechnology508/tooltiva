@@ -22,6 +22,12 @@ const GROUPS: { category: ToolCategory; id: string; title: string; intro: string
     intro: "Open, split, merge and remove duplicates from CSV files, and convert data between CSV and JSON.",
   },
   {
+    category: "Image",
+    id: "image-tools",
+    title: "Image tools",
+    intro: "Resize photos and signatures to the exact size in KB, pixels or centimetres that online forms ask for.",
+  },
+  {
     category: "Developer",
     id: "json-tools",
     title: "JSON and developer tools",

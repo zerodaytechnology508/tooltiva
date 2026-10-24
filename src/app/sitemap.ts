@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { TOOLS } from "@/lib/tools-registry";
+import { TOOLS, toolPath } from "@/lib/tools-registry";
 import { GUIDES } from "@/lib/guides-registry";
 
 export const dynamic = "force-static";
@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://tooltiva.net";
 
   const toolRoutes = TOOLS.map((tool) => ({
-    url: `${baseUrl}/tools/${tool.slug}/`,
+    url: `${baseUrl}${toolPath(tool)}`,
     changeFrequency: "weekly" as const,
     priority: 0.9,
   }));
@@ -21,6 +21,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/tools/`,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/image-tools/`,
       changeFrequency: "weekly" as const,
       priority: 0.9,
     },
