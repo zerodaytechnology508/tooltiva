@@ -1,8 +1,9 @@
 import React from "react";
-import { Mail, Bug, Lightbulb } from "lucide-react";
+import { Mail, Bug, Lightbulb, ShieldCheck } from "lucide-react";
 import { buildPageMetadata } from "@/lib/metadata";
 import { SITE } from "@/lib/site";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import Link from "next/link";
 
 export const metadata = buildPageMetadata({
   title: "Contact Tooltiva",
@@ -19,7 +20,12 @@ const TOPICS = [
   {
     icon: Lightbulb,
     title: "Suggest a tool",
-    text: "Describe the file task you want to do. Requests for CSV, JSON and other data-file tools help us decide what to build next.",
+    text: "Describe the file task you want to do. Requests for CSV, JSON, image and other file tools help us decide what to build next.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Privacy or advertising questions",
+    text: "Ask how a tool handles your data, about analytics or advertising cookies, or how to change your privacy choices. The Privacy Policy covers the details.",
   },
 ];
 
@@ -56,7 +62,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {TOPICS.map(({ icon: Icon, title, text }) => (
           <section key={title} className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
@@ -68,9 +74,21 @@ export default function ContactPage() {
         ))}
       </div>
 
-      <p className="mt-10 max-w-3xl text-base leading-7 text-slate-600 dark:text-slate-400">
-        Tooltiva is developed and maintained by {SITE.publisher}.
-      </p>
+      <section className="content-prose mt-10">
+        <h2 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Before you write</h2>
+        <ul className="mt-4">
+          <li>
+            We cannot recover a file you converted: tools run in your browser, so your files never reach us. Keep the
+            original until you have checked the result.
+          </li>
+          <li>
+            Many common problems, such as a CSV that opens in one column in Excel or strange characters in a file, are
+            explained step by step in the <Link href="/guides/">guides</Link>.
+          </li>
+          <li>For a bug, include your browser and device, for example Chrome on Android, and the steps you took.</li>
+        </ul>
+        <p>Tooltiva is developed and maintained by {SITE.publisher}.</p>
+      </section>
     </div>
   );
 }

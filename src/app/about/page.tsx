@@ -3,6 +3,8 @@ import { buildPageMetadata } from "@/lib/metadata";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import Link from "next/link";
 import { AUTHOR } from "@/lib/authors";
+import { DATA_TOOLS, IMAGE_TOOLS } from "@/lib/tools-registry";
+import { GUIDES } from "@/lib/guides-registry";
 import { SITE } from "@/lib/site";
 import { Shield, Zap } from "lucide-react";
 
@@ -40,6 +42,36 @@ export default function AboutPage() {
         </section>
 
         <section className="space-y-4">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">What you can do with Tooltiva</h2>
+          <ul className="list-disc space-y-2 pl-6 text-base leading-7 text-slate-700 dark:text-slate-300">
+            <li>
+              <Link href="/tools/" className="font-medium text-brand-700 underline underline-offset-2 dark:text-brand-400">
+                {DATA_TOOLS.length} CSV and JSON tools
+              </Link>{" "}
+              to view, split, merge and clean spreadsheets, convert between CSV, JSON and VCF contacts, and format or fix
+              JSON.
+            </li>
+            <li>
+              <Link href="/image-tools/" className="font-medium text-brand-700 underline underline-offset-2 dark:text-brand-400">
+                {IMAGE_TOOLS.length} image tools
+              </Link>{" "}
+              to get photos and signatures to the exact size in KB, pixels or centimetres that online forms ask for.
+            </li>
+            <li>
+              <Link href="/guides/" className="font-medium text-brand-700 underline underline-offset-2 dark:text-brand-400">
+                {GUIDES.length} guides
+              </Link>{" "}
+              that explain common problems, such as a CSV opening in one column or Excel removing leading zeros, and
+              how to fix them.
+            </li>
+          </ul>
+          <p className="text-base leading-7 text-slate-700 dark:text-slate-300">
+            Everything is free to use without an account. Tooltiva may show advertising to cover its costs; ads never
+            have access to the files you open in a tool.
+          </p>
+        </section>
+
+        <section className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Core Operating Principles
           </h2>
@@ -50,7 +82,7 @@ export default function AboutPage() {
                 Privacy by Design
               </h3>
               <p className="text-sm leading-6 text-slate-600 dark:text-slate-400">
-                CSV and JSON content stays on your device while the tools process it locally. Optional analytics runs only if you accept it or turn it on in Privacy settings, and it never receives tool content.
+                Files, text and photos stay on your device while the tools process them locally. Optional analytics runs only if you accept it or turn it on in Privacy settings, and it never receives tool content.
               </p>
             </div>
 

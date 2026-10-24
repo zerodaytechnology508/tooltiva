@@ -11,7 +11,7 @@ export const TOOLS: ToolMeta[] = [
     intro: "Open a CSV file in your browser and see it as a table. Search, sort by any column and export the rows you need. Values are shown exactly as stored, so leading zeros and long numbers stay intact.",
     badgeTitle: "CSV Viewer",
     shortDescription: "Open CSV files as a searchable, sortable table, even large ones, and export the rows you need.",
-    metaDescription: "Open and view CSV files online as a table. Search, sort by any column and export the filtered rows. Values stay exactly as written. Your file never leaves your browser.",
+    metaDescription: "Open and view CSV files online as a table. Search, sort by any column and export the rows you need. Values stay exactly as written, and nothing is uploaded.",
     category: "Data & CSV",
     primaryKeyword: "csv viewer",
     secondaryKeywords: [
@@ -486,7 +486,7 @@ export const TOOLS: ToolMeta[] = [
     intro: "Turn CSV rows into a JSON array of objects or a 2D array. Values stay exactly as written unless you choose exact number and true/false conversion. Need the other direction? Switch the mode or use the JSON to CSV converter.",
     badgeTitle: "CSV to JSON",
     shortDescription: "Turn CSV rows into JSON objects or arrays, with exact typing options, a table preview and safe export.",
-    metaDescription: "Convert CSV to JSON online. Get an array of objects or a 2D array, keep values exactly as written, preview the table and download the JSON. Your file stays in your browser.",
+    metaDescription: "Convert CSV to JSON online as an array of objects or a 2D array. Values stay exactly as written, with a preview and download. Your file stays in your browser.",
     category: "Data & CSV",
     primaryKeyword: "csv to json",
     secondaryKeywords: [

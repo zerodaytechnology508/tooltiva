@@ -61,6 +61,48 @@ export default function ImageToolsHubPage() {
         ))}
       </ul>
 
+      <section aria-labelledby="sizes" className="content-prose mt-16">
+        <h2 id="sizes" className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+          File size, pixels and centimetres: what forms ask for
+        </h2>
+        <p className="mt-4">
+          Application forms describe an image in up to three ways, and they measure different things. A photo can meet
+          one and fail another, so check each number the form gives:
+        </p>
+        <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">The form says</th>
+                <th scope="col">What it measures</th>
+                <th scope="col">How to meet it</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>20 KB, 10–50 KB, under 100 KB</td>
+                <td>The size of the file on disk</td>
+                <td>Choose the size range; quality and dimensions are adjusted to land inside it</td>
+              </tr>
+              <tr>
+                <td>200 × 230 pixels</td>
+                <td>The width and height of the image</td>
+                <td>Set the exact pixels; the photo is cropped or fitted to that shape</td>
+              </tr>
+              <tr>
+                <td>3.5 × 4.5 cm, 200 DPI</td>
+                <td>The printed size, at a given resolution</td>
+                <td>Enter the centimetres and DPI; they are turned into pixels and the DPI is written into the file</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Forms also differ on whether 1 KB means 1,000 or 1,024 bytes. Aiming a little inside the range, for example 18
+          KB for a 20 KB limit, avoids being rejected for a few bytes.
+        </p>
+      </section>
+
       <section aria-labelledby="why" className="content-prose mt-16">
         <h2 id="why" className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
           Why use these image tools
