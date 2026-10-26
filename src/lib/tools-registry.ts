@@ -22,7 +22,7 @@ export const TOOLS: ToolMeta[] = [
       "csv reader online",
     ],
     icon: "Table2",
-    related: ["split-csv", "remove-duplicates-csv", "csv-delimiter-converter", "merge-csv", "csv-to-json", "json-to-csv"],
+    related: ["split-csv", "remove-duplicates-csv", "compare-csv", "csv-delimiter-converter", "merge-csv", "csv-to-json"],
     canonicalUrl: "https://tooltiva.net/tools/csv-viewer/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -124,7 +124,7 @@ export const TOOLS: ToolMeta[] = [
       "append csv files",
     ],
     icon: "Combine",
-    related: ["remove-duplicates-csv", "split-csv", "csv-viewer", "csv-delimiter-converter", "csv-to-json", "json-to-csv"],
+    related: ["remove-duplicates-csv", "compare-csv", "split-csv", "csv-viewer", "csv-delimiter-converter", "csv-to-json"],
     canonicalUrl: "https://tooltiva.net/tools/merge-csv/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -175,7 +175,7 @@ export const TOOLS: ToolMeta[] = [
       "find duplicates in csv",
     ],
     icon: "CopyMinus",
-    related: ["merge-csv", "csv-viewer", "csv-to-vcf", "split-csv", "csv-delimiter-converter", "csv-to-json"],
+    related: ["merge-csv", "compare-csv", "csv-viewer", "csv-to-vcf", "split-csv", "csv-delimiter-converter"],
     canonicalUrl: "https://tooltiva.net/tools/remove-duplicates-csv/",
     lastUpdated: "2026-10-23",
     faqs: [
@@ -202,6 +202,60 @@ export const TOOLS: ToolMeta[] = [
       {
         question: "Can I see which rows were removed?",
         answer: "Yes. Switch the preview to Removed rows, or download them as a separate CSV file to check them or keep a record.",
+      },
+    ],
+  },
+  {
+    id: "compare-csv",
+    slug: "compare-csv",
+    title: "Compare CSV Files",
+    navLabel: "Compare CSV",
+    pageTitle: "Compare Two CSV Files Online – Highlight Differences",
+    h1: "Compare Two CSV Files",
+    intro: "Find the differences between two CSV files: rows that were added, removed or changed, with every changed cell highlighted next to its old value. Rows are matched by a key column such as an ID or email, so a different row or column order does not matter.",
+    badgeTitle: "Compare CSV",
+    shortDescription: "See added, removed and changed rows between two CSV files, with changed cells highlighted.",
+    metaDescription: "Compare two CSV files online and see added, removed and changed rows, with changed cells highlighted. Match rows by ID or email. Free, and nothing is uploaded.",
+    category: "Data & CSV",
+    primaryKeyword: "compare two csv files",
+    secondaryKeywords: [
+      "compare csv files online",
+      "compare two csv files for differences",
+      "compare two csv files and highlight differences",
+      "csv diff",
+      "csv diff checker",
+      "csv compare tool",
+      "csv difference checker",
+      "compare large csv files online",
+    ],
+    icon: "GitCompare",
+    related: ["merge-csv", "remove-duplicates-csv", "csv-viewer", "split-csv", "csv-delimiter-converter", "csv-to-json"],
+    canonicalUrl: "https://tooltiva.net/tools/compare-csv/",
+    lastUpdated: "2026-10-26",
+    faqs: [
+      {
+        question: "Are my CSV files uploaded to compare them?",
+        answer: "No. Both files are read and compared by your browser on your own device. Nothing is sent to a server, and optional site analytics, if you allow it, never receives file contents.",
+      },
+      {
+        question: "How do I compare two CSV files for differences?",
+        answer: "Open the original file as file 1 and the newer one as file 2. The tool picks a key column that is unique in both files, such as id or sku, and lists every row that was added, removed or changed. Changed cells show the new value with the old value crossed out underneath.",
+      },
+      {
+        question: "My rows are in a different order. Will every row show as changed?",
+        answer: "No. With a key column, rows are paired by their ID, email or SKU wherever they are in the file. Without a key, choose Whole rows, in any order: a row then counts as unchanged when the same row exists anywhere in the other file. Only Row position compares row 1 with row 1.",
+      },
+      {
+        question: "What if the columns are in a different order, or a column was added?",
+        answer: "Columns are matched by header name, ignoring upper and lower case and spaces around the name, so a different column order is not a difference. A column that exists in only one file is listed above the result and shown in the table, but not compared.",
+      },
+      {
+        question: "Why is 14.50 shown as different from 14.5?",
+        answer: "Because the text in the two files differs, and by default every value is compared exactly. Turn on Equal numbers (14.50 = 14.5) to compare plain numbers by value. You can also ignore upper and lower case, and spaces before or after values.",
+      },
+      {
+        question: "How large can the CSV files be?",
+        answer: "Files with hundreds of thousands of rows compare in a few seconds in a current desktop browser; the limit is your device's memory. The table shows the first 300 rows of the current view, and Download differences contains every added, removed and changed row.",
       },
     ],
   },

@@ -100,7 +100,8 @@ export default function Guide() {
         Exports often overlap, for example when one report runs to the end of the month and the next starts a day
         early. Open the combined file in <Link href="/tools/remove-duplicates-csv/">Remove Duplicate Rows</Link> and
         compare whole rows, or just a key column such as an order ID or email address. You can download the removed rows
-        separately to check them.
+        separately to check them. To see how two overlapping exports differ before you combine them,{" "}
+        <Link href="/tools/compare-csv/">compare the two CSV files</Link> side by side.
       </p>
 
       <h2>Which method to choose</h2>

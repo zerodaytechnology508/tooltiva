@@ -109,7 +109,9 @@ export default function RemoveDuplicatesPage() {
             <p>
               Duplicates often appear after combining exports:{" "}
               <Link href="/tools/merge-csv/">merge the CSV files</Link> first, then remove the duplicate rows here. To
-              search and sort the cleaned file, open it in the <Link href="/tools/csv-viewer/">CSV Viewer</Link>.
+              search and sort the cleaned file, open it in the <Link href="/tools/csv-viewer/">CSV Viewer</Link>. To
+              see what changed between an old and a new export instead,{" "}
+              <Link href="/tools/compare-csv/">compare the two CSV files</Link> by ID or email.
             </p>
           </ContentSection>
         </>

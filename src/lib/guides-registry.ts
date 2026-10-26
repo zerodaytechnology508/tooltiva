@@ -67,7 +67,7 @@ export const GUIDES: GuideMeta[] = [
     h1: "How to combine multiple CSV files into one",
     metaDescription: "Three ways to merge CSV files into one: a tool that matches columns by name, Excel Power Query, and the command line, with the pitfalls of each.",
     summary: "To combine CSV files, append the rows of each file under one header. Copying files together works only when every file has the same columns in the same order; when they differ, use a tool that matches columns by name.",
-    tools: ["merge-csv", "remove-duplicates-csv"],
+    tools: ["merge-csv", "remove-duplicates-csv", "compare-csv"],
     datePublished: "2026-10-23",
     dateModified: "2026-10-23",
   },

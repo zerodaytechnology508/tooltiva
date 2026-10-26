@@ -103,7 +103,9 @@ export default function MergeCSVPage() {
               <Link href="/tools/split-csv/">split the CSV file</Link> by rows or by a column. To look through the
               merged result, open it in the <Link href="/tools/csv-viewer/">CSV Viewer</Link>, where you can search
               and sort it. If the same records appear in more than one file,{" "}
-              <Link href="/tools/remove-duplicates-csv/">remove the duplicate rows</Link> afterwards.
+              <Link href="/tools/remove-duplicates-csv/">remove the duplicate rows</Link> afterwards. To find which
+              rows differ between two versions of a file rather than combining them, use{" "}
+              <Link href="/tools/compare-csv/">Compare CSV Files</Link>.
             </p>
           </ContentSection>
         </>

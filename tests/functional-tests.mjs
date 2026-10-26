@@ -1098,4 +1098,76 @@ console.log("Test 25: vCard reading (2.1/3.0/4.0) and writing, CSV column mappin
 }
 console.log("  ✓ vCard 2.1 quoted-printable, Apple labels, 4.0 URIs, folding, escaping, round trip, mapping and country codes verified.\n");
 
+console.log("Test 26: Compare CSV pairs rows by key, whole row or position and reports changed cells");
+{
+  const c = await import("../src/lib/csv-compare.ts");
+  const A = { headers: ["sku", "product", "price", "stock"], rows: [["A100", "Mouse", "24.99", "120"], ["A101", "Cable", "9.99", "300"], ["A102", "Stand", "39.00", "45"], ["A103", "Adapter", "14.50", "80"], ["", "No key", "1", "1"]] };
+  const B = { headers: ["SKU ", "price", "Product", "stock", "supplier"], rows: [["A101", "8.99", "Cable", "300", "X"], ["A100", "24.99", "mouse", "95", "Y"], ["A103", "14.5", "Adapter", "80", "Y"], ["A105", "69", "Keyboard", "40", "Y"]] };
+
+  const cols = c.matchColumns(A, B, true);
+  assert.deepStrictEqual(cols.map((x) => [x.name, x.a, x.b]), [["SKU ", 0, 0], ["price", 2, 1], ["Product", 1, 2], ["stock", 3, 3], ["supplier", -1, 4]], "Columns matched by name in any order; file-2-only column kept");
+  assert.strictEqual(c.suggestKeyColumn(A, B, cols), null, "Empty key in file 1 means sku is not a safe automatic key");
+  const A2 = { headers: A.headers, rows: A.rows.slice(0, 4) };
+  assert.strictEqual(c.suggestKeyColumn(A2, B, c.matchColumns(A2, B, true)), 0, "sku suggested when unique and filled in");
+
+  const opts = { matchColumnsByName: true, rowMatching: "key", keyColumns: [0], ignoredColumns: [], ignoreCase: false, trimSpaces: true, numericEquality: false };
+  const r = c.compareCSV(A, B, opts);
+  assert.deepStrictEqual(r.counts, { same: 0, changed: 3, added: 1, removed: 2 });
+  assert.deepStrictEqual(r.rows.slice(0, 4), [
+    { status: "changed", a: 0, b: 1, changed: [2, 3] },
+    { status: "changed", a: 1, b: 0, changed: [1] },
+    { status: "removed", a: 2 },
+    { status: "changed", a: 3, b: 2, changed: [1] },
+  ], "Rows paired by key regardless of order; cells reported by column");
+  assert.deepStrictEqual(r.emptyKeys, { a: 1, b: 0 }, "Row with empty key is never paired");
+  assert.strictEqual(r.changedCells, 4);
+
+  const loose = c.compareCSV(A, B, { ...opts, ignoreCase: true, numericEquality: true });
+  assert.deepStrictEqual(loose.counts, { same: 1, changed: 2, added: 1, removed: 2 }, "Case and 14.50 = 14.5 options");
+  const ignored = c.compareCSV(A, B, { ...opts, ignoredColumns: [3], ignoreCase: true, numericEquality: true });
+  assert.strictEqual(ignored.counts.changed, 1, "Ignored stock column no longer counts as a change");
+
+  const report = c.buildReportCSV(A, B, r, { delimiter: ",", formulaSafe: true, includeSame: false });
+  assert.strictEqual(report.split("\r\n")[0], "change,row_in_file_1,row_in_file_2,changed_columns,\"SKU \",price,Product,stock,supplier");
+  assert.ok(report.includes("changed,1,2,Product; stock,A100,24.99,mouse,95,Y"), "Report row uses file 2 values and names changed columns");
+  assert.ok(report.includes("removed,3,,,A102,39.00,Stand,45,"), "Removed row uses file 1 values");
+  assert.ok(report.includes("added,,4,,A105,69,Keyboard,40,Y"));
+  const cells = c.buildCellChangesCSV(A, B, r, { delimiter: ";", formulaSafe: true, keyColumns: [0] }).split("\r\n");
+  assert.deepStrictEqual(cells.slice(0, 3), ["\"SKU \";row_in_file_1;row_in_file_2;column;value_in_file_1;value_in_file_2", "A100;1;2;Product;Mouse;mouse", "A100;1;2;stock;120;95"]);
+
+  // Whole rows in any order: multiset matching.
+  const X = { headers: ["a", "b"], rows: [["1", "x"], ["2", "y"], ["1", "x"]] };
+  const Y = { headers: ["b", "a"], rows: [["y", "2"], ["x", "1"], ["z", "3"]] };
+  const content = c.compareCSV(X, Y, { ...opts, rowMatching: "content", keyColumns: [] });
+  assert.deepStrictEqual(content.counts, { same: 2, changed: 0, added: 1, removed: 1 }, "Second copy of a duplicate row is reported as removed");
+
+  // Row position, files without a header: columns by position.
+  const P = { headers: ["Column 1", "Column 2"], rows: [["1", "a"], ["2", "b"]] };
+  const Q = { headers: ["Column 1", "Column 2", "Column 3"], rows: [["1", "a", "z"], ["2", "c", ""], ["3", "d", ""]] };
+  const pos = c.compareCSV(P, Q, { ...opts, matchColumnsByName: false, rowMatching: "position", keyColumns: [] });
+  assert.deepStrictEqual(pos.rows, [{ status: "same", a: 0, b: 0 }, { status: "changed", a: 1, b: 1, changed: [1] }, { status: "added", b: 2 }]);
+
+  // Duplicate keys are paired in order and reported.
+  const D1 = { headers: ["id", "v"], rows: [["7", "a"], ["7", "b"]] };
+  const D2 = { headers: ["id", "v"], rows: [["7", "a"], ["7", "c"]] };
+  const dup = c.compareCSV(D1, D2, { ...opts, keyColumns: [0] });
+  assert.deepStrictEqual([dup.counts.same, dup.counts.changed, dup.duplicateKeys.a, dup.duplicateKeys.b, dup.duplicateKeys.examples], [1, 1, 1, 1, ["7"]]);
+
+  // Multi-column keys never collide by concatenation.
+  const K1 = { headers: ["f", "l", "v"], rows: [["ab", "", "1"], ["a", "b", "2"]] };
+  const K2 = { headers: ["f", "l", "v"], rows: [["a", "b", "2"], ["ab", "", "1"]] };
+  assert.strictEqual(c.compareCSV(K1, K2, { ...opts, keyColumns: [0, 1] }).counts.same, 2);
+
+  const big1 = { headers: ["id", "name", "qty"], rows: Array.from({ length: 200000 }, (_, i) => [String(i), `Item ${i}`, String(i % 97)]) };
+  const big2 = { headers: ["qty", "id", "name"], rows: Array.from({ length: 200000 }, (_, i) => { const j = 199999 - i; return [String(j % 1000 === 0 ? 999 : j % 97), String(j + 10), `Item ${j + 10}`]; }) };
+  const t0 = performance.now();
+  const big = c.compareCSV(big1, big2, { ...opts, keyColumns: [1] }); // index 1 = "id" in file 2 column order
+  const ms = performance.now() - t0;
+  assert.deepStrictEqual([big.counts.removed, big.counts.added], [10, 10]);
+  assert.ok(big.counts.changed > 0 && big.counts.same + big.counts.changed === 199990);
+  assert.ok(ms < 3000, `200k × 200k rows compared in ${ms.toFixed(0)} ms`);
+  console.log(`  (200k-row comparison: ${ms.toFixed(0)} ms)`);
+}
+console.log("  ✓ Column matching by name, key/whole-row/position matching, options, reports and 200k-row speed verified.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");
