@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeftRight, BookUser, Code2, Combine, Contact, CopyMinus, ImageDown, Signature, FileSpreadsheet, GitCompare, Scissors, Table2, Terminal, type LucideProps } from "lucide-react";
+import { ArrowLeftRight, BookUser, Code2, Combine, Contact, CopyMinus, Database, ImageDown, Signature, FileSpreadsheet, GitCompare, Scissors, Table2, Terminal, type LucideProps } from "lucide-react";
 
 const ICONS = {
   FileSpreadsheet,
@@ -14,6 +14,7 @@ const ICONS = {
   BookUser,
   Contact,
   GitCompare,
+  Database,
 } as const;
 
 /** The registry's icon name as a Lucide icon (decorative: hidden from screen readers). */

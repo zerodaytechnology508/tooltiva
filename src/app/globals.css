@@ -47,8 +47,13 @@ body {
   .content-prose p + ul,
   .content-prose ul + p,
   .content-prose p + ol,
-  .content-prose ol + p {
+  .content-prose ol + p,
+  .content-prose p + pre,
+  .content-prose pre + p {
     @apply mt-4;
+  }
+  .content-prose pre {
+    @apply overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200;
   }
   .content-prose code {
     @apply rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.875em] text-slate-800 dark:bg-slate-800 dark:text-slate-200;

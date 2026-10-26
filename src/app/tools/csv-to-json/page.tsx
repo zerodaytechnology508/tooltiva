@@ -63,7 +63,8 @@ export default function CSVToJSONPage() {
             <p>
               Starting from JSON instead? Use the <Link href="/tools/json-to-csv/">JSON to CSV converter</Link>. To
               check or pretty-print JSON you already have, use the{" "}
-              <Link href="/tools/json-formatter/">JSON formatter and validator</Link>.
+              <Link href="/tools/json-formatter/">JSON formatter and validator</Link>. To load the rows into a
+              database instead, <Link href="/tools/csv-to-sql/">convert the CSV to SQL INSERT statements</Link>.
             </p>
           </ContentSection>
         </>

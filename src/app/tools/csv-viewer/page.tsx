@@ -65,7 +65,9 @@ export default function CSVViewerPage() {
             <ul>
               <li>
                 Only the rows on screen are drawn, so scrolling stays smooth with very large files. To break a file
-                into smaller ones, <Link href="/tools/split-csv/">split the CSV</Link> by rows or by a column.
+                into smaller ones, <Link href="/tools/split-csv/">split the CSV</Link> by rows or by a column. To
+                import it into MySQL, PostgreSQL or SQL Server,{" "}
+                <Link href="/tools/csv-to-sql/">generate SQL INSERT statements</Link>.
               </li>
               <li>
                 Rows with missing or extra fields are shown with empty cells and reported, instead of breaking the

@@ -1170,4 +1170,65 @@ console.log("Test 26: Compare CSV pairs rows by key, whole row or position and r
 }
 console.log("  ✓ Column matching by name, key/whole-row/position matching, options, reports and 200k-row speed verified.\n");
 
+console.log("Test 27: CSV to SQL writes dialect-correct INSERTs, types and escaping");
+{
+  const q = await import("../src/lib/csv-sql.ts");
+  const header = ["Customer ID", "Full Name", "Postcode", "Balance", "Active", "Signed Up", "Note"];
+  const rows = [
+    ["1001", "Ayesha Khan", "54000", "1250.50", "true", "2024-01-31", "O'Brien \\ path"],
+    ["1002", "Łukasz", "02134", "0", "FALSE", "2024-02-29 10:30:00", ""],
+    ["3000000000", "Chen, Wei", "20121", "", "true", "2024-03-01", "two\nlines"],
+  ];
+  const base = { table: "customers", include: [0, 1, 2, 3, 4, 5, 6], rowsPerStatement: 100, createTable: true, emptyAsNull: true, transaction: false, detectTypes: true };
+  const cols = q.analyzeColumns(header, rows, true);
+  assert.deepStrictEqual(cols.map((c) => c.kind), ["integer", "text", "text", "decimal", "boolean", "datetime", "text"], "Leading-zero postcodes are text; date + datetime widen to datetime");
+  assert.ok(cols[0].big && cols[3].precision === 6 && cols[3].scale === 2);
+  assert.deepStrictEqual(q.cleanNames(header, "mysql"), ["customer_id", "full_name", "postcode", "balance", "active", "signed_up", "note"]);
+  assert.deepStrictEqual(q.cleanNames(["a b", "A-B", "1st"], "oracle"), ["A_B", "A_B_2", "C_1ST"]);
+
+  const my = q.buildSQL(rows, { ...base, dialect: "mysql", columns: q.cleanNames(header, "mysql") }).chunks.join("");
+  assert.ok(my.includes("`customer_id` BIGINT") && my.includes("`postcode` VARCHAR(50)") && my.includes("`balance` DECIMAL(6, 2)") && my.includes("`signed_up` DATETIME"));
+  assert.ok(my.includes("(1001, 'Ayesha Khan', '54000', 1250.50, 1, '2024-01-31', 'O''Brien \\\\ path')"), "MySQL doubles quotes and backslashes");
+  assert.ok(my.includes("(1002, 'Łukasz', '02134', 0, 0, '2024-02-29 10:30:00', NULL)"), "Empty cell is NULL; leading zero kept");
+  assert.ok(my.includes("'two\nlines'"));
+
+  const pg = q.buildSQL(rows, { ...base, dialect: "postgresql", columns: q.cleanNames(header, "postgresql") }).chunks.join("");
+  assert.ok(pg.includes('"active" BOOLEAN') && pg.includes("TRUE, '2024-01-31', 'O''Brien \\ path')"), "PostgreSQL: TRUE/FALSE, backslash not doubled");
+  const ms = q.buildSQL(rows, { ...base, dialect: "sqlserver", columns: q.cleanNames(header, "sqlserver") }).chunks.join("");
+  assert.ok(ms.includes("[full_name] NVARCHAR(50)") && ms.includes("N'Łukasz'") && ms.includes("'Ayesha Khan'") && ms.includes("[active] BIT"), "SQL Server: brackets, N'' only for non-ASCII");
+  const ora = q.buildSQL(rows, { ...base, dialect: "oracle", columns: q.cleanNames(header, "oracle"), rowsPerStatement: 2 });
+  const oraSQL = ora.chunks.join("");
+  assert.ok(oraSQL.includes('INSERT ALL\n  INTO "customers" ("CUSTOMER_ID"') && oraSQL.includes("SELECT 1 FROM DUAL;"), "Oracle multi-row uses INSERT ALL");
+  assert.ok(oraSQL.includes("TIMESTAMP '2024-01-31 00:00:00'") && oraSQL.includes("TIMESTAMP '2024-02-29 10:30:00'"), "Oracle timestamp literals have a time");
+  assert.strictEqual(ora.statements, 2);
+
+  // Batch limits per dialect, transaction, single-row statements.
+  const many = Array.from({ length: 2500 }, (_, i) => [String(i), `n${i}`]);
+  const sq = q.buildSQL(many, { ...base, include: [0, 1], columns: ["id", "name"], dialect: "sqlite", rowsPerStatement: 1000, createTable: false });
+  assert.strictEqual(sq.statements, 5, "SQLite capped at 500 rows per INSERT");
+  const one = q.buildSQL(many.slice(0, 2), { ...base, include: [0, 1], columns: ["id", "name"], dialect: "mysql", rowsPerStatement: 1, createTable: false, transaction: true }).chunks.join("");
+  assert.strictEqual(one, "START TRANSACTION;\n\nINSERT INTO `customers` (`id`, `name`) VALUES (0, 'n0');\nINSERT INTO `customers` (`id`, `name`) VALUES (1, 'n1');\n\nCOMMIT;\n");
+
+  // Identifier quoting escapes the quote character; schema.table is split.
+  assert.strictEqual(q.quoteIdentifier("we`ird", "mysql"), "`we``ird`");
+  assert.strictEqual(q.quoteIdentifier("a]b", "sqlserver"), "[a]]b]");
+  assert.strictEqual(q.quoteTableName("sales.orders", "postgresql"), '"sales"."orders"');
+
+  // Types off: everything quoted; empty as '' when NULL is off; invalid dates stay text; 19-digit numbers stay text.
+  const plain = q.buildSQL([["007", "2024-02-30", "1234567890123456789", ""]], { ...base, include: [0, 1, 2, 3], columns: ["a", "b", "c", "d"], dialect: "mysql", createTable: false, emptyAsNull: false });
+  assert.ok(plain.chunks.join("").includes("('007', '2024-02-30', '1234567890123456789', '')"));
+  const off = q.buildSQL([["1", "true"]], { ...base, include: [0, 1], columns: ["a", "b"], dialect: "mysql", createTable: false, detectTypes: false });
+  assert.ok(off.chunks.join("").includes("('1', 'true')"));
+  assert.strictEqual(q.tableNameFromFile("Customers 2024.csv"), "customers_2024");
+
+  const big = Array.from({ length: 200000 }, (_, i) => [String(i), `Name ${i}`, `user${i}@example.com`, (i % 1000) / 10 + "", i % 2 ? "true" : "false"]);
+  const t0 = performance.now();
+  const bigSQL = q.buildSQL(big, { ...base, include: [0, 1, 2, 3, 4], columns: ["id", "name", "email", "score", "active"], dialect: "postgresql" });
+  const ms2 = performance.now() - t0;
+  assert.strictEqual(bigSQL.statements, 2000);
+  assert.ok(ms2 < 3000, `200k rows to SQL in ${ms2.toFixed(0)} ms`);
+  console.log(`  (200k rows to SQL: ${ms2.toFixed(0)} ms, ${(bigSQL.bytes / 1e6).toFixed(1)} MB)`);
+}
+console.log("  ✓ Types, leading zeros, escaping per dialect, Oracle INSERT ALL, batch limits, transactions and 200k-row speed verified.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");
