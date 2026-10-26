@@ -75,7 +75,7 @@ export default function CSVToSQLPage() {
           </ContentSection>
 
           <ContentSection title="What changes between databases">
-            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
               <table>
                 <thead>
                   <tr>
@@ -158,7 +158,9 @@ export default function CSVToSQLPage() {
               import is faster than running INSERT statements: <code>LOAD DATA INFILE</code> in MySQL,{" "}
               <code>COPY</code> or <code>\copy</code> in PostgreSQL, <code>BULK INSERT</code> in SQL Server and{" "}
               <code>.import</code> in SQLite. The CREATE TABLE statement from this tool is still useful to create
-              the table first.
+              the table first. The guide <Link href="/guides/import-csv-into-mysql/">how to import a CSV file into
+              MySQL</Link> walks through Workbench, phpMyAdmin and LOAD DATA INFILE, with fixes for their common
+              errors.
             </p>
           </ContentSection>
 

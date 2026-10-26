@@ -89,7 +89,7 @@ export default function Guide() {
       </p>
 
       <h2>Which option to choose</h2>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
         <table>
           <thead>
             <tr>

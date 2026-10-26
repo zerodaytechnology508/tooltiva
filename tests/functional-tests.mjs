@@ -1187,6 +1187,7 @@ console.log("Test 27: CSV to SQL writes dialect-correct INSERTs, types and escap
   assert.deepStrictEqual(q.cleanNames(["a b", "A-B", "1st"], "oracle"), ["A_B", "A_B_2", "C_1ST"]);
 
   const my = q.buildSQL(rows, { ...base, dialect: "mysql", columns: q.cleanNames(header, "mysql") }).chunks.join("");
+  assert.ok(my.includes("\n) DEFAULT CHARSET=utf8mb4;"), "MySQL tables are created as utf8mb4");
   assert.ok(my.includes("`customer_id` BIGINT") && my.includes("`postcode` VARCHAR(50)") && my.includes("`balance` DECIMAL(6, 2)") && my.includes("`signed_up` DATETIME"));
   assert.ok(my.includes("(1001, 'Ayesha Khan', '54000', 1250.50, 1, '2024-01-31', 'O''Brien \\\\ path')"), "MySQL doubles quotes and backslashes");
   assert.ok(my.includes("(1002, 'Łukasz', '02134', 0, 0, '2024-02-29 10:30:00', NULL)"), "Empty cell is NULL; leading zero kept");

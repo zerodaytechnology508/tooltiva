@@ -22,7 +22,7 @@ export default function Guide() {
         value, and anything that looks like a number is converted to one. Numbers have no leading zeros, so they are
         dropped. The same guessing causes a family of related problems:
       </p>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
         <table>
           <thead>
             <tr>

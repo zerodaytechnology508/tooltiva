@@ -48,7 +48,7 @@ export default function CompareCSVPage() {
               The September and October exports below differ in several ways: prices, stock and a product name were
               edited, one product was dropped, one was added, and October has a new <code>supplier</code> column. Matched by <code>sku</code>, the result is:
             </p>
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
               <table>
                 <thead>
                   <tr>
@@ -175,7 +175,9 @@ export default function CompareCSVPage() {
               <code>COUNTIF</code> for every column you want to check, and Excel may already have changed codes and
               IDs while opening the files. Text comparison tools, including the Compare plugin for Notepad++, compare
               lines: they do not know which column changed, and a different row order makes almost every line look
-              different. Matching by a key column avoids both problems.
+              different. Matching by a key column avoids both problems. For step-by-step instructions for each of these,
+              see <Link href="/guides/compare-two-csv-files/">how to compare two CSV files in Excel, Notepad++, VS Code
+              and PowerShell</Link>.
             </p>
           </ContentSection>
 

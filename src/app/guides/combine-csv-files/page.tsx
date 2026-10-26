@@ -79,7 +79,7 @@ export default function Guide() {
         combined into itself.
       </p>
       <h3>Windows (Command Prompt)</h3>
-      <pre>
+      <pre tabIndex={0}>
         <code>{`copy /b *.csv ..\\combined.csv`}</code>
       </pre>
       <p>
@@ -87,7 +87,7 @@ export default function Guide() {
         so delete the repeated headers afterwards, or use one of the other methods.
       </p>
       <h3>macOS and Linux</h3>
-      <pre>
+      <pre tabIndex={0}>
         <code>{`awk 'FNR==1 && NR!=1 {next} {print}' *.csv > ../combined.csv`}</code>
       </pre>
       <p>
@@ -105,7 +105,7 @@ export default function Guide() {
       </p>
 
       <h2>Which method to choose</h2>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
         <table>
           <thead>
             <tr>

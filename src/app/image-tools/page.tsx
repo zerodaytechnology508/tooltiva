@@ -69,7 +69,7 @@ export default function ImageToolsHubPage() {
           Application forms describe an image in up to three ways, and they measure different things. A photo can meet
           one and fail another, so check each number the form gives:
         </p>
-        <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
           <table>
             <thead>
               <tr>

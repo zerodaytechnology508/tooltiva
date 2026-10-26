@@ -50,7 +50,7 @@ export default function MergeCSVPage() {
               Matching by column name avoids that. The merged file contains every column found in any file, and each
               value lands under its own header:
             </p>
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
               <table>
                 <thead>
                   <tr>

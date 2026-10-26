@@ -20,7 +20,7 @@ export default function Guide() {
         You double-click a CSV file and Excel shows everything squeezed into column A, with the values still separated
         by commas or semicolons:
       </p>
-      <pre>
+      <pre tabIndex={0}>
         <code>{`A
 order_id;customer;amount
 1001;Ayesha Khan;25,50
@@ -97,7 +97,7 @@ order_id;customer;amount
         Excel understands a special first line that names the separator. Open the file in a text editor and add this
         line at the very top, using the character the file actually uses:
       </p>
-      <pre>
+      <pre tabIndex={0}>
         <code>{`sep=;
 order_id;customer;amount`}</code>
       </pre>

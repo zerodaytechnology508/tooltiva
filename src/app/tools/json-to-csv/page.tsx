@@ -25,7 +25,7 @@ export default function JSONToCSVPage() {
               CSV column and each object becomes a row. Objects with different keys are fine: the columns are the union
               of all keys, and missing values become empty cells.
             </p>
-            <pre className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <pre tabIndex={0} className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
               <code className="bg-transparent p-0">{`[
   { "name": "Mina", "role": "Analyst", "active": true },
   { "name": "Owen", "role": "Engineer", "active": false }

@@ -245,7 +245,9 @@ export function sqlType(col: ColumnInfo, dialect: SQLDialect): string {
 
 export function createTableSQL(table: string, columns: ColumnInfo[], dialect: SQLDialect): string {
   const lines = columns.map((col) => `  ${quoteIdentifier(col.name, dialect)} ${sqlType(col, dialect)}`);
-  return `CREATE TABLE ${quoteTableName(table, dialect)} (\n${lines.join(",\n")}\n);`;
+  // MySQL/MariaDB servers whose default character set is still latin1 would reject emoji and many scripts.
+  const suffix = dialect === "mysql" ? " DEFAULT CHARSET=utf8mb4" : "";
+  return `CREATE TABLE ${quoteTableName(table, dialect)} (\n${lines.join(",\n")}\n)${suffix};`;
 }
 
 export interface SQLResult {

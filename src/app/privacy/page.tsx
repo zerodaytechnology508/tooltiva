@@ -183,7 +183,7 @@ export default function PrivacyPage() {
             that information cannot be exposed.
           </p>
 
-          <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 font-mono text-xs overflow-x-auto text-slate-800 dark:text-slate-200">
+          <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 font-mono text-xs overflow-x-auto text-slate-800 dark:text-slate-200" tabIndex={0} role="region" aria-label="Code example">
             {`default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googlesyndication.com https://*.adtrafficquality.google https://*.doubleclick.net https://fundingchoicesmessages.google.com; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://*.googlesyndication.com https://www.google.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com; frame-ancestors 'none'; form-action 'none';`}
           </div>
 

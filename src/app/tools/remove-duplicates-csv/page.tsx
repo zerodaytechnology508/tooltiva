@@ -44,7 +44,7 @@ export default function RemoveDuplicatesPage() {
               Exact duplicate rows are easy to spot. The harder case is the same customer exported twice with a
               different city or a differently written email. Comparing only the email column catches those:
             </p>
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
               <table>
                 <thead>
                   <tr>

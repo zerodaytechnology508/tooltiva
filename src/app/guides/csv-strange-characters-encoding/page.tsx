@@ -23,7 +23,7 @@ export default function Guide() {
         called ANSI or Western European). When a file is written with one encoding and read with the other, letters
         outside plain English come out wrong, and the pattern tells you which mix-up happened:
       </p>
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
         <table>
           <thead>
             <tr>

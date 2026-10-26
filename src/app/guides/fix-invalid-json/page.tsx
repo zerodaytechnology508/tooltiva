@@ -18,13 +18,13 @@ function Example({ bad, good }: { bad: string; good: string }) {
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="min-w-0">
         <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">Invalid</p>
-        <pre className="mt-1">
+        <pre tabIndex={0} className="mt-1">
           <code>{bad}</code>
         </pre>
       </div>
       <div className="min-w-0">
         <p className="text-sm font-semibold text-brand-700 dark:text-brand-400">Valid</p>
-        <pre className="mt-1">
+        <pre tabIndex={0} className="mt-1">
           <code>{good}</code>
         </pre>
       </div>

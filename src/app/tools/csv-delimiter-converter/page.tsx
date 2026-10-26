@@ -25,7 +25,7 @@ export default function CSVDelimiterConverterPage() {
               begins on each line of a CSV file. The comma gives CSV its name (comma-separated values), but many files
               use another character, and a program reading the file needs to use the same one.
             </p>
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
               <table>
                 <thead>
                   <tr>

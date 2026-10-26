@@ -60,11 +60,11 @@ export default function CSVToVCFPage() {
 
           <ContentSection title="What the conversion looks like">
             <p>A row from a contact sheet, and the contact it becomes in the VCF file:</p>
-            <pre className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <pre tabIndex={0} className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
               <code className="bg-transparent p-0">{`Name,Mobile No.,Email,Company
 Ayesha Khan,0300 1234567,ayesha@example.com,Khan Traders`}</code>
             </pre>
-            <pre className="mt-3 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <pre tabIndex={0} className="mt-3 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-sm leading-6 text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
               <code className="bg-transparent p-0">{`BEGIN:VCARD
 VERSION:3.0
 N:;Ayesha Khan;;;

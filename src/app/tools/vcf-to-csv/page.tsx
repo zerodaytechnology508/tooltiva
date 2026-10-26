@@ -38,7 +38,7 @@ export default function VCFToCSVPage() {
 
           <ContentSection title="What the CSV contains">
             <p>Each contact becomes one row. Columns are added only for the information your file actually has:</p>
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800" tabIndex={0} role="region" aria-label="Table, scrolls sideways on small screens">
               <table>
                 <thead>
                   <tr>
