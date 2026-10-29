@@ -1232,4 +1232,109 @@ console.log("Test 27: CSV to SQL writes dialect-correct INSERTs, types and escap
 }
 console.log("  ✓ Types, leading zeros, escaping per dialect, Oracle INSERT ALL, batch limits, transactions and 200k-row speed verified.\n");
 
+console.log("Test 28: Excel (.xlsx) reading, number formats, writing and JSON");
+{
+  const { readFileSync } = await import("node:fs");
+  const fx = await import("../src/lib/excel-format.ts");
+  const xr = await import("../src/lib/xlsx-read.ts");
+  const xw = await import("../src/lib/xlsx-write.ts");
+  const xj = await import("../src/lib/excel-json.ts");
+  const { createZip } = await import("../src/lib/zip.ts");
+  const fixture = (name) => new Uint8Array(readFileSync(new URL(`./fixtures/${name}`, import.meta.url)));
+
+  // Number formats, checked against LibreOffice's "as shown" CSV export of the same cells.
+  const cases = [
+    [2134, "00000", "02134"], [5551234567, "000-000-0000", "555-123-4567"], [1234567.891, "#,##0.00", "1,234,567.89"],
+    [0.125, "0.0%", "12.5%"], [0.5, "0%", "50%"], [-1234.5, '"$"#,##0.00_);[Red]\\("$"#,##0.00\\)', "($1,234.50)"],
+    [12345.678, "0.00E+00", "1.23E+04"], [0.1 + 0.2, "General", "0.3"], [123456789012345678, "General", "1.23456789012346E+17"],
+    [1 / 3, "General", "0.333333333333333"], [46324, "m/d/yyyy", "10/29/2026"], [46324, "dddd, mmmm d, yyyy", "Thursday, October 29, 2026"],
+    [46027, "dd/mm/yyyy", "05/01/2026"], [46324.587152777778, "yyyy-mm-dd hh:mm:ss", "2026-10-29 14:05:30"], [0.5868055555555556, "h:mm AM/PM", "2:05 PM"],
+    [1.5, "[h]:mm", "36:00"], [1234567, '#,##0,"K"', "1,235K"], [123, "@", "123"], [-42, "0", "-42"], [46082, "mmm-yy", "Mar-26"],
+    [0.37989583333333335, "mm:ss", "07:03"], [3.1, "0.##", "3.1"], [2.5, "0", "3"], [0, '_(* #,##0.00_);_(* \\(#,##0.00\\);_(* "-"??_);_(@_)', "-"],
+    [1234.5, '[$€-407] #,##0.00', "€ 1,234.50"], [-5, "0;[Red]0", "5"], [0, "0.00;-0.00;\"zero\"", "zero"],
+  ];
+  for (const [value, code, expected] of cases) assert.strictEqual(fx.formatNumber(value, code), expected, `${value} in ${code}`);
+  assert.ok(fx.isDateFormat("dd/mm/yyyy") && fx.isDateFormat("[h]:mm:ss") && !fx.isDateFormat("0.00E+00") && !fx.isDateFormat('#,##0 "days"'));
+  assert.strictEqual(fx.serialToISO(60, "m/d/yyyy"), "1900-02-29", "Excel's fictional leap day");
+  assert.strictEqual(fx.serialToISO(61, "m/d/yyyy"), "1900-03-01");
+  assert.strictEqual(fx.serialToISO(44227, "m/d/yyyy", true), "2025-02-01", "1904 date system");
+
+  // A workbook written by openpyxl (deflate-compressed, shared and rich-text strings, a hidden sheet).
+  const wb = await xr.openXlsx(fixture("excel-openpyxl.xlsx"));
+  assert.deepStrictEqual(wb.sheets.map((s) => [s.name, s.hidden]), [["Formats", false], ["Hidden", true], ["Empty", false]]);
+  const sheet = await wb.readSheet(0);
+  const shown = xr.sheetToText(sheet, wb, { values: "shown", dates: "shown" });
+  assert.deepStrictEqual(shown[0], ["zip 00000", "02134", "", "00123"]);
+  assert.deepStrictEqual(shown[1], ["phone", "555-123-4567", "", "Bold part end"], "rich text joined");
+  assert.strictEqual(shown[2][3], "line1\nline2");
+  assert.strictEqual(shown[5][3], "Ünïcödé ہیرا 中文");
+  assert.strictEqual(sheet.formulasWithoutValue, 1, "a formula saved without a result is reported");
+  const raw = xr.sheetToText(sheet, wb, { values: "raw", dates: "iso" });
+  assert.deepStrictEqual([raw[0][1], raw[2][1], raw[3][1], raw[11][1], raw[14][1]], ["2134", "1234567.891", "0.125", "2026-10-29", "2026-10-29 14:05:30"]);
+  const offset = await wb.readSheet(1);
+  assert.deepStrictEqual([offset.firstRow, offset.firstColumn, offset.rows.length, offset.columnCount], [3, 3, 3, 2], "empty rows/columns around data trimmed");
+  assert.strictEqual((await wb.readSheet(2)).rows.length, 0);
+
+  // The same workbook saved by LibreOffice (calculated formula results).
+  const lo = await xr.openXlsx(fixture("excel-libreoffice.xlsx"));
+  const loText = xr.sheetToText(await lo.readSheet(0), lo, { values: "shown", dates: "iso" });
+  assert.strictEqual(loText[4][3], "#DIV/0!", "cached formula error");
+  assert.strictEqual(loText[0][1], "02134");
+  assert.strictEqual(loText[12][1], "2026-10-29");
+
+  const w1904 = await xr.openXlsx(fixture("excel-1904.xlsx"));
+  assert.ok(w1904.date1904);
+  assert.strictEqual(xr.sheetToText(await w1904.readSheet(0), w1904, { values: "shown", dates: "shown" })[0][0], "2026-10-29");
+
+  // Writer → reader round trip, sheet names, special characters, formulas with saved values.
+  const bytes = xw.createXlsx([
+    { name: "People", rows: [["ID", "Name", "Zip", "Joined", "Score", "Active", "Name"], ["007", ' Liam "Q" <O\'Brien> & co\nline2', { value: 2134, format: "00000" }, { value: xw.dateToSerial(2024, 2, 29), format: "dd/mm/yyyy" }, 0.1 + 0.2, true, ""], ["008", "\u0001ctrl", { value: 54000, format: "00000" }, { value: xw.dateToSerial(2024, 1, 31, 9, 30), format: "yyyy-mm-dd hh:mm" }, -5, false, "x"]] },
+    { name: "Orders: Q1/Q2", rows: [["Qty", "Price", "Total"], [3, 9.99, { formula: "=A2*B2", value: 29.97, format: "#,##0.00" }]] },
+    { name: "people", rows: [["dup name"]] },
+  ]);
+  const rt = await xr.openXlsx(bytes);
+  assert.deepStrictEqual(rt.sheets.map((s) => s.name), ["People", "Orders Q1 Q2", "people (2)"]);
+  const people = await rt.readSheet(0);
+  const pText = xr.sheetToText(people, rt, { values: "shown", dates: "iso" });
+  assert.deepStrictEqual(pText[1], ["007", ' Liam "Q" <O\'Brien> & co\nline2', "02134", "2024-02-29", "0.3", "TRUE", ""]);
+  assert.strictEqual(pText[2][1], "\u0001ctrl", "control characters survive via _xHHHH_");
+  assert.strictEqual(pText[2][3], "2024-01-31 09:30:00");
+  const orders = await rt.readSheet(1);
+  assert.strictEqual(orders.formulaCount, 1);
+  assert.strictEqual(xr.sheetToText(orders, rt, { values: "shown", dates: "iso" })[1][2], "29.97");
+
+  // JSON: typed values, code formats stay text in every row, duplicate headers, empty handling.
+  const json = xj.sheetToJSONValue(people, rt, { header: true, shape: "objects", values: "typed", dates: "iso", empty: "null" });
+  assert.deepStrictEqual(json[0], { ID: "007", Name: ' Liam "Q" <O\'Brien> & co\nline2', Zip: "02134", Joined: "2024-02-29", Score: 0.30000000000000004, Active: true, Name_2: null });
+  assert.strictEqual(json[1].Zip, "54000", "code-formatted numbers are text in every row");
+  const omit = xj.sheetToJSONValue(people, rt, { header: true, shape: "objects", values: "typed", dates: "iso", empty: "omit" });
+  assert.ok(!("Name_2" in omit[0]) && omit[1].Name_2 === "x");
+  const arrays = xj.sheetToJSONValue(people, rt, { header: true, shape: "arrays", values: "shown", dates: "shown" });
+  assert.deepStrictEqual(arrays[1].slice(2, 5), ["02134", "29/02/2024", "0.3"]);
+
+  // Files that are not .xlsx get a clear message.
+  const fail = async (data, pattern) => {
+    await assert.rejects(() => xr.openXlsx(data), (e) => e instanceof xr.XlsxError && pattern.test(e.message));
+  };
+  await fail(new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0]), /\.xls/);
+  await fail(new TextEncoder().encode("id,name\n1,a"), /not an Excel/);
+  await fail(createZip([{ name: "xl/workbook.bin", data: new Uint8Array(4) }]), /\.xlsb/);
+  await fail(createZip([{ name: "content.xml", data: new Uint8Array(4) }]), /\.ods/);
+
+  // Speed: 100,000 rows × 6 columns.
+  const rows = [["ID", "Name", "Zip", "Date", "Amount", "Flag"]];
+  for (let i = 0; i < 100000; i++) rows.push([i, `Name ${i}`, { value: i % 99999, format: "00000" }, { value: 45000 + (i % 700), format: "m/d/yyyy" }, (i * 7.31) % 1000, i % 2 === 0]);
+  const big = xw.createXlsx([{ name: "Big", rows }]);
+  const t0 = performance.now();
+  const bwb = await xr.openXlsx(big);
+  const bsheet = await bwb.readSheet(0);
+  const btext = xr.sheetToText(bsheet, bwb, { values: "shown", dates: "iso" });
+  const ms = performance.now() - t0;
+  assert.strictEqual(btext.length, 100001);
+  assert.deepStrictEqual(btext[2], ["1", "Name 1", "00001", "2023-03-16", "7.31", "FALSE"]);
+  assert.ok(ms < 4000, `100k rows read in ${ms.toFixed(0)} ms`);
+  console.log(`  (100k-row workbook read and formatted: ${ms.toFixed(0)} ms)`);
+}
+console.log("  ✓ Number and date formats, openpyxl/LibreOffice/1904 workbooks, writer round trip, JSON typing and error messages verified.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

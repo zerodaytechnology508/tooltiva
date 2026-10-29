@@ -51,6 +51,16 @@ export const TOOL_FACTS: Record<string, ToolFact[]> = {
     { label: "You get", value: "A CSV file for Excel or Google Sheets: comma, semicolon or tab separated" },
     { label: "Works with", value: "Exports from Android, iPhone, Google Contacts and Outlook" },
   ],
+  "excel-to-csv": [
+    { label: "Opens", value: ".xlsx and .xlsm workbooks from Excel, Google Sheets, Numbers or LibreOffice" },
+    { label: "You get", value: "A CSV file per sheet, or every sheet as CSV files in one ZIP" },
+    { label: "Options", value: "Comma, semicolon, tab or pipe; numbers as shown or unformatted; ISO or formatted dates" },
+  ],
+  "excel-to-json": [
+    { label: "Opens", value: ".xlsx and .xlsm workbooks from Excel, Google Sheets, Numbers or LibreOffice" },
+    { label: "You get", value: "An array of objects keyed by the header row, an array of rows, or all sheets keyed by name" },
+    { label: "Values", value: "Numbers and true/false as JSON types, dates as ISO text, leading-zero codes as text" },
+  ],
   "csv-delimiter-converter": [
     { label: "Opens", value: CSV_IN },
     { label: "Converts to", value: "Comma, semicolon, tab, pipe or a custom separator" },
