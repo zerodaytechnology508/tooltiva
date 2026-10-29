@@ -79,6 +79,11 @@ export default function JSONFormatterPage() {
                 JSON.
               </li>
             </ul>
+            <p>
+              Missing commas, mismatched brackets, unescaped characters and the other errors parsers report are
+              explained, with an example and the fix for each, in{" "}
+              <Link href="/guides/fix-invalid-json/">common JSON errors and how to fix them</Link>.
+            </p>
           </ContentSection>
 
           <ContentSection title="View JSON as a tree">

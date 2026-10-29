@@ -8,6 +8,10 @@ import { toolSection } from "@/lib/tools-registry";
 import { FAQAccordion } from "@/components/FAQAccordion";
 import { RelatedTools } from "@/components/RelatedTools";
 import { ToolIcon } from "@/components/ToolIcon";
+import { AUTHOR } from "@/lib/authors";
+import { COMMON_FACTS, TOOL_FACTS } from "@/lib/tool-facts";
+
+const dateFormat = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 
 /**
  * The shared structure of every tool page: structured data, breadcrumbs,
@@ -43,12 +47,31 @@ export function ToolPageLayout({
           <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8 dark:text-slate-400">
             {tool.intro}
           </p>
+          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+            By{" "}
+            <Link href="/about/#author" className="font-medium text-slate-800 hover:underline dark:text-slate-200">
+              {AUTHOR.name}
+            </Link>{" "}
+            · Updated <time dateTime={tool.lastUpdated}>{dateFormat.format(new Date(`${tool.lastUpdated}T00:00:00Z`))}</time>
+          </p>
         </div>
       </header>
 
       <div className="mt-8">{children}</div>
 
       <div className="mt-16 space-y-12">
+        <ContentSection title={`${tool.title} at a glance`}>
+          <table>
+            <tbody>
+              {[...(TOOL_FACTS[tool.slug] ?? []), ...COMMON_FACTS].map((fact) => (
+                <tr key={fact.label}>
+                  <th scope="row">{fact.label}</th>
+                  <td>{fact.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ContentSection>
         {content}
         {guidesForTool(tool.slug).length > 0 && (
           <ContentSection title="Guides">

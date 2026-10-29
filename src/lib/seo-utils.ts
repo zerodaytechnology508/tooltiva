@@ -1,6 +1,8 @@
 import { ToolMeta } from "./types";
 import { absoluteUrl, publisherSchema } from "./site";
 import { toolSection } from "./tools-registry";
+import { authorSchema } from "./authors";
+import { COMMON_FACTS, TOOL_FACTS } from "./tool-facts";
 
 /**
  * Structured data for a tool page. Breadcrumbs match the visible trail:
@@ -18,6 +20,11 @@ export function generateToolJsonLd(tool: ToolMeta) {
     operatingSystem: "All",
     browserRequirements: "Requires JavaScript. Requires HTML5.",
     description: tool.metaDescription,
+    inLanguage: "en",
+    isAccessibleForFree: true,
+    dateModified: tool.lastUpdated,
+    author: authorSchema(),
+    featureList: [...(TOOL_FACTS[tool.slug] ?? []), ...COMMON_FACTS].map((f) => `${f.label}: ${f.value}`),
     offers: {
       "@type": "Offer",
       price: "0",

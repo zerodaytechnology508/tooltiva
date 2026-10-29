@@ -47,7 +47,7 @@ export const GUIDES: GuideMeta[] = [
     summary: "Excel converts anything that looks like a number when it opens a CSV, so 00123 becomes 123 and long IDs are rounded. The values are still correct in the file; import it with those columns set to Text, and never save it back from Excel until you have.",
     tools: ["csv-viewer", "csv-delimiter-converter"],
     datePublished: "2026-10-23",
-    dateModified: "2026-10-23",
+    dateModified: "2026-10-29",
   },
   {
     slug: "csv-strange-characters-encoding",

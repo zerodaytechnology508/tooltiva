@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Header } from "@/components/Header";
+import { Header, type NavTool } from "@/components/Header";
+import { DATA_TOOLS, IMAGE_TOOLS, toolPath } from "@/lib/tools-registry";
+import type { ToolMeta } from "@/lib/types";
 import { Footer } from "@/components/Footer";
 import { SITE } from "@/lib/site";
 
@@ -102,7 +104,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <Header />
+        <Header dataTools={DATA_TOOLS.map(navTool)} imageTools={IMAGE_TOOLS.map(navTool)} />
         <main id="main" className="flex-1 w-full">
           {children}
         </main>
@@ -110,4 +112,8 @@ export default function RootLayout({
       </body>
     </html>
   );
+}
+
+function navTool(tool: ToolMeta): NavTool {
+  return { slug: tool.slug, title: tool.title, shortDescription: tool.shortDescription, icon: tool.icon, href: toolPath(tool) };
 }

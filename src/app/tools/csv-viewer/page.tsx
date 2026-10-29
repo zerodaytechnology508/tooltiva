@@ -38,7 +38,8 @@ export default function CSVViewerPage() {
               If you need the data in another format afterwards, export the rows you want, or use the{" "}
               <Link href="/tools/csv-to-json/">CSV to JSON converter</Link>. If the file opens in a single column in
               Excel, <Link href="/tools/csv-delimiter-converter/">change the CSV delimiter</Link> to the one Excel
-              expects.
+              expects. A phone contacts export ends in .vcf rather than .csv: open it with the{" "}
+              <Link href="/tools/vcf-to-csv/">VCF to CSV converter</Link> to see every contact in a table.
             </p>
           </ContentSection>
 

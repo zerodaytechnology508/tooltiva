@@ -8,9 +8,9 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolCard } from "@/components/ToolCard";
 
 export const metadata = buildPageMetadata({
-  title: "All Tools – Free CSV and JSON Tools",
+  title: "All Tools – Free Online CSV, JSON and Image Tools",
   description:
-    "Every Tooltiva tool in one place: view, split, merge and convert CSV files, change delimiters, and format or validate JSON. Free, no sign-up, nothing uploaded.",
+    "Every Tooltiva tool in one place: view, compare, split and merge CSV files, convert to JSON, SQL or VCF, fix JSON, resize photos. Free, nothing uploaded.",
   path: "/tools/",
 });
 
@@ -71,9 +71,9 @@ export default function ToolsHubPage() {
       <Breadcrumbs items={[{ name: "Tools" }]} />
 
       <div className="mt-4 max-w-3xl space-y-4">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">All tools</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">All free CSV, JSON and image tools</h1>
         <p className="text-lg leading-8 text-slate-600 dark:text-slate-400">
-          Free tools for everyday CSV and JSON work. Each one runs entirely in your browser: nothing you open or
+          Free tools for everyday CSV, JSON and image work. Each one runs entirely in your browser: nothing you open or
           paste is uploaded, and there is no account to create.
         </p>
       </div>

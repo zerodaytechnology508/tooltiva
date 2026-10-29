@@ -45,7 +45,7 @@ export default function GuidesHubPage() {
       <Breadcrumbs items={[{ name: "Guides" }]} />
 
       <div className="mt-4 max-w-3xl space-y-4">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">Guides</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">CSV, Excel and JSON guides</h1>
         <p className="text-lg leading-8 text-slate-600 dark:text-slate-400">
           Practical answers to the problems people run into with CSV and JSON files, from spreadsheets that show
           everything in one column to JSON that will not parse. Each guide explains the cause first, then the fix.

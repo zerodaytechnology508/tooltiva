@@ -113,6 +113,27 @@ export default function Guide() {
         export from the source.
       </p>
 
+      <h2>Typing numbers with leading zeros in Excel</h2>
+      <p>
+        The same conversion happens when you type into a cell: Excel turns <code>00123</code> into <code>123</code>.
+        To stop it, choose one of these before you type:
+      </p>
+      <ul>
+        <li>
+          <strong>Format the cells as Text:</strong> select the column, press Ctrl+1, choose <strong>Text</strong>, then
+          type the values. They are stored exactly as typed.
+        </li>
+        <li>
+          <strong>Start with an apostrophe:</strong> type <code>&apos;00123</code>. The apostrophe is not shown or
+          exported; it only tells Excel to keep the value as text.
+        </li>
+        <li>
+          <strong>Use a custom number format</strong> for codes of a fixed length: Ctrl+1 → Custom → <code>00000</code>{" "}
+          shows <code>123</code> as <code>00123</code>. The cell still holds the number 123, so formulas and lookups see
+          123. For IDs and codes that are matched against other data, use Text instead.
+        </li>
+      </ul>
+
       <h2>When you create CSV files for Excel users</h2>
       <p>
         You cannot make a plain CSV that every Excel opens with zeros intact, because the guessing happens on the

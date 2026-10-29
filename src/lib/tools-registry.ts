@@ -24,7 +24,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Table2",
     related: ["split-csv", "remove-duplicates-csv", "compare-csv", "csv-delimiter-converter", "merge-csv", "csv-to-json"],
     canonicalUrl: "https://tooltiva.net/tools/csv-viewer/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Is my CSV file uploaded anywhere?",
@@ -75,7 +75,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Scissors",
     related: ["merge-csv", "csv-viewer", "remove-duplicates-csv", "csv-delimiter-converter", "csv-to-json", "csv-to-vcf"],
     canonicalUrl: "https://tooltiva.net/tools/split-csv/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Is my CSV file uploaded to split it?",
@@ -113,7 +113,7 @@ export const TOOLS: ToolMeta[] = [
     intro: "Combine several CSV files into one. Columns are matched by name, so files with columns in a different order, or with extra or missing columns, still line up. Each file's separator is detected on its own.",
     badgeTitle: "Merge CSV",
     shortDescription: "Combine CSV files into one, matching columns by name even when their order or set of columns differs.",
-    metaDescription: "Merge CSV files online into one file. Columns are matched by name, so different column orders and extra columns line up. Free, and your files stay in your browser.",
+    metaDescription: "Merge CSV files online into one. Columns are matched by name, so different column orders and extra columns line up. Free, and your files stay in your browser.",
     category: "Data & CSV",
     primaryKeyword: "merge csv files",
     secondaryKeywords: [
@@ -126,7 +126,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Combine",
     related: ["remove-duplicates-csv", "compare-csv", "split-csv", "csv-viewer", "csv-delimiter-converter", "csv-to-json"],
     canonicalUrl: "https://tooltiva.net/tools/merge-csv/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Are my CSV files uploaded to merge them?",
@@ -177,7 +177,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "CopyMinus",
     related: ["merge-csv", "compare-csv", "csv-viewer", "csv-to-vcf", "split-csv", "csv-delimiter-converter"],
     canonicalUrl: "https://tooltiva.net/tools/remove-duplicates-csv/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Is my CSV file uploaded to remove duplicates?",
@@ -231,7 +231,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "GitCompare",
     related: ["merge-csv", "remove-duplicates-csv", "csv-viewer", "split-csv", "csv-delimiter-converter", "csv-to-json"],
     canonicalUrl: "https://tooltiva.net/tools/compare-csv/",
-    lastUpdated: "2026-10-26",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Are my CSV files uploaded to compare them?",
@@ -285,7 +285,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Database",
     related: ["csv-to-json", "csv-viewer", "remove-duplicates-csv", "compare-csv", "csv-delimiter-converter", "merge-csv"],
     canonicalUrl: "https://tooltiva.net/tools/csv-to-sql/",
-    lastUpdated: "2026-10-26",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Is my CSV file uploaded to generate the SQL?",
@@ -341,7 +341,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "ImageDown",
     related: ["signature-resizer"],
     canonicalUrl: "https://tooltiva.net/image-tools/resize-image-to-kb/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "How do I resize an image to 20 KB?",
@@ -395,7 +395,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Signature",
     related: ["resize-image-to-kb"],
     canonicalUrl: "https://tooltiva.net/image-tools/signature-resizer/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "How do I resize my signature to 10–20 KB?",
@@ -433,7 +433,7 @@ export const TOOLS: ToolMeta[] = [
     intro: "Turn a contact list from Excel or Google Sheets, saved as CSV, into one VCF file you can import into an Android phone, an iPhone or Google Contacts. Columns are matched automatically, and you can add the country code that WhatsApp needs.",
     badgeTitle: "CSV to VCF",
     shortDescription: "Convert an Excel or CSV contact list into a VCF file for Android, iPhone and Google Contacts.",
-    metaDescription: "Free CSV to VCF converter: turn Excel contacts into a vCard file for Android, iPhone or Google Contacts. Columns matched for you, country codes added. No upload.",
+    metaDescription: "Free CSV to VCF converter: Excel contacts to a vCard file for Android, iPhone or Google Contacts, with columns matched and country codes added. No upload.",
     category: "Data & CSV",
     primaryKeyword: "csv to vcf",
     secondaryKeywords: [
@@ -447,7 +447,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "BookUser",
     related: ["vcf-to-csv", "remove-duplicates-csv", "merge-csv", "csv-viewer", "split-csv", "csv-delimiter-converter"],
     canonicalUrl: "https://tooltiva.net/tools/csv-to-vcf/",
-    lastUpdated: "2026-10-24",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Is my contact list uploaded anywhere?",
@@ -499,7 +499,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Contact",
     related: ["csv-to-vcf", "csv-viewer", "remove-duplicates-csv", "merge-csv", "split-csv", "csv-to-json"],
     canonicalUrl: "https://tooltiva.net/tools/vcf-to-csv/",
-    lastUpdated: "2026-10-24",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Is my VCF file uploaded?",
@@ -537,7 +537,7 @@ export const TOOLS: ToolMeta[] = [
     intro: "Change the separator in a CSV file between comma, semicolon, tab, pipe or a custom character. The source separator is detected for you, and commas inside quoted values stay intact.",
     badgeTitle: "Delimiter Converter",
     shortDescription: "Change CSV separators between comma, semicolon, tab, and pipe with auto-detection and quote-safe parsing.",
-    metaDescription: "Change a CSV delimiter online: convert between comma, semicolon, tab and pipe with auto-detection and quote-safe parsing. Free, and your file stays in your browser.",
+    metaDescription: "Change a CSV delimiter online: convert between comma, semicolon, tab and pipe with auto-detection and quote-safe parsing. Free; your file stays in your browser.",
     category: "Data & CSV",
     primaryKeyword: "change csv delimiter",
     secondaryKeywords: [
@@ -552,7 +552,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "FileSpreadsheet",
     related: ["csv-viewer", "split-csv", "merge-csv", "remove-duplicates-csv", "csv-to-json", "json-to-csv"],
     canonicalUrl: "https://tooltiva.net/tools/csv-delimiter-converter/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "What is the difference between a delimiter and a separator?",
@@ -606,7 +606,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "ArrowLeftRight",
     related: ["json-to-csv", "csv-to-sql", "json-formatter", "csv-viewer", "csv-delimiter-converter", "merge-csv"],
     canonicalUrl: "https://tooltiva.net/tools/csv-to-json/",
-    lastUpdated: "2026-10-10",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "How does the CSV to JSON converter handle numbers and booleans?",
@@ -648,7 +648,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "ArrowLeftRight",
     related: ["csv-to-json", "json-formatter", "csv-delimiter-converter", "csv-viewer", "merge-csv", "remove-duplicates-csv"],
     canonicalUrl: "https://tooltiva.net/tools/json-to-csv/",
-    lastUpdated: "2026-10-16",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "What JSON can I convert to CSV?",
@@ -682,7 +682,7 @@ export const TOOLS: ToolMeta[] = [
     intro: "Format, validate and fix JSON, and view it as a tree. Errors show the exact line and column, and Auto-Fix repairs trailing commas, single quotes, unquoted keys and comments with a log you can undo.",
     badgeTitle: "JSON Formatter",
     shortDescription: "Format, validate and view JSON as a tree, with exact error positions and an undoable Auto-Fix for common syntax mistakes.",
-    metaDescription: "Format, validate and fix JSON online. See errors by line and column, and Auto-Fix trailing commas, single quotes, unquoted keys and comments. Runs in your browser.",
+    metaDescription: "Format, validate and fix JSON online. See errors by line and column, and auto-fix trailing commas, single quotes, unquoted keys and comments. In your browser.",
     category: "Developer",
     primaryKeyword: "json formatter",
     secondaryKeywords: [
@@ -697,7 +697,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Code2",
     related: ["json-to-csv", "csv-to-json", "csv-viewer", "csv-delimiter-converter", "merge-csv", "split-csv"],
     canonicalUrl: "https://tooltiva.net/tools/json-formatter/",
-    lastUpdated: "2026-10-23",
+    lastUpdated: "2026-10-29",
     faqs: [
       {
         question: "Which JSON errors can the JSON fixer repair automatically?",

@@ -9,7 +9,7 @@ import { ToolCard } from "@/components/ToolCard";
 export const metadata = buildPageMetadata({
   title: "Photo and Signature Resizer in KB – Free Image Tools",
   description:
-    "Free image tools that run in your browser: resize photos to 20KB, 50KB or any size in KB, and resize signatures for online forms. Your photos are never uploaded.",
+    "Free image tools in your browser: resize photos to 20KB, 50KB or any size in KB, and resize signatures for online forms. Your photos are never uploaded.",
   path: "/image-tools/",
 });
 
@@ -92,7 +92,7 @@ export default function ImageToolsHubPage() {
               <tr>
                 <td>3.5 × 4.5 cm, 200 DPI</td>
                 <td>The printed size, at a given resolution</td>
-                <td>Enter the centimetres and DPI; they are turned into pixels and the DPI is written into the file</td>
+                <td>For a signature, enter the centimetres and DPI. For a photo, convert to pixels: centimetres ÷ 2.54 × DPI, so 3.5 × 4.5 cm at 200 DPI is 276 × 354 pixels</td>
               </tr>
             </tbody>
           </table>
