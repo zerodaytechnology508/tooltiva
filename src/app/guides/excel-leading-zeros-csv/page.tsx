@@ -142,8 +142,10 @@ export default function Guide() {
       <ul>
         <li>Tell recipients to import the file (Fix 1) rather than double-click it.</li>
         <li>
-          For data that will be opened in Excel only, sending an Excel file (.xlsx) with the columns formatted as
-          text avoids the problem entirely.
+          For data that will be opened in Excel only, send an Excel file (.xlsx) instead: it stores each
+          column&apos;s type, so nothing is guessed. The{" "}
+          <Link href="/tools/csv-to-excel/">CSV to Excel converter</Link> makes one from your CSV with codes and
+          IDs kept as text.
         </li>
       </ul>
       <p>

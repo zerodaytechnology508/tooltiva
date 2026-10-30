@@ -61,6 +61,16 @@ export const TOOL_FACTS: Record<string, ToolFact[]> = {
     { label: "You get", value: "An array of objects keyed by the header row, an array of rows, or all sheets keyed by name" },
     { label: "Values", value: "Numbers and true/false as JSON types, dates as ISO text, leading-zero codes as text" },
   ],
+  "csv-to-excel": [
+    { label: "Opens", value: "One or more .csv, .tsv or .txt files, or pasted text; the separator is detected" },
+    { label: "You get", value: "One .xlsx workbook, a sheet per file, with a bold header row and filter buttons" },
+    { label: "Values", value: "Leading zeros, long IDs and phone numbers stay text; plain numbers and ISO dates get Excel types" },
+  ],
+  "json-to-excel": [
+    { label: "Opens", value: "A .json or .txt file, or pasted JSON: arrays, objects, or an object of arrays" },
+    { label: "You get", value: "One .xlsx workbook, with a sheet per array when the JSON has several" },
+    { label: "Values", value: "Nested objects as dotted columns; numbers, true/false and ISO dates as Excel types" },
+  ],
   "csv-delimiter-converter": [
     { label: "Opens", value: CSV_IN },
     { label: "Converts to", value: "Comma, semicolon, tab, pipe or a custom separator" },

@@ -1337,4 +1337,71 @@ console.log("Test 28: Excel (.xlsx) reading, number formats, writing and JSON");
 }
 console.log("  ✓ Number and date formats, openpyxl/LibreOffice/1904 workbooks, writer round trip, JSON typing and error messages verified.\n");
 
+console.log("Test 29: CSV to Excel and JSON to Excel keep values exact");
+{
+  const cx = await import("../src/lib/csv-to-xlsx.ts");
+  const jx = await import("../src/lib/json-to-xlsx.ts");
+  const xw = await import("../src/lib/xlsx-write.ts");
+  const xr = await import("../src/lib/xlsx-read.ts");
+
+  // Column typing: numbers only when every value is a plain number; codes, long IDs and phones stay text.
+  const rows = [
+    ["ID", "Zip", "Phone", "Amount", "Joined", "At", "Formula", "Mixed", "Pct", "Long"],
+    ["1", "02134", "923001234567", "1250.50", "2024-01-31", "2024-01-31 14:05", "=SUM(A1)", "5", "10%", "1234567890123456789"],
+    ["2", "54000", "+92 300 1234567", "-3.5", "2024-02-29", "2024-02-29T09:00:30", "x", "x", "5%", "42"],
+    ["3", "", "", "", "", "", "", "", "", ""],
+  ];
+  const built = cx.csvRowsToCells(rows, true, { numbers: true, dates: true });
+  assert.deepStrictEqual(built.kinds, ["number", "text", "text", "number", "date", "datetime", "text", "text", "text", "text"]);
+  assert.ok(cx.isPlainNumber("-0.5") && cx.isPlainNumber("99999999999") && !cx.isPlainNumber("123456789012") && !cx.isPlainNumber("007") && !cx.isPlainNumber("1,000") && !cx.isPlainNumber("1e5"));
+  assert.strictEqual(cx.isoToSerial("2024-02-30"), null, "invalid calendar date stays text");
+  assert.strictEqual(cx.isoToSerial("1900-02-28"), null, "dates before Excel's leap-year bug stay text");
+  const plain = cx.csvRowsToCells(rows, true, { numbers: false, dates: false });
+  assert.ok(plain.kinds.every((k) => k === "text"));
+
+  const bytes = xw.createXlsx([{ name: "data.csv", rows: built.rows, header: true, widths: xw.autoWidths(rows) }]);
+  const wb = await xr.openXlsx(bytes);
+  const sheet = await wb.readSheet(0);
+  const shown = xr.sheetToText(sheet, wb, { values: "shown", dates: "iso" });
+  assert.deepStrictEqual(shown[1], ["1", "02134", "923001234567", "1250.50", "2024-01-31", "2024-01-31 14:05:00", "=SUM(A1)", "5", "10%", "1234567890123456789"]);
+  assert.deepStrictEqual(shown[2].slice(3, 6), ["-3.50", "2024-02-29", "2024-02-29 09:00:30"]);
+  assert.strictEqual(sheet.rows[1][3].t, "n", "amount stored as a number");
+  assert.strictEqual(sheet.rows[1][1].t, "s", "zip stored as text");
+  assert.strictEqual(sheet.formulaCount, 0, "=SUM text is not a formula");
+  // The header row is bold and the sheet has a frozen pane and a filter.
+  const { listZip, readZipText } = await import("../src/lib/zip-read.ts");
+  const entries = listZip(bytes);
+  const sheetXml = await readZipText(bytes, entries, "xl/worksheets/sheet1.xml");
+  assert.ok(sheetXml.includes('state="frozen"') && sheetXml.includes('<autoFilter ref="A1:J4"/>'));
+  assert.ok((await readZipText(bytes, entries, "xl/styles.xml")).includes("<b/>"));
+  assert.ok((await readZipText(bytes, entries, "xl/workbook.xml")).includes("_xlnm._FilterDatabase"));
+  assert.strictEqual(cx.excelLimitProblem(1_048_577, 3) !== null, true);
+
+  // JSON to Excel: nested objects flattened, lists as JSON text, big numbers as text, dates typed, sheets per key.
+  const json = `{"Customers":[{"id":1,"name":"Ayesha","address":{"city":"Lahore","zip":"54000"},"tags":["a","b"],"big":12345678901234567890,"joined":"2024-01-31","ok":true,"none":null},{"id":2,"name":"Chen","address":{"city":"Karachi"},"phone":923001234567}],"Orders":[[1,2],[3,4]]}`;
+  const res = jx.jsonToSheets(json, { flatten: true, dates: true });
+  assert.ok(res.ok);
+  assert.deepStrictEqual(res.sheets.map((s) => s.name), ["Customers", "Orders"]);
+  assert.deepStrictEqual(res.sheets[0].rows[0], ["id", "name", "address.city", "address.zip", "tags", "big", "joined", "ok", "none", "phone"]);
+  assert.deepStrictEqual(res.sheets[0].rows[1].slice(0, 6), [1, "Ayesha", "Lahore", "54000", '["a","b"]', "12345678901234567890"]);
+  assert.deepStrictEqual(res.sheets[0].rows[2][9], { value: 923001234567, format: "0" });
+  assert.strictEqual(res.notes.length, 3);
+  const flat = jx.jsonToSheets(json, { flatten: false, dates: false });
+  assert.strictEqual(flat.sheets[0].rows[1][2], '{"city":"Lahore","zip":"54000"}');
+  assert.strictEqual(flat.sheets[0].rows[1][5], "2024-01-31", "dates stay text when date conversion is off");
+  // Round trip through the workbook reader.
+  const jwb = await xr.openXlsx(xw.createXlsx(res.sheets));
+  const cust = xr.sheetToText(await jwb.readSheet(0), jwb, { values: "shown", dates: "iso" });
+  assert.deepStrictEqual(cust[1].slice(5, 8), ["12345678901234567890", "2024-01-31", "TRUE"]);
+  assert.strictEqual(cust[2][9], "923001234567");
+  // Other shapes and errors.
+  assert.deepStrictEqual(jx.jsonToSheets('{"u1":{"n":"a"},"u2":{"n":"b"}}', { flatten: true, dates: true }).sheets[0].rows, [["key", "n"], ["u1", "a"], ["u2", "b"]]);
+  assert.deepStrictEqual(jx.jsonToSheets('{"n":"a","v":1}', { flatten: true, dates: true }).sheets[0].rows, [["n", "v"], ["a", 1]]);
+  assert.deepStrictEqual(jx.jsonToSheets("[1,2]", { flatten: true, dates: true }).sheets[0].rows, [["value"], [1], [2]]);
+  assert.match(jx.jsonToSheets('[{"a":1},[1]]', { flatten: true, dates: true }).error, /mixes kinds/);
+  assert.match(jx.jsonToSheets('{"a":1,}', { flatten: true, dates: true }).error, /not valid JSON.*line 1/);
+  assert.match(jx.jsonToSheets("42", { flatten: true, dates: true }).error, /single value/);
+}
+console.log("  ✓ Column typing, leading zeros, long IDs, decimals, dates, header styling, JSON flattening, sheets per key and exact big numbers verified.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

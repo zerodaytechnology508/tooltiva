@@ -22,6 +22,24 @@ export interface WriteSheet {
   rows: WriteCell[][];
   /** Column widths in characters. */
   widths?: number[];
+  /** Treat row 1 as a header: bold, frozen while scrolling, with filter buttons. */
+  header?: boolean;
+}
+
+/** Column widths (in characters) that fit the longest value, between 8 and 60. */
+export function autoWidths(rows: { length: number; [i: number]: unknown }[], sample = 2000): number[] {
+  const widths: number[] = [];
+  const count = Math.min(rows.length, sample);
+  for (let r = 0; r < count; r++) {
+    const row = rows[r];
+    for (let c = 0; c < row.length; c++) {
+      const v = row[c];
+      const text = v === null || v === undefined ? "" : typeof v === "object" ? String((v as { value?: unknown }).value ?? "") : String(v);
+      const longest = text.split("\n").reduce((m, line) => Math.max(m, line.length), 0);
+      widths[c] = Math.max(widths[c] ?? 8, Math.min(60, longest + 2));
+    }
+  }
+  return widths;
 }
 
 const BUILTIN_IDS: Record<string, number> = {
@@ -55,44 +73,53 @@ export function safeSheetName(name: string, taken: Set<string>): string {
 /** Build the workbook as .xlsx bytes. */
 export function createXlsx(sheets: WriteSheet[]): Uint8Array {
   const formats: string[] = []; // custom format codes, ids from 164
-  const xfs: number[] = [0]; // numFmtId per cellXfs entry; index 0 is the default style
-  const styleFor = (format: string | undefined): number => {
-    if (!format || format === "General") return 0;
-    let id = BUILTIN_IDS[format];
-    if (id === undefined) {
-      let i = formats.indexOf(format);
-      if (i < 0) i = formats.push(format) - 1;
-      id = 164 + i;
+  // cellXfs entries as "numFmtId:bold"; index 0 is the default style.
+  const xfs: string[] = ["0:0"];
+  const styleFor = (format: string | undefined, bold = false): number => {
+    let id = 0;
+    if (format && format !== "General") {
+      id = BUILTIN_IDS[format] ?? -1;
+      if (id < 0) {
+        let i = formats.indexOf(format);
+        if (i < 0) i = formats.push(format) - 1;
+        id = 164 + i;
+      }
     }
-    let s = xfs.indexOf(id);
-    if (s < 0) s = xfs.push(id) - 1;
+    const key = `${id}:${bold ? 1 : 0}`;
+    let s = xfs.indexOf(key);
+    if (s < 0) s = xfs.push(key) - 1;
     return s;
   };
 
   const taken = new Set<string>();
+  const filterRanges: string[] = [];
   const names = sheets.map((s) => safeSheetName(s.name, taken));
   const sheetXml = sheets.map((sheet) => {
     const rowsXml: string[] = [];
+    let maxColumns = 0;
     sheet.rows.forEach((row, r) => {
       const cells: string[] = [];
+      const bold = !!sheet.header && r === 0;
+      const plain = bold ? ` s="${styleFor(undefined, true)}"` : "";
+      maxColumns = Math.max(maxColumns, row.length);
       row.forEach((cell, c) => {
         if (cell === null || cell === undefined || cell === "") return;
         const ref = `${columnLetters(c)}${r + 1}`;
         if (typeof cell === "string") {
           const space = /^\s|\s$|\n/.test(cell) ? ' xml:space="preserve"' : "";
-          cells.push(`<c r="${ref}" t="inlineStr"><is><t${space}>${escapeXml(cell)}</t></is></c>`);
+          cells.push(`<c r="${ref}"${plain} t="inlineStr"><is><t${space}>${escapeXml(cell)}</t></is></c>`);
         } else if (typeof cell === "number") {
-          if (Number.isFinite(cell)) cells.push(`<c r="${ref}"><v>${cell}</v></c>`);
+          if (Number.isFinite(cell)) cells.push(`<c r="${ref}"${plain}><v>${cell}</v></c>`);
         } else if (typeof cell === "boolean") {
-          cells.push(`<c r="${ref}" t="b"><v>${cell ? 1 : 0}</v></c>`);
+          cells.push(`<c r="${ref}"${plain} t="b"><v>${cell ? 1 : 0}</v></c>`);
         } else if ("formula" in cell) {
-          const s = styleFor(cell.format);
+          const s = styleFor(cell.format, bold);
           const style = s ? ` s="${s}"` : "";
           const f = `<f>${escapeXml(cell.formula.replace(/^=/, ""))}</f>`;
           if (typeof cell.value === "number") cells.push(`<c r="${ref}"${style}>${f}<v>${cell.value}</v></c>`);
           else cells.push(`<c r="${ref}"${style} t="str">${f}<v>${escapeXml(cell.value)}</v></c>`);
         } else {
-          const s = styleFor(cell.format);
+          const s = styleFor(cell.format, bold);
           cells.push(`<c r="${ref}"${s ? ` s="${s}"` : ""}><v>${cell.value}</v></c>`);
         }
       });
@@ -101,10 +128,16 @@ export function createXlsx(sheets: WriteSheet[]): Uint8Array {
     const cols = sheet.widths?.length
       ? `<cols>${sheet.widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>`
       : "";
+    const hasHeader = !!sheet.header && sheet.rows.length > 0 && maxColumns > 0;
+    const views = hasHeader
+      ? '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A2" sqref="A2"/></sheetView></sheetViews>'
+      : "";
+    const range = hasHeader ? `A1:${columnLetters(maxColumns - 1)}${Math.max(1, sheet.rows.length)}` : "";
+    filterRanges.push(range);
     return (
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
       '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
-      `${cols}<sheetData>${rowsXml.join("")}</sheetData></worksheet>`
+      `${views}${cols}<sheetData>${rowsXml.join("")}</sheetData>${range ? `<autoFilter ref="${range}"/>` : ""}</worksheet>`
     );
   });
 
@@ -114,12 +147,15 @@ export function createXlsx(sheets: WriteSheet[]): Uint8Array {
     (formats.length
       ? `<numFmts count="${formats.length}">${formats.map((f, i) => `<numFmt numFmtId="${164 + i}" formatCode="${escapeXml(f)}"/>`).join("")}</numFmts>`
       : "") +
-    '<fonts count="1"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>' +
+    '<fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>' +
     '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>' +
     '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
     '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
     `<cellXfs count="${xfs.length}">${xfs
-      .map((id) => `<xf numFmtId="${id}" fontId="0" fillId="0" borderId="0" xfId="0"${id ? ' applyNumberFormat="1"' : ""}/>`)
+      .map((key) => {
+        const [id, bold] = key.split(":").map(Number);
+        return `<xf numFmtId="${id}" fontId="${bold}" fillId="0" borderId="0" xfId="0"${id ? ' applyNumberFormat="1"' : ""}${bold ? ' applyFont="1"' : ""}/>`;
+      })
       .join("")}</cellXfs>` +
     '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
     "</styleSheet>";
@@ -127,7 +163,17 @@ export function createXlsx(sheets: WriteSheet[]): Uint8Array {
   const workbook =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
     '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
-    `<sheets>${names.map((n, i) => `<sheet name="${escapeXml(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>`;
+    `<sheets>${names.map((n, i) => `<sheet name="${escapeXml(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets>` +
+    (filterRanges.some(Boolean)
+      ? `<definedNames>${filterRanges
+          .map((range, i) =>
+            range
+              ? `<definedName name="_xlnm._FilterDatabase" localSheetId="${i}" hidden="1">'${escapeXml(names[i].replace(/'/g, "''"))}'!${range.replace(/([A-Z]+)(\d+)/g, "$$$1$$$2")}</definedName>`
+              : ""
+          )
+          .join("")}</definedNames>`
+      : "") +
+    "</workbook>";
 
   const workbookRels =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
