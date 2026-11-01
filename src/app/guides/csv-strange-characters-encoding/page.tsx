@@ -108,7 +108,8 @@ export default function Guide() {
         <li>
           <strong>In Excel:</strong> after importing the file correctly (Fix 1), use <strong>Save As</strong> and choose{" "}
           <strong>CSV UTF-8 (Comma delimited)</strong>. The plain <strong>CSV (Comma delimited)</strong> option saves in
-          the old encoding again.
+          the old encoding again. Step-by-step instructions for Windows and Mac are in{" "}
+          <Link href="/guides/save-excel-as-csv-utf-8/">how to save Excel as CSV UTF-8</Link>.
         </li>
       </ul>
       <p>
