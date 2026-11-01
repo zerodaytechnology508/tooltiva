@@ -27,6 +27,18 @@ export default function Guide() {
         completely, and leaves the rest out. The warning is easy to click away. If you then save the file from Excel,
         the missing rows are gone from that copy for good.
       </p>
+
+      <h2>&ldquo;This data set is too large for the Excel grid&rdquo;</h2>
+      <p>
+        Excel for Microsoft 365 shows this message when a file has more rows than a sheet can hold: &ldquo;This data
+        set is too large for the Excel grid. If you save this workbook, you&apos;ll lose data that wasn&apos;t
+        loaded.&rdquo; Older versions say &ldquo;File not loaded completely&rdquo; instead. Both mean the same thing:
+        only the first 1,048,576 rows are on the sheet.
+      </p>
+      <p>
+        Close the file without saving it, so the original stays complete, and use one of the options below to work
+        with all the rows.
+      </p>
       <p>
         Large files cause trouble before the limit, too. Excel keeps every cell in memory, so a CSV of a few hundred
         megabytes can make it slow to open, scroll and filter.

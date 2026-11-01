@@ -54,11 +54,42 @@ export function downloadBlob(blob: Blob, fileName: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+/**
+ * Read an Excel workbook's first visible sheet as CSV text, with values as Excel shows them
+ * (so phone numbers and codes keep every digit). The reader is loaded only when needed.
+ */
+async function readExcelAsCSV(file: File): Promise<LoadedFile> {
+  const [{ openXlsx, sheetToText, XlsxError }, Papa] = await Promise.all([import("@/lib/xlsx-read"), import("papaparse")]);
+  try {
+    const wb = await openXlsx(new Uint8Array(await file.arrayBuffer()));
+    const visible = wb.sheets.map((s, i) => ({ s, i })).filter(({ s }) => s.isWorksheet && !s.hidden);
+    const pick = visible[0] ?? wb.sheets.map((s, i) => ({ s, i })).find(({ s }) => s.isWorksheet);
+    if (!pick) throw new XlsxError("The workbook has no sheets with cells.");
+    const sheet = await wb.readSheet(pick.i);
+    const text = Papa.default.unparse(sheetToText(sheet, wb, { values: "shown", dates: "iso" }));
+    const others = visible.length > 1 ? ` (the first of ${visible.length} sheets; move the one you need to the front to use it)` : "";
+    return { name: file.name, text, notice: `Read from the sheet "${pick.s.name}" of the Excel file${others}.` };
+  } catch (err) {
+    if (err instanceof XlsxError) throw new Error(err.message);
+    throw err;
+  }
+}
+
+const EXCEL_NAME = /\.(xlsx|xlsm)$/i;
+
 /** Read picked or dropped files as text. Files that cannot be read are reported, not thrown. */
-export async function readCSVFiles(files: FileList | File[]): Promise<{ loaded: LoadedFile[]; errors: string[] }> {
+export async function readCSVFiles(files: FileList | File[], options: { excel?: boolean } = {}): Promise<{ loaded: LoadedFile[]; errors: string[] }> {
   const loaded: LoadedFile[] = [];
   const errors: string[] = [];
   for (const file of Array.from(files)) {
+    if (options.excel && EXCEL_NAME.test(file.name)) {
+      try {
+        loaded.push(await readExcelAsCSV(file));
+      } catch (err) {
+        errors.push(`"${file.name}": ${err instanceof Error && err.message ? err.message : "the workbook could not be read."}`);
+      }
+      continue;
+    }
     try {
       const { text, notice } = await readTextFile(file);
       loaded.push({ name: file.name, text, notice });
@@ -84,6 +115,7 @@ export function CSVFileInput({
   kind = "CSV",
   accept = CSV_ACCEPT,
   formatsHint = ".csv, .tsv or .txt",
+  excel = false,
 }: {
   /** Called once per file (several times when `multiple` is set). */
   onLoad: (file: LoadedFile) => void;
@@ -94,6 +126,8 @@ export function CSVFileInput({
   kind?: string;
   accept?: string;
   formatsHint?: string;
+  /** Also open .xlsx/.xlsm workbooks (their first sheet is read as CSV). */
+  excel?: boolean;
 }) {
   const [dragging, setDragging] = useState(false);
   const [pasteText, setPasteText] = useState("");
@@ -102,7 +136,7 @@ export function CSVFileInput({
 
   const openFiles = async (picked: FileList | File[] | null | undefined) => {
     if (!picked || picked.length === 0) return;
-    const { loaded, errors } = await readCSVFiles(multiple ? Array.from(picked) : [picked[0]]);
+    const { loaded, errors } = await readCSVFiles(multiple ? Array.from(picked) : [picked[0]], { excel });
     setError(errors.length ? errors.join(" ") : null);
     loaded.forEach(onLoad);
   };

@@ -41,20 +41,24 @@ export default function CSVToVCFPage() {
 
           <ContentSection title="Convert Excel contacts to VCF">
             <p>
-              The converter reads CSV, the format every spreadsheet can save. To turn an Excel sheet into a VCF file:
+              Open the Excel file (.xlsx) here directly: the first sheet is read with every value as Excel shows it, so
+              phone numbers keep all their digits and names in Urdu, Arabic and other scripts stay intact. If the
+              contacts are on another sheet, move that sheet to the front in Excel first.
             </p>
             <ul>
               <li>
-                <strong>Excel:</strong> choose File, Save As, and pick <strong>CSV UTF-8 (Comma delimited)</strong>.
-                The UTF-8 version keeps names in Urdu, Arabic and other scripts intact.
+                <strong>Google Sheets:</strong> choose File, Download, and pick Microsoft Excel (.xlsx) or
+                Comma-separated values (.csv).
               </li>
               <li>
-                <strong>Google Sheets:</strong> choose File, Download, Comma-separated values (.csv).
+                <strong>A CSV from Excel:</strong> save it with File, Save As, <strong>CSV UTF-8 (Comma delimited)</strong>
+                so non-English names survive.
               </li>
             </ul>
             <p>
-              Open the saved CSV here. If Excel already turned some numbers into 9.23001E+11, the tool tells you, because
-              those digits are lost and need fixing in the sheet first.
+              If a phone number in a CSV was already turned into 9.23001E+11 by Excel, the tool tells you, because those
+              digits are lost and need fixing in the sheet first. An .xlsx file does not have this problem when the
+              numbers are stored in full.
             </p>
           </ContentSection>
 

@@ -42,7 +42,7 @@ export const TOOL_FACTS: Record<string, ToolFact[]> = {
     { label: "You get", value: "A .sql file of INSERT statements, with an optional CREATE TABLE" },
   ],
   "csv-to-vcf": [
-    { label: "Opens", value: "A contact list saved as CSV from Excel or Google Sheets" },
+    { label: "Opens", value: "A contact list as an Excel file (.xlsx, first sheet) or a CSV from Excel or Google Sheets" },
     { label: "You get", value: "One .vcf file (vCard 3.0) with all contacts" },
     { label: "Import into", value: "Android, iPhone and Google Contacts" },
   ],

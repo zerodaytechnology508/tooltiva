@@ -643,7 +643,7 @@ export const TOOLS: ToolMeta[] = [
     navLabel: "CSV to VCF",
     pageTitle: "CSV to VCF Converter – Excel Contacts to vCard Online",
     h1: "CSV to VCF Converter",
-    intro: "Turn a contact list from Excel or Google Sheets, saved as CSV, into one VCF file you can import into an Android phone, an iPhone or Google Contacts. Columns are matched automatically, and you can add the country code that WhatsApp needs.",
+    intro: "Turn a contact list from an Excel file (.xlsx) or a CSV into one VCF file you can import into an Android phone, an iPhone or Google Contacts. Columns are matched automatically, and you can add the country code that WhatsApp needs.",
     badgeTitle: "CSV to VCF",
     shortDescription: "Convert an Excel or CSV contact list into a VCF file for Android, iPhone and Google Contacts.",
     metaDescription: "Free CSV to VCF converter: Excel contacts to a vCard file for Android, iPhone or Google Contacts, with columns matched and country codes added. No upload.",
@@ -660,7 +660,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "BookUser",
     related: ["vcf-to-csv", "remove-duplicates-csv", "merge-csv", "csv-viewer", "split-csv", "csv-delimiter-converter"],
     canonicalUrl: "https://tooltiva.net/tools/csv-to-vcf/",
-    lastUpdated: "2026-10-29",
+    lastUpdated: "2026-11-01",
     faqs: [
       {
         question: "Is my contact list uploaded anywhere?",
@@ -668,7 +668,7 @@ export const TOOLS: ToolMeta[] = [
       },
       {
         question: "How do I convert Excel contacts to a VCF file?",
-        answer: "In Excel, choose File, Save As, and pick CSV UTF-8 (Comma delimited). Open that CSV here, check that the name, phone and email columns are matched correctly, and download the VCF file.",
+        answer: "Open the Excel file (.xlsx) here directly; its first sheet is read with every phone number in full. Check that the name, phone and email columns are matched correctly, and download the VCF file. A CSV saved from Excel works too.",
       },
       {
         question: "How do I import the VCF file into my phone?",

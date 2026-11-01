@@ -17,8 +17,8 @@ export default function Guide() {
   return (
     <GuideLayout guide={guide}>
       <p>
-        You double-click a CSV file and Excel shows everything squeezed into column A, with the values still separated
-        by commas or semicolons:
+        You double-click a CSV file and all the data appears in one column: Excel squeezes every line into column A,
+        with the values still separated by commas or semicolons:
       </p>
       <pre tabIndex={0}>
         <code>{`A

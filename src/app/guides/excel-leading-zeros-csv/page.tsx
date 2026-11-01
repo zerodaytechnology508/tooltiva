@@ -153,6 +153,27 @@ export default function Guide() {
         other program reads the formula characters as part of the value.
       </p>
 
+      <h2>Removing leading zeros instead</h2>
+      <p>
+        Sometimes you want the opposite: codes such as <code>000123</code> stored as text, and you need the number{" "}
+        <code>123</code> to calculate with or to match another list.
+      </p>
+      <ul>
+        <li>
+          <strong>Digits only:</strong> in an empty column, enter <code>=VALUE(A2)</code> and fill it down. Then copy
+          the column and use Paste Special → Values to keep the numbers without the formula.
+        </li>
+        <li>
+          <strong>A whole column at once:</strong> select it, choose Data → Text to Columns, click Finish. Excel turns
+          text that looks like numbers into numbers, which drops the leading zeros.
+        </li>
+        <li>
+          <strong>Codes with letters, such as 00AB12:</strong> in recent versions of Excel for Microsoft 365,{" "}
+          <code>=REGEXREPLACE(A2,&quot;^0+&quot;,&quot;&quot;)</code> removes only the zeros at the start and keeps the
+          result as text.
+        </li>
+      </ul>
+
       <h2>Summary</h2>
       <ul>
         <li>Excel removes leading zeros because it converts number-like text to numbers when it opens a CSV.</li>

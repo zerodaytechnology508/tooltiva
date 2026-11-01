@@ -97,6 +97,10 @@ export function CSVToVCFClient() {
           <CSVFileInput
             onLoad={load}
             sample={{ name: "sample-contacts.csv", text: SAMPLE_CSV }}
+            excel
+            kind="contacts"
+            accept=".csv,.tsv,.txt,.xlsx,.xlsm,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            formatsHint="Excel (.xlsx) or CSV"
             pastePlaceholder={"Name,Phone,Email\nAyesha Khan,0300 1234567,ayesha@example.com"}
           />
         </div>
