@@ -148,6 +148,17 @@ export const GUIDES: GuideMeta[] = [
     datePublished: "2026-11-01",
     dateModified: "2026-11-01",
   },
+  {
+    slug: "photo-signature-size-online-form",
+    title: "Photo and signature size for online forms",
+    pageTitle: "Photo & Signature Size for Online Forms: KB, px, cm",
+    h1: "Photo and signature size for online application forms",
+    metaDescription: "What an online form means by 20–50 KB, 200 × 230 pixels or 3.5 × 4.5 cm, how to convert cm to pixels, and how to fix rejected photo and signature uploads.",
+    summary: "Forms describe a photo or signature in up to three ways: file size in KB, dimensions in pixels, and print size in centimetres with a DPI. They measure different things, so a file can pass one and fail another. Meet each number the form gives, save as JPG, and keep a little inside the limits.",
+    tools: ["resize-image-to-kb", "signature-resizer"],
+    datePublished: "2026-11-02",
+    dateModified: "2026-11-02",
+  },
 ];
 
 export function getGuideBySlug(slug: string): GuideMeta | undefined {

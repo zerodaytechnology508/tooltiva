@@ -124,7 +124,8 @@ export default function ImageToolsHubPage() {
         <p>
           New to resizing for forms? Read{" "}
           <Link href="/guides/reduce-photo-size-in-kb/">how to reduce a photo&apos;s size in KB</Link> on a phone, a
-          laptop or in Paint. Working with spreadsheets or data files instead? See the{" "}
+          laptop or in Paint, and what forms mean by KB, pixels and centimetres in{" "}
+          <Link href="/guides/photo-signature-size-online-form/">photo and signature size for online forms</Link>. Working with spreadsheets or data files instead? See the{" "}
           <Link href="/tools/">CSV and JSON tools</Link>.
         </p>
       </section>
