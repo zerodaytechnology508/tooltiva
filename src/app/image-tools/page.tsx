@@ -122,7 +122,9 @@ export default function ImageToolsHubPage() {
           </li>
         </ul>
         <p>
-          Working with spreadsheets or data files instead? See the{" "}
+          New to resizing for forms? Read{" "}
+          <Link href="/guides/reduce-photo-size-in-kb/">how to reduce a photo&apos;s size in KB</Link> on a phone, a
+          laptop or in Paint. Working with spreadsheets or data files instead? See the{" "}
           <Link href="/tools/">CSV and JSON tools</Link>.
         </p>
       </section>

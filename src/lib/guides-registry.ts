@@ -137,6 +137,17 @@ export const GUIDES: GuideMeta[] = [
     datePublished: "2026-11-01",
     dateModified: "2026-11-01",
   },
+  {
+    slug: "reduce-photo-size-in-kb",
+    title: "Reduce photo size in KB",
+    pageTitle: "How to Reduce Photo Size in KB (Phone, Laptop, Online)",
+    h1: "How to reduce a photo's size in KB",
+    metaDescription: "Reduce a photo to 20 KB, 50 KB or any size in KB for an online form: in the browser on any phone or laptop, with Paint on Windows, or on iPhone and Samsung.",
+    summary: "A photo's size in KB depends on its pixel dimensions and its JPEG quality. The quickest way to hit a limit such as 20 KB or 50 KB is a tool that adjusts both until the file fits, which works in the browser on any phone or laptop. Paint on Windows and the Samsung Gallery app can shrink a photo too, but without aiming at a size.",
+    tools: ["resize-image-to-kb", "signature-resizer"],
+    datePublished: "2026-11-01",
+    dateModified: "2026-11-01",
+  },
 ];
 
 export function getGuideBySlug(slug: string): GuideMeta | undefined {
