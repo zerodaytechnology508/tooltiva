@@ -2,9 +2,9 @@
 export const SITE = {
   name: "Tooltiva",
   url: "https://tooltiva.net",
-  tagline: "Free CSV & JSON tools that run in your browser",
+  tagline: "Free CSV, Excel, JSON & photo tools that run in your browser",
   description:
-    "Free CSV and JSON tools: view, split, merge, dedupe and convert CSVs, change delimiters, and fix JSON. Everything runs in your browser; nothing is uploaded.",
+    "Free tools that run in your browser: view, merge and convert CSV, Excel and JSON files, make VCF contacts, and resize photos to 20 KB or any size. No upload.",
   publisher: "CodingTangent",
   /** CodingTangent's public profile (used as the publisher's schema.org sameAs and in the footer). */
   publisherProfile: "https://www.facebook.com/profile.php?id=61593446905932",
@@ -14,10 +14,10 @@ export const SITE = {
   adsenseClient: "ca-pub-1938055904818934",
   /** Default social preview image (1200×630), served from /public. */
   ogImage: {
-    url: "/og-default.png",
+    url: "/og-image.png",
     width: 1200,
     height: 630,
-    alt: "Tooltiva — free CSV and JSON tools that run in your browser",
+    alt: "Tooltiva — free CSV, Excel, JSON and photo tools that run in your browser",
   },
 } as const;
 
@@ -30,6 +30,7 @@ export function absoluteUrl(path: string): string {
 export function publisherSchema() {
   return {
     "@type": "Organization",
+    "@id": absoluteUrl("/#publisher"),
     name: SITE.publisher,
     logo: absoluteUrl("/logo.png"),
     sameAs: [SITE.publisherProfile],

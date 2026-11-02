@@ -83,6 +83,14 @@ export default function ResizeImageToKBPage() {
               <Link href="/image-tools/signature-resizer/">signature resizer</Link> also crops the paper and cleans the
               background.
             </p>
+            <p>
+              Each common size also has its own page with results measured on real photos:{" "}
+              <Link href="/image-tools/resize-image-to-20kb/">resize image to 20 KB</Link>,{" "}
+              <Link href="/image-tools/resize-image-to-50kb/">50 KB</Link>,{" "}
+              <Link href="/image-tools/resize-image-to-100kb/">100 KB</Link>,{" "}
+              <Link href="/image-tools/resize-image-to-200kb/">200 KB</Link> and{" "}
+              <Link href="/image-tools/resize-image-20kb-to-50kb/">between 20 KB and 50 KB</Link>.
+            </p>
           </ContentSection>
 
           <ContentSection title="How the size is reached without ruining the photo">

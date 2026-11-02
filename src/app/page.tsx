@@ -6,9 +6,10 @@ import { buildPageMetadata } from "@/lib/metadata";
 import { SITE, absoluteUrl, publisherSchema } from "@/lib/site";
 import { ToolCard } from "@/components/ToolCard";
 import { GUIDES } from "@/lib/guides-registry";
+import { AUTHOR } from "@/lib/authors";
 
 export const metadata = buildPageMetadata({
-  title: `${SITE.name} — Free CSV & JSON Tools That Run in Your Browser`,
+  title: `${SITE.name} — Free CSV, Excel, JSON & Photo Tools, No Upload`,
   description: SITE.description,
   path: "/",
   absoluteTitle: true,
@@ -35,11 +36,18 @@ const PRINCIPLES = [
 export default function HomePage() {
   const websiteSchema = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: SITE.name,
-    url: absoluteUrl("/"),
-    description: SITE.description,
-    publisher: publisherSchema(),
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": absoluteUrl("/#website"),
+        name: SITE.name,
+        url: absoluteUrl("/"),
+        description: SITE.description,
+        inLanguage: "en",
+        publisher: { "@id": absoluteUrl("/#publisher") },
+      },
+      { ...publisherSchema(), founder: { "@id": AUTHOR.url, name: AUTHOR.name } },
+    ],
   };
 
   return (
@@ -48,11 +56,12 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-3xl pb-14 pt-16 text-center sm:pt-20">
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
-          Free CSV and JSON tools that run in your browser
+          Free CSV, Excel, JSON and photo tools that run in your browser
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
-          View, split, merge and dedupe CSV files, convert between CSV and JSON, fix JSON, and resize photos and
-          signatures to an exact size in KB. Your files are processed on your device and never uploaded.
+          View, split, merge and dedupe CSV files, convert CSV, Excel and JSON, turn contact lists into VCF files, and
+          resize photos and signatures to an exact size in KB. Your files are processed on your device and never
+          uploaded.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <a

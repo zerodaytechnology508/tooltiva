@@ -18,8 +18,10 @@ export default function Guide() {
     <GuideLayout guide={guide}>
       <h2>What decides a photo&apos;s size in KB</h2>
       <p>
-        A phone photo is usually 2 to 5 MB, while online forms often ask for 20 KB, 50 KB or 100 KB: a hundred times
-        smaller. Two things make a JPEG file smaller:
+        A phone photo is usually 2 to 5 MB, while online forms often ask for{" "}
+        <Link href="/image-tools/resize-image-to-20kb/">20 KB</Link>,{" "}
+        <Link href="/image-tools/resize-image-to-50kb/">50 KB</Link> or{" "}
+        <Link href="/image-tools/resize-image-to-100kb/">100 KB</Link>: a hundred times smaller. Two things make a JPEG file smaller:
       </p>
       <ul>
         <li>
@@ -97,7 +99,8 @@ export default function Guide() {
 
       <h2>When the photo is too small: increase the size in KB</h2>
       <p>
-        Some forms set a minimum as well, such as 20–50 KB, and reject a file of 12 KB. Choose a range with a minimum
+        Some forms set a minimum as well, such as{" "}
+        <Link href="/image-tools/resize-image-20kb-to-50kb/">20–50 KB</Link>, and reject a file of 12 KB. Choose a range with a minimum
         in Resize Image to KB: when the photo is already smaller, it raises the quality and, if needed, the dimensions
         until the file is inside the range.
       </p>

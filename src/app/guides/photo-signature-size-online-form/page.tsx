@@ -117,7 +117,9 @@ export default function Guide() {
         <li>
           <strong>Photo:</strong> open <Link href="/image-tools/resize-image-to-kb/">Resize Image to KB</Link>, choose
           the range the form gives (for example 20–50 KB), turn on <strong>Exact size in pixels</strong> if the form
-          gives dimensions, and download the JPG.
+          gives dimensions, and download the JPG. For the most common limits there are ready pages for{" "}
+          <Link href="/image-tools/resize-image-to-20kb/">20 KB</Link> and{" "}
+          <Link href="/image-tools/resize-image-to-50kb/">50 KB</Link>.
         </li>
         <li>
           <strong>Signature:</strong> sign on plain white paper, photograph or scan it, and open the{" "}
@@ -136,7 +138,8 @@ export default function Guide() {
       <ul>
         <li>
           <strong>&ldquo;File size should be between 20 KB and 50 KB&rdquo;:</strong> the file is outside the KB range;
-          resize it into the range, slightly inside the limits.
+          resize it into the range, slightly inside the limits, for example with{" "}
+          <Link href="/image-tools/resize-image-20kb-to-50kb/">resize image to 20–50 KB</Link>.
         </li>
         <li>
           <strong>&ldquo;Invalid dimensions&rdquo; or &ldquo;image width/height not allowed&rdquo;:</strong> the pixel size

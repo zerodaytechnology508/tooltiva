@@ -5,7 +5,7 @@ import { TOOLS, toolPath } from "@/lib/tools-registry";
 
 export const metadata: Metadata = {
   title: "Page not found",
-  description: "The page you were looking for does not exist. Open one of Tooltiva's CSV and JSON tools instead.",
+  description: "The page you were looking for does not exist. Open one of Tooltiva's CSV, Excel, JSON or photo tools instead.",
 };
 
 export default function NotFound() {

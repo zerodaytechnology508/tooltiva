@@ -3,6 +3,8 @@
  * Written so a reader (or an AI assistant quoting the page) gets an exact answer in one line.
  * Only state what the tool's code does; update this file when a tool changes.
  */
+import { KB_SIZE_PAGES } from "./kb-sizes";
+
 export interface ToolFact {
   label: string;
   value: string;
@@ -101,6 +103,8 @@ export const TOOL_FACTS: Record<string, ToolFact[]> = {
     { label: "Target", value: "A size in KB (such as 10–20 KB), in pixels, or in centimetres with DPI" },
     { label: "You get", value: "A JPG with empty space trimmed and the paper turned pure white" },
   ],
+  // Per-size pages of the Resize Image to KB tool (20 KB, 50 KB …), defined with their tested results.
+  ...Object.fromEntries(KB_SIZE_PAGES.map((page) => [page.slug, page.facts])),
 };
 
 /** Facts that are true of every tool on the site. */

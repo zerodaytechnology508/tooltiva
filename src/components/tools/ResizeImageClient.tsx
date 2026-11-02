@@ -41,11 +41,14 @@ function centerCrop(image: LoadedImage, width: number, height: number) {
   return { x: 0, y: Math.round((image.height - h) / 2), width: image.width, height: h };
 }
 
-export function ResizeImageClient() {
+/** Size preset ids, for pages that open the tool on a given target (e.g. "50kb"). */
+export type ResizePresetId = "20kb" | "50kb" | "100kb" | "200kb" | "500kb" | "10-20kb" | "20-50kb" | "50-100kb";
+
+export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: ResizePresetId } = {}) {
   const [file, setFile] = useState<File | null>(null);
   const [image, setImage] = useState<LoadedImage | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [presetId, setPresetId] = useState("20kb");
+  const [presetId, setPresetId] = useState<string>(initialPreset);
   const [customMin, setCustomMin] = useState("");
   const [customMax, setCustomMax] = useState("30");
   const [dimMode, setDimMode] = useState<DimMode>("auto");

@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, Bug, Lightbulb, ShieldCheck } from "lucide-react";
 import { buildPageMetadata } from "@/lib/metadata";
-import { SITE } from "@/lib/site";
+import { SITE, absoluteUrl } from "@/lib/site";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import Link from "next/link";
 
@@ -30,8 +30,21 @@ const TOPICS = [
 ];
 
 export default function ContactPage() {
+  const contactSchema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    url: absoluteUrl("/contact/"),
+    name: "Contact Tooltiva",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    mainEntity: {
+      "@type": "Organization",
+      "@id": absoluteUrl("/#publisher"),
+      contactPoint: { "@type": "ContactPoint", contactType: "customer support", email: SITE.supportEmail, availableLanguage: "en" },
+    },
+  };
   return (
     <div className="mx-auto w-full max-w-4xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(contactSchema) }} />
       <Breadcrumbs items={[{ name: "Contact" }]} />
 
       <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">Contact Tooltiva</h1>

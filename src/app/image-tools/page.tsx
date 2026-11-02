@@ -5,6 +5,7 @@ import { buildPageMetadata } from "@/lib/metadata";
 import { absoluteUrl } from "@/lib/site";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolCard } from "@/components/ToolCard";
+import { KB_SIZE_PAGES, kbSizePath } from "@/lib/kb-sizes";
 
 export const metadata = buildPageMetadata({
   title: "Photo and Signature Resizer in KB – Free Image Tools",
@@ -21,12 +22,10 @@ export default function ImageToolsHubPage() {
     url: absoluteUrl("/image-tools/"),
     mainEntity: {
       "@type": "ItemList",
-      itemListElement: IMAGE_TOOLS.map((tool, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: tool.title,
-        url: absoluteUrl(toolPath(tool)),
-      })),
+      itemListElement: [
+        ...IMAGE_TOOLS.map((tool) => ({ name: tool.title, url: absoluteUrl(toolPath(tool)) })),
+        ...KB_SIZE_PAGES.map((page) => ({ name: page.title, url: absoluteUrl(kbSizePath(page)) })),
+      ].map((item, index) => ({ "@type": "ListItem", position: index + 1, ...item })),
     },
   };
   const breadcrumbsSchema = {
@@ -60,6 +59,27 @@ export default function ImageToolsHubPage() {
           </li>
         ))}
       </ul>
+
+      <section aria-labelledby="common-sizes" className="mt-12">
+        <h2 id="common-sizes" className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+          Resize a photo to a common size
+        </h2>
+        <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-400">
+          The sizes forms ask for most, each with results we measured on real photos.
+        </p>
+        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {KB_SIZE_PAGES.map((page) => (
+            <li key={page.slug}>
+              <Link
+                href={kbSizePath(page)}
+                className="flex h-full min-h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-3 text-center font-semibold text-slate-900 transition-colors hover:border-brand-600/60 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800/60"
+              >
+                {page.title.replace(/ KB$/, "\u00a0KB")}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section aria-labelledby="sizes" className="content-prose mt-16">
         <h2 id="sizes" className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
@@ -126,7 +146,7 @@ export default function ImageToolsHubPage() {
           <Link href="/guides/reduce-photo-size-in-kb/">how to reduce a photo&apos;s size in KB</Link> on a phone, a
           laptop or in Paint, and what forms mean by KB, pixels and centimetres in{" "}
           <Link href="/guides/photo-signature-size-online-form/">photo and signature size for online forms</Link>. Working with spreadsheets or data files instead? See the{" "}
-          <Link href="/tools/">CSV and JSON tools</Link>.
+          <Link href="/tools/">CSV, Excel and JSON tools</Link>.
         </p>
       </section>
     </div>

@@ -25,7 +25,9 @@ export function buildPageMetadata({ title, description, path, absoluteTitle = fa
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
-    alternates: { canonical: url },
+    // Every page also has a Markdown version at <page>/index.md (generated after the build by
+    // scripts/build-markdown.mjs), listed in /llms.txt and /sitemap.md.
+    alternates: { canonical: url, types: { "text/markdown": `${url}index.md` } },
     openGraph: {
       ...(article
         ? {

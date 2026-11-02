@@ -115,7 +115,7 @@ for (const url of sitemapUrls) {
   }
 }
 
-for (const asset of ["icon.png", "apple-icon.png", "favicon.ico", "og-default.png", "robots.txt"]) {
+for (const asset of ["icon.png", "apple-icon.png", "favicon.ico", "og-image.png", "robots.txt"]) {
   if (!existsSync(join(OUT, asset))) {
     problems++;
     console.error(`  ✗ missing ${asset} in out/`);

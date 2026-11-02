@@ -13,6 +13,7 @@ export const AUTHOR = {
 export function authorSchema() {
   return {
     "@type": "Person",
+    "@id": AUTHOR.url,
     name: AUTHOR.name,
     jobTitle: AUTHOR.role,
     url: AUTHOR.url,

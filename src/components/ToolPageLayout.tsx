@@ -22,12 +22,15 @@ export function ToolPageLayout({
   tool,
   children,
   content,
+  related,
 }: {
   tool: ToolMeta;
   /** The interactive tool. */
   children: React.ReactNode;
   /** Explanatory sections shown under the tool (use <ContentSection>). */
   content: React.ReactNode;
+  /** Replaces the default "Related tools" block (for pages outside the tools registry). */
+  related?: React.ReactNode;
 }) {
   const { softwareAppSchema, faqSchema, breadcrumbsSchema } = generateToolJsonLd(tool);
   return (
@@ -57,7 +60,9 @@ export function ToolPageLayout({
         </div>
       </header>
 
-      <div className="mt-8">{children}</div>
+      <div className="mt-8" data-md-skip>
+        {children}
+      </div>
 
       <div className="mt-16 space-y-12">
         <ContentSection title={`${tool.title} at a glance`}>
@@ -85,7 +90,7 @@ export function ToolPageLayout({
           </ContentSection>
         )}
         <FAQAccordion items={tool.faqs} />
-        <RelatedTools currentSlug={tool.slug} />
+        {related ?? <RelatedTools currentSlug={tool.slug} />}
       </div>
     </div>
   );

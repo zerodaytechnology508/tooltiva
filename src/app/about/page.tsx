@@ -2,10 +2,10 @@ import React from "react";
 import { buildPageMetadata } from "@/lib/metadata";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import Link from "next/link";
-import { AUTHOR } from "@/lib/authors";
+import { AUTHOR, authorSchema } from "@/lib/authors";
 import { DATA_TOOLS, IMAGE_TOOLS } from "@/lib/tools-registry";
 import { GUIDES } from "@/lib/guides-registry";
-import { SITE } from "@/lib/site";
+import { SITE, absoluteUrl, publisherSchema } from "@/lib/site";
 import { Shield, Zap } from "lucide-react";
 
 export const metadata = buildPageMetadata({
@@ -15,8 +15,25 @@ export const metadata = buildPageMetadata({
 });
 
 export default function AboutPage() {
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AboutPage",
+        "@id": absoluteUrl("/about/"),
+        url: absoluteUrl("/about/"),
+        name: "About Tooltiva",
+        isPartOf: { "@id": absoluteUrl("/#website") },
+        about: { "@id": absoluteUrl("/#publisher") },
+        mainEntity: { "@id": AUTHOR.url },
+      },
+      { ...authorSchema(), description: AUTHOR.bio, worksFor: { "@id": absoluteUrl("/#publisher") } },
+      publisherSchema(),
+    ],
+  };
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }} />
       <Breadcrumbs items={[{ name: "About Tooltiva" }]} />
 
       <div className="space-y-4">
@@ -46,10 +63,10 @@ export default function AboutPage() {
           <ul className="list-disc space-y-2 pl-6 text-base leading-7 text-slate-700 dark:text-slate-300">
             <li>
               <Link href="/tools/" className="font-medium text-brand-700 underline underline-offset-2 dark:text-brand-400">
-                {DATA_TOOLS.length} CSV and JSON tools
+                {DATA_TOOLS.length} CSV, Excel and JSON tools
               </Link>{" "}
-              to view, split, merge and clean spreadsheets, convert between CSV, JSON and VCF contacts, and format or fix
-              JSON.
+              to view, split, merge and clean spreadsheets, convert between CSV, Excel, JSON and VCF contacts, and format
+              or fix JSON.
             </li>
             <li>
               <Link href="/image-tools/" className="font-medium text-brand-700 underline underline-offset-2 dark:text-brand-400">

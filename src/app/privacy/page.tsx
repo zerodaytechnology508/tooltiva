@@ -37,7 +37,7 @@ export default function PrivacyPage() {
 
           <p>
             Tooltiva (accessible at <code>tooltiva.net</code>) provides
-            browser-based CSV and JSON tools designed to process the content
+            browser-based CSV, Excel, JSON and image tools designed to process the content
             you provide locally in your browser.
           </p>
 
