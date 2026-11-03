@@ -103,6 +103,11 @@ export const TOOL_FACTS: Record<string, ToolFact[]> = {
     { label: "Target", value: "A size in KB (such as 10–20 KB), in pixels, or in centimetres with DPI" },
     { label: "You get", value: "A JPG with empty space trimmed and the paper turned pure white" },
   ],
+  "change-image-dpi": [
+    { label: "Opens", value: "JPG and PNG images" },
+    { label: "Changes", value: "Only the DPI stored in the file (JFIF, EXIF and Photoshop fields in a JPG; the pHYs chunk in a PNG)" },
+    { label: "Keeps", value: "Every pixel and the quality: the image is not re-saved, and the file size changes by a few bytes" },
+  ],
   // Per-size pages of the Resize Image to KB tool (20 KB, 50 KB …), defined with their tested results.
   ...Object.fromEntries(KB_SIZE_PAGES.map((page) => [page.slug, page.facts])),
 };

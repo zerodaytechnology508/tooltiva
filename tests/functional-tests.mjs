@@ -1404,4 +1404,77 @@ console.log("Test 29: CSV to Excel and JSON to Excel keep values exact");
 }
 console.log("  ✓ Column typing, leading zeros, long IDs, decimals, dates, header styling, JSON flattening, sheets per key and exact big numbers verified.\n");
 
+console.log("Test 30: Change Image DPI rewrites only the resolution fields");
+{
+  const dpi = await import("../src/lib/dpi.ts");
+  const { readFileSync } = await import("node:fs");
+  const fx = (name) => new Uint8Array(readFileSync(join(import.meta.dirname, "fixtures", name)));
+  // Compressed image data: everything from the JPEG start-of-scan marker, or the PNG IDAT chunks.
+  const imageData = (b) => {
+    if (b[0] === 0xff) {
+      for (let p = 2; p < b.length - 1; ) {
+        if (b[p] !== 0xff) throw new Error("bad marker");
+        if (b[p + 1] === 0xda) return Buffer.from(b.subarray(p)).toString("hex");
+        p += 2 + ((b[p + 2] << 8) | b[p + 3]);
+      }
+    }
+    const parts = [];
+    for (let p = 8; p + 12 <= b.length; ) {
+      const len = ((b[p] << 24) | (b[p + 1] << 16) | (b[p + 2] << 8) | b[p + 3]) >>> 0;
+      if (String.fromCharCode(...b.subarray(p + 4, p + 8)) === "IDAT") parts.push(Buffer.from(b.subarray(p + 8, p + 8 + len)).toString("hex"));
+      p += 12 + len;
+    }
+    return parts.join("");
+  };
+  const sources = (info) => info.readings.map((r) => `${r.source}:${r.x}x${r.y}`).sort();
+
+  const cases = [
+    ["dpi-jfif72.jpg", "jpeg", ["JFIF:72x72"], ["JFIF:300x300"]],
+    ["dpi-exif-le.jpg", "jpeg", ["EXIF:72x72"], ["EXIF:300x300", "JFIF:300x300"]],
+    ["dpi-exif-be.jpg", "jpeg", ["EXIF:71.12x71.12"], ["EXIF:300x300", "JFIF:300x300"]],
+    ["dpi-photoshop.jpg", "jpeg", ["JFIF:96x96", "Photoshop:150x150"], ["JFIF:300x300", "Photoshop:300x300"]],
+    ["dpi-none.png", "png", [], ["PNG:300x300"]],
+    ["dpi-96.png", "png", ["PNG:96x96"], ["PNG:300x300"]],
+  ];
+  for (const [name, format, before, after] of cases) {
+    const input = fx(name);
+    const info = dpi.readDpiInfo(input);
+    assert.strictEqual(info.format, format, name);
+    assert.deepStrictEqual([info.width, info.height], [64, 48], `${name} dimensions`);
+    assert.deepStrictEqual(sources(info), before, `${name} before`);
+    const out = dpi.setDpi(input, 300);
+    const outInfo = dpi.readDpiInfo(out);
+    assert.deepStrictEqual(sources(outInfo), after, `${name} after`);
+    assert.strictEqual(outInfo.dpi.x, 300);
+    assert.strictEqual(imageData(out), imageData(input), `${name}: image data unchanged`);
+    assert.ok(out.length - input.length <= 21, `${name}: grows by at most one header`);
+    // Setting it again changes nothing further.
+    assert.deepStrictEqual(Array.from(dpi.setDpi(out, 300)), Array.from(out), `${name}: idempotent`);
+  }
+  // The preferred reading: Photoshop, then EXIF, then JFIF.
+  assert.strictEqual(dpi.readDpiInfo(fx("dpi-photoshop.jpg")).dpi.source, "Photoshop");
+  // PNG pHYs chunk carries a valid CRC.
+  const png = dpi.setDpi(fx("dpi-none.png"), 300);
+  const { crc32 } = await import("../src/lib/zip.ts");
+  const at = Buffer.from(png).indexOf("pHYs");
+  const crcStored = ((png[at + 13] << 24) | (png[at + 14] << 16) | (png[at + 15] << 8) | png[at + 16]) >>> 0;
+  assert.strictEqual(crcStored, crc32(png.subarray(at, at + 13)));
+  // Removing EXIF drops the camera data and keeps the DPI in the JFIF header.
+  const clean = dpi.setDpi(fx("dpi-exif-le.jpg"), 200, { removeExif: true });
+  const cleanInfo = dpi.readDpiInfo(clean);
+  assert.strictEqual(cleanInfo.hasExif, false);
+  assert.deepStrictEqual(sources(cleanInfo), ["JFIF:200x200"]);
+  assert.ok(!Buffer.from(clean).includes("TestCam"), "camera model removed");
+  assert.strictEqual(imageData(clean), imageData(fx("dpi-exif-le.jpg")));
+  // Other formats are refused, and print sizes are right.
+  assert.throws(() => dpi.setDpi(new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0, 0, 0]), 300), dpi.UnsupportedFormatError);
+  assert.strictEqual(dpi.readDpiInfo(new Uint8Array([1, 2, 3])).format, null);
+  assert.strictEqual(dpi.pixelsFor(3.5, 300), 413);
+  assert.strictEqual(dpi.pixelsFor(4.5, 200), 354);
+  assert.strictEqual(Math.round(dpi.printSize(1200, 300).cm * 10) / 10, 10.2);
+  assert.strictEqual(dpi.clampDpi(0), 1);
+  assert.strictEqual(dpi.clampDpi(99999), 65535);
+}
+console.log("  ✓ JFIF, EXIF (both byte orders), Photoshop and PNG resolution fields set; image data byte-identical; EXIF removal; formats and print sizes checked.\n");
+
 console.log("🎉 ALL FUNCTIONAL VERIFICATION TESTS PASSED SUCCESSFULLY!");

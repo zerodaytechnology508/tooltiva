@@ -102,7 +102,9 @@ export default function Guide() {
       <p>
         Some forms read the DPI stored inside the JPG to check the printed size. The{" "}
         <Link href="/image-tools/signature-resizer/">Signature Resizer</Link> writes it when you choose{" "}
-        <strong>Centimetres</strong> and a <strong>Resolution in DPI</strong>.
+        <strong>Centimetres</strong> and a <strong>Resolution in DPI</strong>. For a photo, set it with{" "}
+        <Link href="/image-tools/change-image-dpi/">Change Image DPI</Link>, which leaves the pixels and the size in KB
+        unchanged.
       </p>
 
       <h2>KB: 1,000 or 1,024 bytes?</h2>

@@ -152,7 +152,9 @@ export default async function KbSizeToolPage({ params }: Params) {
               </p>
               <ResultTable caption={`Passport-size pixel dimensions at ${page.sizeLabel}`} rows={page.pixelTests} inputHeading="Size in pixels" />
               <p className="mt-3 text-sm">
-                Centimetres to pixels: pixels = cm ÷ 2.54 × DPI. More on how KB, pixels and cm differ in{" "}
+                Centimetres to pixels: pixels = cm ÷ 2.54 × DPI. If the form also checks the DPI, set it afterwards with{" "}
+                <Link href="/image-tools/change-image-dpi/">Change Image DPI</Link>; the size in KB stays the same. More on
+                how KB, pixels and cm differ in{" "}
                 <Link href="/guides/photo-signature-size-online-form/">photo and signature sizes for online forms</Link>.
               </p>
             </ContentSection>

@@ -91,6 +91,10 @@ export default function ResizeImageToKBPage() {
               <Link href="/image-tools/resize-image-to-200kb/">200 KB</Link> and{" "}
               <Link href="/image-tools/resize-image-20kb-to-50kb/">between 20 KB and 50 KB</Link>.
             </p>
+            <p>
+              If the form also asks for a resolution, such as 200 or 300 DPI, set it afterwards with{" "}
+              <Link href="/image-tools/change-image-dpi/">Change Image DPI</Link>. It does not change the size in KB.
+            </p>
           </ContentSection>
 
           <ContentSection title="How the size is reached without ruining the photo">

@@ -16,10 +16,16 @@ export function ImageFileInput({
   onFile,
   sample,
   sampleLabel = "Try a sample photo",
+  accept = IMAGE_ACCEPT,
+  hint = "JPG, PNG or WebP · or paste with Ctrl+V · the photo stays on your device",
 }: {
   onFile: (file: File) => void;
   sample: () => Promise<File>;
   sampleLabel?: string;
+  /** File types the picker offers. */
+  accept?: string;
+  /** Line under "Drop a photo here". */
+  hint?: string;
 }) {
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -54,7 +60,7 @@ export function ImageFileInput({
       <ImageUp aria-hidden="true" className="h-8 w-8 text-brand-700 dark:text-brand-400" />
       <p className="text-base font-semibold text-slate-900 dark:text-white">Drop a photo here</p>
       <p className="text-sm text-slate-600 dark:text-slate-400">
-        JPG, PNG or WebP · or paste with Ctrl+V · the photo stays on your device
+        {hint}
       </p>
       <div className="mt-2 flex flex-wrap justify-center gap-2">
         <button type="button" onClick={() => input.current?.click()} className={primaryButtonClass}>
@@ -81,7 +87,7 @@ export function ImageFileInput({
       <input
         ref={input}
         type="file"
-        accept={IMAGE_ACCEPT}
+        accept={accept}
         className="sr-only"
         aria-label="Choose an image"
         tabIndex={-1}
