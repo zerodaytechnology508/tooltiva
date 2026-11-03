@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, Download, Info, X } from "lucide-react";
 import { fitToSize, formatBytes, kbRange, type FitResult } from "@/lib/image-size";
+import { pixelsFor, setDpi } from "@/lib/dpi";
 import { jpegEncoder, loadImage, padToMinimum, samplePhoto, UnsupportedImageError, type JpegResult, type LoadedImage } from "@/lib/image-canvas";
 import { PrivacyBadge } from "@/components/PrivacyBadge";
 import { BlobPreview, ImageFileInput } from "@/components/tools/image-ui";
@@ -26,7 +27,7 @@ const PRESETS: Preset[] = [
   { id: "50-100kb", label: "50–100 KB", min: 50, max: 100 },
 ];
 
-type DimMode = "auto" | "exact";
+type DimMode = "auto" | "exact" | "cm";
 
 /** Center crop of the source that matches the target aspect ratio, so an exact size never stretches the photo. */
 function centerCrop(image: LoadedImage, width: number, height: number) {
@@ -44,14 +45,24 @@ function centerCrop(image: LoadedImage, width: number, height: number) {
 /** Size preset ids, for pages that open the tool on a given target (e.g. "50kb"). */
 export type ResizePresetId = "20kb" | "50kb" | "100kb" | "200kb" | "500kb" | "10-20kb" | "20-50kb" | "50-100kb";
 
-export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: ResizePresetId } = {}) {
+export function ResizeImageClient({
+  initialPreset = "20kb",
+  initialCm,
+}: {
+  initialPreset?: ResizePresetId;
+  /** Open in "size in centimetres" mode with this print size and DPI. */
+  initialCm?: { w: number; h: number; dpi: number };
+} = {}) {
   const [file, setFile] = useState<File | null>(null);
   const [image, setImage] = useState<LoadedImage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [presetId, setPresetId] = useState<string>(initialPreset);
   const [customMin, setCustomMin] = useState("");
   const [customMax, setCustomMax] = useState("30");
-  const [dimMode, setDimMode] = useState<DimMode>("auto");
+  const [dimMode, setDimMode] = useState<DimMode>(initialCm ? "cm" : "auto");
+  const [cmW, setCmW] = useState(initialCm ? String(initialCm.w) : "3.5");
+  const [cmH, setCmH] = useState(initialCm ? String(initialCm.h) : "4.5");
+  const [dpi, setDpiValue] = useState(initialCm ? String(initialCm.dpi) : "200");
   const [exactW, setExactW] = useState("");
   const [exactH, setExactH] = useState("");
   const [fit, setFit] = useState<FitResult<JpegResult> | null>(null);
@@ -59,6 +70,7 @@ export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: 
   const [working, setWorking] = useState(false);
   const job = useRef(0);
   const ids = useId();
+  const startInCm = !!initialCm;
 
   const open = useCallback(async (next: File) => {
     setError(null);
@@ -69,11 +81,11 @@ export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: 
       setImage(loaded);
       setExactW(String(loaded.width));
       setExactH(String(loaded.height));
-      setDimMode("auto");
+      setDimMode(startInCm ? "cm" : "auto");
     } catch (err) {
       setError(err instanceof UnsupportedImageError ? err.message : "This file could not be opened as an image.");
     }
-  }, []);
+  }, [startInCm]);
 
   // Target range in KB, or an error message for invalid custom values.
   const preset = PRESETS.find((p) => p.id === presetId);
@@ -89,12 +101,17 @@ export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: 
           : maxKB < 2
             ? "Choose a maximum of at least 2 KB."
             : null;
-  const w = Math.round(Number(exactW));
-  const h = Math.round(Number(exactH));
+  const dpiNum = Math.round(Number(dpi));
+  const cmValid = Number(cmW) >= 0.5 && Number(cmW) <= 100 && Number(cmH) >= 0.5 && Number(cmH) <= 100 && dpiNum >= 72 && dpiNum <= 1200;
+  const w = dimMode === "cm" ? pixelsFor(Number(cmW), dpiNum) : Math.round(Number(exactW));
+  const h = dimMode === "cm" ? pixelsFor(Number(cmH), dpiNum) : Math.round(Number(exactH));
+  const fixed = dimMode !== "auto";
   const dimError =
-    dimMode === "exact" && (!(w >= 16 && w <= 6000) || !(h >= 16 && h <= 6000))
-      ? "Enter a width and height between 16 and 6,000 pixels."
-      : null;
+    dimMode === "cm" && !cmValid
+      ? "Enter centimetres between 0.5 and 100, and a DPI between 72 and 1,200."
+      : fixed && (!(w >= 16 && w <= 6000) || !(h >= 16 && h <= 6000))
+        ? "Enter a width and height between 16 and 6,000 pixels."
+        : null;
 
   useEffect(() => {
     if (!image || rangeError || dimError) return;
@@ -104,10 +121,17 @@ export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: 
       try {
         const target = kbRange(minKB, maxKB);
         const fitted =
-          dimMode === "exact"
+          fixed
             ? await fitToSize(w, h, target, jpegEncoder(image, centerCrop(image, w, h)), { fixedSize: true })
             : await fitToSize(image.width, image.height, target, jpegEncoder(image));
         const final = await padToMinimum(fitted, target.minBytes, target.maxBytes);
+        if (dimMode === "cm") {
+          // Store the DPI so programs that check the print size read 3.5 × 4.5 cm (and so on).
+          const withDpi = setDpi(new Uint8Array(await final.fit.result.blob.arrayBuffer()), dpiNum);
+          if (withDpi.length <= target.maxBytes) {
+            final.fit = { ...final.fit, result: { size: withDpi.length, blob: new Blob([withDpi as BlobPart], { type: "image/jpeg" }) } };
+          }
+        }
         if (job.current === current) {
           setFit(final.fit);
           setPadded(final.padded);
@@ -120,7 +144,7 @@ export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: 
       }
     }, 250);
     return () => clearTimeout(timer);
-  }, [image, minKB, maxKB, dimMode, w, h, rangeError, dimError]);
+  }, [image, minKB, maxKB, dimMode, fixed, w, h, dpiNum, rangeError, dimError]);
 
   const reset = () => {
     job.current++;
@@ -264,6 +288,65 @@ export function ResizeImageClient({ initialPreset = "20kb" }: { initialPreset?: 
                 <span>px</span>
               </div>
             </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <input type="radio" name={`${ids}-dim`} checked={dimMode === "cm"} onChange={() => setDimMode("cm")} className={radio} />
+                Size in centimetres
+              </label>
+              <div className="flex flex-wrap items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                <input
+                  type="number"
+                  min={0.5}
+                  step={0.1}
+                  inputMode="decimal"
+                  aria-label="Width in centimetres"
+                  value={cmW}
+                  onFocus={() => setDimMode("cm")}
+                  onChange={(e) => {
+                    setDimMode("cm");
+                    setCmW(e.target.value);
+                  }}
+                  className={`${fieldClass} w-20`}
+                />
+                <span aria-hidden="true">×</span>
+                <input
+                  type="number"
+                  min={0.5}
+                  step={0.1}
+                  inputMode="decimal"
+                  aria-label="Height in centimetres"
+                  value={cmH}
+                  onFocus={() => setDimMode("cm")}
+                  onChange={(e) => {
+                    setDimMode("cm");
+                    setCmH(e.target.value);
+                  }}
+                  className={`${fieldClass} w-20`}
+                />
+                <span>cm at</span>
+                <select
+                  aria-label="Resolution in DPI"
+                  value={dpi}
+                  onChange={(e) => {
+                    setDimMode("cm");
+                    setDpiValue(e.target.value);
+                  }}
+                  className={`${fieldClass} w-28`}
+                >
+                  {["150", "200", "300", "600"].map((d) => (
+                    <option key={d} value={d}>
+                      {d} DPI
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {dimMode === "cm" && cmValid && (
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {cmW} × {cmH} cm at {dpiNum} DPI is {w} × {h} pixels. The DPI is written into the file, and the edges are
+                trimmed evenly so nothing is stretched.
+              </p>
+            )}
             {dimMode === "exact" && (
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 If the shape differs from the photo, the edges are trimmed evenly so nothing is stretched.

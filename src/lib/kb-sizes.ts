@@ -32,6 +32,8 @@ export interface KbSizePage extends ToolMeta {
   uses: string[];
   tips: string[];
   facts: ToolFact[];
+  /** Opens the tool in centimetre mode with this print size (for passport-size pages). */
+  cm?: { w: number; h: number; dpi: number };
 }
 
 const PORTRAIT = "Head-and-shoulders portrait, 512 × 600 px";
@@ -385,6 +387,83 @@ export const KB_SIZE_PAGES: KbSizePage[] = [
         question: "Does 20 KB mean 20,000 or 20,480 bytes?",
         answer:
           "Forms differ, so the tool satisfies both: the minimum is counted as 20,480 bytes (1 KB = 1,024) and the maximum as 50,000 bytes (1 KB = 1,000).",
+      },
+      PRIVACY_FAQ,
+    ],
+  },
+  {
+    ...common,
+    id: "resize-photo-to-3.5x4.5-cm",
+    slug: "resize-photo-to-3.5x4.5-cm",
+    presetId: "50kb",
+    cm: { w: 3.5, h: 4.5, dpi: 200 },
+    sizeLabel: "3.5 × 4.5 cm",
+    title: "Resize Photo to 3.5 × 4.5 cm",
+    navLabel: "3.5 × 4.5 cm",
+    pageTitle: "Resize Photo to 3.5 x 4.5 cm – Passport Size Photo Online",
+    h1: "Resize Photo to 3.5 × 4.5 cm",
+    intro:
+      "Make a passport-size photo of 3.5 × 4.5 cm (35 × 45 mm) for an online form: the photo is cropped to the right shape, sized in pixels for the DPI you choose, and kept under the KB limit. Nothing is uploaded.",
+    badgeTitle: "Resize Photo to 3.5 × 4.5 cm",
+    shortDescription: "Passport-size photo of 3.5 × 4.5 cm at 200 or 300 DPI, under 20 or 50 KB, without uploading it.",
+    metaDescription:
+      "Resize a photo to 3.5 × 4.5 cm (35 × 45 mm passport size) online: correct pixels for 200 or 300 DPI, DPI saved in the file, under 20 or 50 KB. Free, no upload.",
+    primaryKeyword: "resize photo to 3.5 x 4.5 cm",
+    secondaryKeywords: ["passport size photo 3.5 x 4.5 cm online", "resize image to 3.5x4.5 cm", "35 x 45 mm photo online", "3.5 x 4.5 cm photo in pixels"],
+    canonicalUrl: "https://tooltiva.net/image-tools/resize-photo-to-3.5x4.5-cm/",
+    testedIntro: "Two real photos run through this page's tool at 3.5 × 4.5 cm. The DPI shown is the one saved in the downloaded file:",
+    tested: [
+      { input: `${PORTRAIT}, 200 DPI, Under 50 KB`, result: "44.4 KB · 276 × 354 px · quality 95%" },
+      { input: `${PORTRAIT}, 300 DPI, Under 50 KB`, result: "48.6 KB · 413 × 531 px · quality 85%" },
+      { input: "Landscape camera photo, 3,888 × 2,592 px (centre cropped), 200 DPI, Under 20 KB", result: "19.5 KB · 276 × 354 px · quality 91%" },
+      { input: "Landscape camera photo, 3,888 × 2,592 px (centre cropped), 300 DPI, Under 20 KB", result: "19.1 KB · 413 × 531 px · quality 73%" },
+    ],
+    pixelTests: [
+      { input: "3.5 × 4.5 cm at 150 DPI", result: "207 × 266 px" },
+      { input: "3.5 × 4.5 cm at 200 DPI", result: "276 × 354 px" },
+      { input: "3.5 × 4.5 cm at 300 DPI", result: "413 × 531 px" },
+      { input: "3.5 × 4.5 cm at 600 DPI", result: "827 × 1,063 px" },
+    ],
+    uses: [
+      "Passport-size photos on job, exam, admission and visa application forms that give the size in centimetres.",
+      "Forms that ask for 35 × 45 mm: that is the same size, 3.5 × 4.5 cm.",
+      "Photos that must also be under a size in KB, such as 20 KB or 50 KB, or between 20 and 50 KB.",
+    ],
+    tips: [
+      "If the form gives no DPI, 200 DPI is a common choice; use 300 DPI when it asks for print quality.",
+      "Start from a photo where your head and shoulders fill most of the frame: the tool crops the centre to the 3.5 × 4.5 shape.",
+      "At 300 DPI and under 20 KB the quality drops (73–42% in our tests); choose 200 DPI or a 50 KB limit if the form allows it.",
+      "Background colour, face size and other photo rules come from the form; this tool handles the size, KB and DPI.",
+    ],
+    facts: [
+      { label: "Size", value: "3.5 × 4.5 cm (35 × 45 mm): 276 × 354 px at 200 DPI, 413 × 531 px at 300 DPI" },
+      { label: "File size", value: "Under 50 KB by default; Under 20 KB, 20–50 KB or your own range in the size list" },
+      { label: "Output", value: "JPG with the DPI saved in the file, location and camera details removed" },
+    ],
+    faqs: [
+      {
+        question: "How many pixels is 3.5 × 4.5 cm?",
+        answer:
+          "It depends on the DPI: 276 × 354 pixels at 200 DPI, 413 × 531 pixels at 300 DPI, and 207 × 266 at 150 DPI. Pixels = centimetres ÷ 2.54 × DPI.",
+      },
+      {
+        question: "How do I make a 3.5 × 4.5 cm photo under 20 KB?",
+        answer:
+          "Open the photo here, keep 3.5 × 4.5 cm, choose Under 20 KB in the size list and download. At 200 DPI a portrait came out at 19.2 KB with 78% JPEG quality in our test; at 300 DPI the quality has to drop further.",
+      },
+      {
+        question: "Is 3.5 × 4.5 cm the same as 35 × 45 mm?",
+        answer: "Yes. 3.5 cm is 35 mm and 4.5 cm is 45 mm, the passport photo size used by many countries.",
+      },
+      {
+        question: "Will the form see the photo as 3.5 × 4.5 cm?",
+        answer:
+          "The downloaded JPG has the pixels for your DPI and states that DPI inside the file, so programs that check the print size read 3.5 × 4.5 cm.",
+      },
+      {
+        question: "Does it remove the background or check face size?",
+        answer:
+          "No. It sets the size, the KB and the DPI. Take the photo against a plain light background and frame it as the form asks.",
       },
       PRIVACY_FAQ,
     ],

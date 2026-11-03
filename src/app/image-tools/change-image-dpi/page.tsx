@@ -121,7 +121,9 @@ export default function ChangeImageDpiPage() {
           <ContentSection title="DPI for online forms">
             <p>
               Some application forms describe the photo or signature in centimetres at a given DPI, such as 3.5 × 4.5 cm
-              at 200 DPI, which is 276 × 354 pixels. Get the pixels and the KB size right first, then check that the
+              at 200 DPI, which is 276 × 354 pixels. For that exact size,{" "}
+              <Link href="/image-tools/resize-photo-to-3.5x4.5-cm/">resize photo to 3.5 × 4.5 cm</Link> sets the pixels, the
+              KB limit and the DPI in one go. Otherwise, get the pixels and the KB size right first, then check that the
               file states the DPI:
             </p>
             <ul>

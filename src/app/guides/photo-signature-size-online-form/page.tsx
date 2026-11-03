@@ -100,7 +100,9 @@ export default function Guide() {
         </table>
       </div>
       <p>
-        Some forms read the DPI stored inside the JPG to check the printed size. The{" "}
+        For a 3.5 × 4.5 cm photo, <Link href="/image-tools/resize-photo-to-3.5x4.5-cm/">resize photo to 3.5 × 4.5 cm</Link>{" "}
+        does the conversion, the crop and the KB limit in one step. Some forms read the DPI stored inside the JPG to check the
+        printed size. The{" "}
         <Link href="/image-tools/signature-resizer/">Signature Resizer</Link> writes it when you choose{" "}
         <strong>Centimetres</strong> and a <strong>Resolution in DPI</strong>. For a photo, set it with{" "}
         <Link href="/image-tools/change-image-dpi/">Change Image DPI</Link>, which leaves the pixels and the size in KB

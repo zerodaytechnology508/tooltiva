@@ -124,10 +124,20 @@ export default async function KbSizeToolPage({ params }: Params) {
                 <strong>{presetLabel} is already selected.</strong> If the form gives a different limit or a range, pick
                 it from the size list or choose Custom.
               </li>
-              <li>
-                <strong>Set pixels if the form asks for them:</strong> choose Exact size in pixels and enter the width and
-                height. The edges are trimmed evenly, never stretched.
-              </li>
+              {page.cm ? (
+                <li>
+                  <strong>
+                    {page.cm.w} × {page.cm.h} cm at {page.cm.dpi} DPI is already set.
+                  </strong>{" "}
+                  If the form names another DPI, such as 300, pick it from the list. The edges are trimmed evenly, never
+                  stretched.
+                </li>
+              ) : (
+                <li>
+                  <strong>Set pixels if the form asks for them:</strong> choose Exact size in pixels and enter the width and
+                  height. The edges are trimmed evenly, never stretched.
+                </li>
+              )}
               <li>
                 <strong>Download the JPG:</strong> check the size and the preview, then save the file and upload it to
                 your form.
@@ -145,12 +155,17 @@ export default async function KbSizeToolPage({ params }: Params) {
           </ContentSection>
 
           {page.pixelTests && (
-            <ContentSection title={`Exact pixel sizes at ${page.sizeLabel}`}>
+            <ContentSection title={page.cm ? `${page.sizeLabel} in pixels` : `Exact pixel sizes at ${page.sizeLabel}`}>
               <p>
-                Forms often give pixels as well as KB. The same portrait, cropped to sizes that forms ask for, with{" "}
-                {presetLabel} selected:
+                {page.cm
+                  ? `The pixels for ${page.sizeLabel} depend on the DPI the form uses:`
+                  : `Forms often give pixels as well as KB. The same portrait, cropped to sizes that forms ask for, with ${presetLabel} selected:`}
               </p>
-              <ResultTable caption={`Passport-size pixel dimensions at ${page.sizeLabel}`} rows={page.pixelTests} inputHeading="Size in pixels" />
+              <ResultTable
+                caption={page.cm ? `${page.sizeLabel} in pixels at common DPI values` : `Passport-size pixel dimensions at ${page.sizeLabel}`}
+                rows={page.pixelTests}
+                inputHeading={page.cm ? "Print size and DPI" : "Size in pixels"}
+              />
               <p className="mt-3 text-sm">
                 Centimetres to pixels: pixels = cm ÷ 2.54 × DPI. If the form also checks the DPI, set it afterwards with{" "}
                 <Link href="/image-tools/change-image-dpi/">Change Image DPI</Link>; the size in KB stays the same. More on
@@ -183,7 +198,7 @@ export default async function KbSizeToolPage({ params }: Params) {
         </>
       }
     >
-      <ResizeImageClient initialPreset={page.presetId} />
+      <ResizeImageClient initialPreset={page.presetId} initialCm={page.cm} />
     </ToolPageLayout>
   );
 }
