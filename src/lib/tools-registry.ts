@@ -608,7 +608,7 @@ export const TOOLS: ToolMeta[] = [
     icon: "Signature",
     related: ["resize-image-to-kb"],
     canonicalUrl: "https://tooltiva.net/image-tools/signature-resizer/",
-    lastUpdated: "2026-10-29",
+    lastUpdated: "2026-11-05",
     faqs: [
       {
         question: "How do I resize my signature to 10–20 KB?",
@@ -629,6 +629,14 @@ export const TOOLS: ToolMeta[] = [
       {
         question: "Is my signature uploaded anywhere?",
         answer: "No. Your signature is processed by your browser on your own device and never sent to a server. That matters for a signature more than for almost any other image.",
+      },
+      {
+        question: "What size should a signature be for an online form?",
+        answer: "Use exactly what the form's notice says. Common requirements are 10–20 KB in JPG, often with a fixed size such as 140 × 60 pixels for bank exam forms or 4 × 2 cm for some government forms. Set the KB range first, then the pixels or centimetres if they are given.",
+      },
+      {
+        question: "Should a signature be landscape or portrait?",
+        answer: "Landscape: forms almost always ask for a signature that is wider than it is tall, such as 140 × 60 pixels (about 7:3) or 4 × 2 cm (2:1). Sign across the paper, not in a small corner, so the strokes fill the shape and stay readable at a small size.",
       },
       {
         question: "What if the form gives a size in pixels with a different shape from my signature?",

@@ -16,7 +16,13 @@ const formatDate = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z
 export function GuideLayout({ guide, children }: { guide: GuideMeta; children: React.ReactNode }) {
   const url = absoluteUrl(`/guides/${guide.slug}/`);
   const tools = guide.tools.map((slug) => TOOLS.find((t) => t.slug === slug)).filter((t) => t !== undefined);
-  const more = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 4);
+  // Guides that share tools with this one come first, so each guide links to its closest topics.
+  const more = GUIDES.filter((g) => g.slug !== guide.slug)
+    .map((g, i) => ({ g, i, shared: g.tools.filter((t) => guide.tools.includes(t)).length }))
+    .sort((a, b) => b.shared - a.shared || a.i - b.i)
+    .slice(0, 6)
+    .map(({ g }) => g);
+  const faqs = guide.faqs ?? [];
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -41,10 +47,21 @@ export function GuideLayout({ guide, children }: { guide: GuideMeta; children: R
     ],
   };
 
+  const faqSchema = faqs.length > 0 && {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }} />
+      {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
       <Breadcrumbs items={[{ name: "Guides", href: "/guides/" }, { name: guide.title }]} />
 
       <article className="mt-6 max-w-3xl">
@@ -65,6 +82,18 @@ export function GuideLayout({ guide, children }: { guide: GuideMeta; children: R
         </header>
 
         <div className="content-prose guide-prose mt-8">{children}</div>
+
+        {faqs.length > 0 && (
+          <section aria-labelledby="guide-faqs" className="content-prose guide-prose mt-12">
+            <h2 id="guide-faqs">Quick answers</h2>
+            {faqs.map((faq) => (
+              <div key={faq.question}>
+                <h3>{faq.question}</h3>
+                <p>{faq.answer}</p>
+              </div>
+            ))}
+          </section>
+        )}
       </article>
 
       {tools.length > 0 && (

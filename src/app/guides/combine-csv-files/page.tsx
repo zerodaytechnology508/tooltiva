@@ -101,7 +101,8 @@ export default function Guide() {
         early. Open the combined file in <Link href="/tools/remove-duplicates-csv/">Remove Duplicate Rows</Link> and
         compare whole rows, or just a key column such as an order ID or email address. You can download the removed rows
         separately to check them. To see how two overlapping exports differ before you combine them,{" "}
-        <Link href="/tools/compare-csv/">compare the two CSV files</Link> side by side.
+        <Link href="/tools/compare-csv/">compare the two CSV files</Link> side by side; the ways to do that are in{" "}
+        <Link href="/guides/compare-two-csv-files/">how to compare two CSV files</Link>.
       </p>
 
       <h2>Which method to choose</h2>
