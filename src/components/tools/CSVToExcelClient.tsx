@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useId, useMemo, useState } from "react";
+import Link from "next/link";
 import { AlertCircle, Download, Plus, Trash2, X } from "lucide-react";
 import { detectDelimiter, parseCSVRows } from "@/lib/csv-utils";
 import { csvRowsToCells, excelLimitProblem, type ColumnKind } from "@/lib/csv-to-xlsx";
@@ -9,6 +10,13 @@ import { PrivacyBadge } from "@/components/PrivacyBadge";
 import { DataPreviewTable } from "@/components/DataPreviewTable";
 import { CSVFileInput, DELIMITER_NAMES, buttonClass, downloadBlob, fileStem, primaryButtonClass, readCSVFiles, type LoadedFile } from "@/components/tools/csv-ui";
 import { SelectField } from "@/components/tools/excel-ui";
+import { parseJSONDocument } from "@/lib/json-ast";
+
+/** True when a file or paste is JSON rather than CSV, so the user can be sent to JSON to Excel. */
+function looksLikeJSON(text: string): boolean {
+  const first = text.trimStart()[0];
+  return (first === "[" || first === "{") && parseJSONDocument(text).ok;
+}
 
 const SAMPLE: LoadedFile = {
   name: "customers.csv",
@@ -52,7 +60,7 @@ export function CSVToExcelClient() {
           : result.rows.length === 0
             ? "This file is empty and is left out."
             : excelLimitProblem(result.rows.length, columns);
-        return { file, delimiter, rows: result.rows, columns, error };
+        return { file, delimiter, rows: result.rows, columns, error, json: looksLikeJSON(file.text) };
       }),
     [files]
   );
@@ -130,6 +138,16 @@ export function CSVToExcelClient() {
             </button>
           </div>
         </div>
+        {parsed.some((p) => p.json) && (
+          <p role="alert" className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              {parsed.filter((p) => p.json).map((p) => p.file.name).join(", ")} {parsed.filter((p) => p.json).length === 1 ? "looks" : "look"} like JSON, not
+              CSV, so the columns below are split at every comma. Use <Link href="/tools/json-to-excel/" className="font-semibold underline">JSON to Excel</Link>{" "}
+              instead: it turns each object into a row and each key into a column.
+            </span>
+          </p>
+        )}
         {addError && (
           <p role="alert" className="text-sm text-rose-700 dark:text-rose-300">
             {addError}
